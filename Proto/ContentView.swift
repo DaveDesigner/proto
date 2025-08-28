@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var scrollOffset: CGFloat = 0
-    @State private var showTitle = true
     
     var body: some View {
         TabView {
@@ -23,6 +21,8 @@ struct ContentView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 16)
                             .padding(.top, 61)
+                        
+
                         
                         // Feed image scaled to fill width and fully scrollable
                         if let _ = UIImage(named: "Feed") {
@@ -44,13 +44,10 @@ struct ContentView: View {
                         }   
                     }
                 }
-                .scrollContentBackground(.hidden)
+                .scrollEdgeEffectHidden()
                 .ignoresSafeArea()
                 .coordinateSpace(name: "scroll")
-                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                    scrollOffset = value
-                    showTitle = value <= 0
-                }
+
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -71,7 +68,6 @@ struct ContentView: View {
                         }
                     }
                 }
-                .toolbar(showTitle ? .visible : .hidden, for: .navigationBar)
                 .toolbarBackground(.hidden, for: .navigationBar)
                 .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             }
@@ -96,27 +92,7 @@ struct ContentView: View {
     }
 }
 
-// Preference key to track scroll offset
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
 
-// ScrollView extension to track offset
-extension ScrollView {
-    func trackScrollOffset() -> some View {
-        self.background(
-            GeometryReader { geometry in
-                Color.clear.preference(
-                    key: ScrollOffsetPreferenceKey.self,
-                    value: geometry.frame(in: .named("scroll")).minY
-                )
-            }
-        )
-    }
-}
 
 #Preview {
     ContentView()
