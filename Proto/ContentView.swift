@@ -45,7 +45,7 @@ struct ContentView: View {
                     }
                 }
                 .scrollContentBackground(.hidden)
-                // .ignoresSafeArea(edges: Edge.top)
+                .ignoresSafeArea()
                 .coordinateSpace(name: "scroll")
                 .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                     scrollOffset = value
