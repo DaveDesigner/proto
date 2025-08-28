@@ -17,7 +17,7 @@ struct ContentView: View {
                 ScrollView {
                     VStack(spacing: 20) {
                         // Title as part of scrolling content
-                        Text("Proto")
+                        Text("Home")
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity, alignment: .leading)
