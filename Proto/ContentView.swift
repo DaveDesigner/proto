@@ -15,16 +15,6 @@ struct ContentView: View {
                 NavigationStack {
                     ScrollView {
                         VStack(spacing: 20) {
-                            // Title as part of scrolling content
-                            Text("Community")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.leading, 16)
-                                .padding(.top, 61)
-                            
-
-                            
                             // Feed image scaled to fill width and fully scrollable
                             if let _ = UIImage(named: "Feed") {
                                 Image("Feed")
@@ -44,27 +34,63 @@ struct ContentView: View {
                                     .padding(.horizontal)
                             }   
                         }
+                        .padding(.top, 20)
                     }
-                    .scrollEdgeEffectHidden(false)
-                    .ignoresSafeArea()
+                    //.scrollEdgeEffectHidden(false)
                     .toolbar {
-                        ToolbarItem() {
-                                Button(action: {
-                                // Add new item action here
-                                }) {
-                                    Image(systemName: "plus")
-                                    .font(.body)
-                                }
+                        ToolbarItem(placement: .principal) {
+                            HStack {
+                                Text("Community")
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.primary)
+                            }
                         }
-                        ToolbarSpacer()
                         
                         ToolbarItem() {
+                            Menu {
+                                Button(action: {
+                                    // Create a post action
+                                }) {
+                                    Text("Create a post")
+                                }
+                                
+                                Button(action: {
+                                    // Create an image action
+                                }) {
+                                    Text("Create an image")
+                                }
+                                
+                                Button(action: {
+                                    // Go live action
+                                }) {
+                                    Text("Go live")
+                                }
+                                
+                                Divider()
+                                
+                                Button(action: {
+                                    // Drafts action
+                                }) {
+                                    Text("Drafts")
+                                }
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                    .frame(width: 44, height: 44)
+                                    .clipShape(Circle())
+                            }
+                        }
+                        ToolbarSpacer()
+
+                        ToolbarItem(placement: .navigationBarTrailing) {
                             Menu {
                                 // Summarize section
                                 Button(action: {
                                     // Add summarize action here
                                 }) {
-                                    Label("Summarize", systemImage: "sparkles")
+                                    Label("Summarize", systemImage: "sparkle")
                                 }
                                 
                                 Divider()
@@ -165,7 +191,7 @@ struct ContentView: View {
                                 Image("Avatar")
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: 36, height: 36)
+                                    .frame(width: 44, height: 44)
                                     .clipShape(Circle())
                             }
                         }
