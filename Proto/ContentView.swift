@@ -16,7 +16,7 @@ struct ContentView: View {
                     ScrollView {
                         VStack(spacing: 20) {
                             // Title as part of scrolling content
-                            Text("Home")
+                            Text("Community")
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -67,23 +67,23 @@ struct ContentView: View {
                                 .onTapGesture {
                                     // Add user profile action here
                                 }
-                            }
+                        }
                     }
                 }
             } label: {
-                Label("Home", systemImage: "house.fill")
+                Label("Community", systemImage: "rectangle.on.rectangle.angled")
             }
             
             Tab {
                 Text("Notifications View")
             } label: {
-                Label("Notifications", systemImage: "bell.fill")
+                Label("Notifications", systemImage: "bell")
             }
             
             Tab {
                 Text("Messages View")
             } label: {
-                Label("Messages", systemImage: "message.fill")
+                Label("Messages", systemImage: "message")
             }
             
             Tab(role: .search) {
@@ -92,7 +92,8 @@ struct ContentView: View {
                 Label("Search", systemImage: "magnifyingglass")
             }
         }
-        .tabBarMinimizeBehavior(.onScrollDown)
+        .tabBarMinimizeBehavior(.onScrollDown) // onScrolUp for chat views, messaging, where latest appears at bottom and scroll up searches back through time
+
     }
 }
 
