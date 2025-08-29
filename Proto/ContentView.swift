@@ -36,17 +36,10 @@ struct ContentView: View {
                         }
                        // .padding(.top, 16)
                     }
-                    .navigationBarTitleDisplayMode(.inline)
+                    //.navigationBarTitleDisplayMode(.inline)
+                    .navigationBarTitle("Community")
+                    .toolbarTitleDisplayMode(.inlineLarge)
                     .toolbar {
-                        ToolbarItem(placement: .principal) {
-                            HStack {
-                                Text("Community")
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.primary)
-                            }
-                        }
-                        
                         ToolbarItem() {
                             Menu {
                                 Button(action: {
