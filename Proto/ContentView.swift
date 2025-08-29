@@ -14,7 +14,7 @@ struct ContentView: View {
             Tab {
                 NavigationStack {
                     ScrollView {
-                        VStack(spacing: 20) {
+                        VStack() {
                             // Feed image scaled to fill width and fully scrollable
                             if let _ = UIImage(named: "Feed") {
                                 Image("Feed")
@@ -34,9 +34,9 @@ struct ContentView: View {
                                     .padding(.horizontal)
                             }   
                         }
-                        .padding(.top, 20)
+                       // .padding(.top, 16)
                     }
-                    //.scrollEdgeEffectHidden(false)
+                    .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
                             HStack {
@@ -78,8 +78,6 @@ struct ContentView: View {
                                 Image(systemName: "plus")
                                     .font(.body)
                                     .foregroundColor(.primary)
-                                    .frame(width: 44, height: 44)
-                                    .clipShape(Circle())
                             }
                         }
                         ToolbarSpacer()
@@ -191,7 +189,7 @@ struct ContentView: View {
                                 Image("Avatar")
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: 44, height: 44)
+                                    .frame(width: 36, height: 36)
                                     .clipShape(Circle())
                             }
                         }
