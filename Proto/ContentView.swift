@@ -59,14 +59,107 @@ struct ContentView: View {
                         ToolbarSpacer()
                         
                         ToolbarItem() {
-                            Image("Avatar")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 36, height: 36)
-                                .clipShape(Circle())
-                                .onTapGesture {
-                                    // Add user profile action here
+                            Menu {
+                                // Summarize section
+                                Button(action: {
+                                    // Add summarize action here
+                                }) {
+                                    Label("Summarize", systemImage: "sparkles")
                                 }
+                                
+                                Divider()
+                                
+                                // Sort section with submenu
+                                Menu {
+                                    Button(action: {
+                                        // Latest action
+                                    }) {
+                                        Label("Latest", systemImage: "arrow.up.arrow.down")
+                                    }
+                                    
+                                    Button(action: {
+                                        // Alphabetical action
+                                    }) {
+                                        Label("Alphabetical", systemImage: "textformat.abc")
+                                    }
+                                    
+                                    Button(action: {
+                                        // Oldest action
+                                    }) {
+                                        Label("Oldest", systemImage: "clock")
+                                    }
+                                    
+                                    Button(action: {
+                                        // Popular action
+                                    }) {
+                                        Label("Popular", systemImage: "star")
+                                    }
+                                } label: {
+                                    Label("Sort", systemImage: "arrow.up.arrow.down")
+                                }
+                                
+                                Divider()
+                                
+                                // Manage notifications
+                                Button(action: {
+                                    // Add notifications action here
+                                }) {
+                                    Label("Manage notifications", systemImage: "bell.badge")
+                                }
+                                
+                                // Profile
+                                Button(action: {
+                                    // Add profile action here
+                                }) {
+                                    HStack {
+                                        Circle()
+                                            .fill(Color.clear)
+                                            .frame(width: 20, height: 20)
+                                            .background(
+                                                Image("Avatar")
+                                                    .resizable()
+                                                    .scaledToFill()
+                                                    .clipShape(Circle())
+                                            )
+                                        Text("Profile")
+                                    }
+                                }
+                                
+                                Divider()
+                                
+                                // Switch community
+                                Button(action: {
+                                    // Add switch community action here
+                                }) {
+                                    Label("Switch community", systemImage: "rectangle.on.rectangle.angled")
+                                }
+                                
+                                // Admin settings
+                                Button(action: {
+                                    // Add admin settings action here
+                                }) {
+                                    Label("Admin settings", systemImage: "gearshape")
+                                }
+                                
+                                Divider()
+                                
+                                // Sign out
+                                Button(action: {
+                                    // Add sign out action here
+                                }) {
+                                    Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                                }
+                            } label: {
+                                Circle()
+                                    .fill(Color.clear)
+                                    .frame(width: 36, height: 36)
+                                    .background(
+                                        Image("Avatar")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .clipShape(Circle())
+                                    )
+                            }
                         }
                     }
                 }
