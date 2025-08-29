@@ -74,28 +74,44 @@ struct ContentView: View {
                                     Button(action: {
                                         // Latest action
                                     }) {
-                                        Label("Latest", systemImage: "arrow.up.arrow.down")
+                                        HStack {
+                                            Text("Latest")
+                                            Spacer()
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(.blue)
+                                        }
                                     }
                                     
                                     Button(action: {
                                         // Alphabetical action
                                     }) {
-                                        Label("Alphabetical", systemImage: "textformat.abc")
+                                        HStack {
+                                            Text("Alphabetical")
+                                            Spacer()
+                                        }
                                     }
                                     
                                     Button(action: {
                                         // Oldest action
                                     }) {
-                                        Label("Oldest", systemImage: "clock")
+                                        HStack {
+                                            Text("Oldest")
+                                            Spacer()
+                                        }
                                     }
                                     
                                     Button(action: {
                                         // Popular action
                                     }) {
-                                        Label("Popular", systemImage: "star")
+                                        HStack {
+                                            Text("Popular")
+                                            Spacer()
+                                        }
                                     }
                                 } label: {
                                     Label("Sort", systemImage: "arrow.up.arrow.down")
+                                        .labelStyle(.titleAndIcon)
+                                        .badge("Latest")
                                 }
                                 
                                 Divider()
@@ -112,15 +128,11 @@ struct ContentView: View {
                                     // Add profile action here
                                 }) {
                                     HStack {
-                                        Circle()
-                                            .fill(Color.clear)
+                                        Image("Avatar")
+                                            .resizable()
+                                            .scaledToFill()
                                             .frame(width: 20, height: 20)
-                                            .background(
-                                                Image("Avatar")
-                                                    .resizable()
-                                                    .scaledToFill()
-                                                    .clipShape(Circle())
-                                            )
+                                            .clipShape(Circle())
                                         Text("Profile")
                                     }
                                 }
@@ -150,15 +162,11 @@ struct ContentView: View {
                                     Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
                                 }
                             } label: {
-                                Circle()
-                                    .fill(Color.clear)
+                                Image("Avatar")
+                                    .resizable()
+                                    .scaledToFill()
                                     .frame(width: 36, height: 36)
-                                    .background(
-                                        Image("Avatar")
-                                            .resizable()
-                                            .scaledToFill()
-                                            .clipShape(Circle())
-                                    )
+                                    .clipShape(Circle())
                             }
                         }
                     }
