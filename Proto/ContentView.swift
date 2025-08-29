@@ -44,32 +44,33 @@ struct ContentView: View {
                         }   
                     }
                 }
-                .scrollEdgeEffectHidden()
+                .scrollEdgeEffectHidden(false)
                 .ignoresSafeArea()
-                .coordinateSpace(name: "scroll")
-
-                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItem() {
                         Button(action: {
                             // Add new item action here
                         }) {
                             Image(systemName: "plus")
-                                .font(.title2)
+                                .font(.title3)
                         }
                     }
+                    ToolbarSpacer()
                     
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
                             // Add user profile action here
                         }) {
-                            Image(systemName: "person")
-                                .font(.title2)
+                            Image("Avatar")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 36, height: 36)
+                                .clipShape(Circle())
                         }
+                        .buttonStyle(.plain)
+                        .padding(0)
                     }
                 }
-                .toolbarBackground(.hidden, for: .navigationBar)
-                .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             }
             .tabItem {
                 Image(systemName: "house.fill")
