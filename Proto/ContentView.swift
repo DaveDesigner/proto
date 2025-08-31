@@ -193,23 +193,253 @@ struct ContentView: View {
             }
             
             Tab {
-                Text("Notifications View")
+                NavigationStack {
+                    ScrollView {
+                        VStack {
+                            Text("Notifications View")
+                                .font(.title)
+                                .foregroundColor(.secondary)
+                                .padding()
+                        }
+                    }
+                    .navigationBarTitle("Notifications")
+                    .toolbarTitleDisplayMode(.inlineLarge)
+                    .toolbar {
+                        ToolbarItem() {
+                            Button(action: {
+                                // Clear all unread notifications action
+                            }) {
+                                Image(systemName: "checkmark")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                        ToolbarSpacer()
+
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Menu {
+                                // Manage notifications
+                                Button(action: {
+                                    // Add notifications action here
+                                }) {
+                                    Label("Manage notifications", systemImage: "bell.badge")
+                                }
+                                
+                                // Profile
+                                Button(action: {
+                                    // Add profile action here
+                                }) {
+                                    HStack {
+                                        Image("Avatar")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 20, height: 20)
+                                            .clipShape(Circle())
+                                        Text("Profile")
+                                    }
+                                }
+                                
+                                Divider()
+                                
+                                // Switch community
+                                Button(action: {
+                                    // Add switch community action here
+                                }) {
+                                    Label("Switch community", systemImage: "rectangle.on.rectangle.angled")
+                                }
+                                
+                                // Admin settings
+                                Button(action: {
+                                    // Add admin settings action here
+                                }) {
+                                    Label("Admin settings", systemImage: "gearshape")
+                                }
+                                
+                                Divider()
+                                
+                                // Sign out
+                                Button(action: {
+                                    // Add sign out action here
+                                }) {
+                                    Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                                }
+                            } label: {
+                                Image("Avatar")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 36, height: 36)
+                                    .clipShape(Circle())
+                            }
+                        }
+                    }
+                }
             } label: {
                 Label("Notifications", systemImage: "bell")
             }
             
             Tab {
-                Text("Messages View")
+                NavigationStack {
+                    ScrollView {
+                        VStack {
+                            Text("Messages View")
+                                .font(.title)
+                                .foregroundColor(.secondary)
+                                .padding()
+                        }
+                    }
+                    .navigationBarTitle("Messages")
+                    .toolbarTitleDisplayMode(.inlineLarge)
+                    .toolbar {
+                        ToolbarItem() {
+                            Button(action: {
+                                // Create new message action
+                            }) {
+                                Image(systemName: "plus")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                        ToolbarSpacer()
+
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Menu {
+                                // Manage notifications
+                                Button(action: {
+                                    // Add notifications action here
+                                }) {
+                                    Label("Manage notifications", systemImage: "bell.badge")
+                                }
+                                
+                                // Profile
+                                Button(action: {
+                                    // Add profile action here
+                                }) {
+                                    HStack {
+                                        Image("Avatar")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 20, height: 20)
+                                            .clipShape(Circle())
+                                        Text("Profile")
+                                    }
+                                }
+                                
+                                Divider()
+                                
+                                // Switch community
+                                Button(action: {
+                                    // Add switch community action here
+                                }) {
+                                    Label("Switch community", systemImage: "rectangle.on.rectangle.angled")
+                                }
+                                
+                                // Admin settings
+                                Button(action: {
+                                    // Add admin settings action here
+                                }) {
+                                    Label("Admin settings", systemImage: "gearshape")
+                                }
+                                
+                                Divider()
+                                
+                                // Sign out
+                                Button(action: {
+                                    // Add sign out action here
+                                }) {
+                                    Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                                }
+                            } label: {
+                                Image("Avatar")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 36, height: 36)
+                                    .clipShape(Circle())
+                            }
+                        }
+                    }
+                }
             } label: {
                 Label("Messages", systemImage: "message")
             }
             
             Tab(role: .search) {
-                Text("Search View")
+                NavigationStack {
+                    ScrollView {
+                        VStack {
+                            Text("Search View")
+                                .font(.title)
+                                .foregroundColor(.secondary)
+                                .padding()
+                        }
+                    }
+                    .navigationBarTitle("Search")
+                    .toolbarTitleDisplayMode(.inlineLarge)
+                    .toolbar {
+                        ToolbarSpacer()
+
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Menu {
+                                // Manage notifications
+                                Button(action: {
+                                    // Add notifications action here
+                                }) {
+                                    Label("Manage notifications", systemImage: "bell.badge")
+                                }
+                                
+                                // Profile
+                                Button(action: {
+                                    // Add profile action here
+                                }) {
+                                    HStack {
+                                        Image("Avatar")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 20, height: 20)
+                                            .clipShape(Circle())
+                                        Text("Profile")
+                                    }
+                                }
+                                
+                                Divider()
+                                
+                                // Switch community
+                                Button(action: {
+                                    // Add switch community action here
+                                }) {
+                                    Label("Switch community", systemImage: "rectangle.on.rectangle.angled")
+                                }
+                                
+                                // Admin settings
+                                Button(action: {
+                                    // Add admin settings action here
+                                }) {
+                                    Label("Admin settings", systemImage: "gearshape")
+                                }
+                                
+                                Divider()
+                                
+                                // Sign out
+                                Button(action: {
+                                    // Add sign out action here
+                                }) {
+                                    Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                                }
+                            } label: {
+                                Image("Avatar")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 36, height: 36)
+                                    .clipShape(Circle())
+                            }
+                        }
+                    }
+                    .searchToolbarBehavior(.automatic)
+                }
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
             }
         }
+        .tabViewSearchActivation(.searchTabSelection)
         .tabBarMinimizeBehavior(.onScrollDown) // onScrolUp for chat views, messaging, where latest appears at bottom and scroll up searches back through time
 
     }
