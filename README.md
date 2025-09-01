@@ -31,3 +31,8 @@ This is a SwiftUI-based iOS application prototype.
 - [ ] Post toolbar toggles native tab bar with primary heart action
 - [ ] Comment text input bottom toolbar
 - [ ] Native menu for overflow and admin tasks (edit post, etc, [Figma spec](https://www.figma.com/design/W7x7IvJBDsSw43zcIKMJeR/%E2%9D%96-Mobile-Design-System?node-id=12807-69973&t=wAl175S4870CppoP-1))
+
+### iPad
+- [x] validate native tab bar and toolbars play nicely
+- [ ] Feed layout change for wide displays
+ - [ ] Support Split View and Stage Manager
