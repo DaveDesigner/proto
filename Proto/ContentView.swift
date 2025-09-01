@@ -36,7 +36,7 @@ struct ContentView: View {
                 Label("Search", systemImage: "magnifyingglass")
             }
         }
-        .tabViewSearchActivation(.searchTabSelection)
+        //.tabViewSearchActivation(.searchTabSelection)
         .tabBarMinimizeBehavior(.onScrollDown) // onScrolUp for chat views, messaging, where latest appears at bottom and scroll up searches back through time
     }
 }

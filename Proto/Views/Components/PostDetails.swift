@@ -9,6 +9,9 @@ import SwiftUI
 
 struct PostDetails: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var isToolbarVisible = true
+    @State private var isTabBarVisible = false
+    @State private var scrollTimer: Timer?
     
     var body: some View {
         NavigationStack {
@@ -34,6 +37,25 @@ struct PostDetails: View {
                     }   
                 }
             }
+            .onAppear {
+                // Reset visibility when view appears
+                isToolbarVisible = true
+                isTabBarVisible = false
+            }
+            .simultaneousGesture(
+                DragGesture()
+                    .onChanged { _ in
+                        // Cancel any existing timer
+                        scrollTimer?.invalidate()
+                        
+                        // Start a new timer
+                        scrollTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
+                            // Always collapse to default state on scroll
+                            isToolbarVisible = true
+                            isTabBarVisible = false
+                        }
+                    }
+            )
 
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -75,12 +97,20 @@ struct PostDetails: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .bottomBar) {
-                    Image(systemName: "rectangle.fill.on.rectangle.angled.fill")
-                        .font(.title2)
-                        .foregroundColor(.primary)
+                    Button(action: {
+                        // Toggle: when tab bar is visible, hide bottom toolbar; when tab bar is hidden, show bottom toolbar
+                        isTabBarVisible.toggle()
+                        // Bottom toolbar visibility is opposite of tab bar visibility
+                        isToolbarVisible = !isTabBarVisible
+                    }) {
+                        Image(systemName: "rectangle.fill.on.rectangle.angled.fill")
+                            .font(.title2)
+                            .foregroundColor(.primary)
+                    }
                     Spacer(minLength: 16)
-                    TextField("Add a comment", text: .constant(""))
+                    TextField("Add comment", text: .constant(""))
                         .textFieldStyle(.plain)
+                        .padding(.horizontal, 8)
                     Spacer(minLength: 16)
                     Button(action: {}) {
                         Image(systemName: "heart")
@@ -89,7 +119,10 @@ struct PostDetails: View {
                     }
                 }
             }
-            .toolbar(.hidden, for: .tabBar)
+            .toolbar(isToolbarVisible ? .visible : .hidden, for: .bottomBar)
+                .animation(.easeInOut(duration: 0.3), value: isToolbarVisible)
+            .toolbar(isTabBarVisible ? .visible : .hidden, for: .tabBar)
+                .animation(.easeInOut(duration: 0.3), value: isTabBarVisible)
         }
     }
 }

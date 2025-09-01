@@ -23,7 +23,6 @@ struct CommunityTab: View {
                                 .frame(maxWidth: .infinity)
                                 .clipped()
                         }
-                        .buttonStyle(PlainButtonStyle())
                     } else {
                         // Fallback if image not found
                         NavigationLink(destination: PostDetails()) {
@@ -36,7 +35,6 @@ struct CommunityTab: View {
                                 )
                                 .padding(.horizontal)
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }   
                 }
             }
