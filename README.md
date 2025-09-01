@@ -26,7 +26,7 @@ This is a SwiftUI-based iOS application prototype.
 - [ ] drag to minimize PiP
 
 ### Admin mode
-- [ ] Admin settings sheet [Figma](https://www.figma.com/design/H6KATGFhQ5fAOsegREtzBg/Circle-4.0-Mobile?node-id=2040-53037&t=Kcwlyc56hddeSD0c-1)
+- [x] Admin settings sheet [Figma](https://www.figma.com/design/H6KATGFhQ5fAOsegREtzBg/Circle-4.0-Mobile?node-id=2040-53037&t=Kcwlyc56hddeSD0c-1)
 - [ ] Co-pilot interface
 
 ### Search

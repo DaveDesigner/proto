@@ -16,21 +16,27 @@ struct CommunityTab: View {
                 VStack() {
                     // Feed image scaled to fill width and fully scrollable
                     if let _ = UIImage(named: "Feed") {
-                        Image("Feed")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity)
-                            .clipped()
+                        NavigationLink(destination: PostDetails()) {
+                            Image("Feed")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity)
+                                .clipped()
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     } else {
                         // Fallback if image not found
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.ultraThinMaterial)
-                            .frame(height: 400)
-                            .overlay(
-                                Text("Feed Image")
-                                    .font(.headline)
-                            )
-                            .padding(.horizontal)
+                        NavigationLink(destination: PostDetails()) {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 400)
+                                .overlay(
+                                    Text("Feed Image")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }   
                 }
             }
@@ -48,19 +54,19 @@ struct CommunityTab: View {
                 ToolbarSpacer()
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    FeedMenu(
+                    PrimaryMenu(
+                        onProfile: { /* Add profile action here */ },
+                        onNotifications: { /* Add notifications action here */ },
+                        onSignOut: { /* Add sign out action here */ },
                         onSummarize: { /* Add summarize action here */ },
                         onSort: { sort in currentSort = sort },
                         currentSort: currentSort,
-                        onProfile: { /* Add profile action here */ },
-                        onNotifications: { /* Add notifications action here */ },
-                        onSwitchCommunity: { /* Add switch community action here */ },
-                        onAdminSettings: { /* Add admin settings action here */ },
-                        onSignOut: { /* Add sign out action here */ }
+                        onSwitchCommunity: { /* Add switch community action here */ }
                     )
                 }
             }
         }
+
     }
 }
 
