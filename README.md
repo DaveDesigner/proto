@@ -9,7 +9,16 @@ This is a SwiftUI-based iOS application prototype.
 - demonstrates [.toolbarTitleDisplayMode(.inlineLarge)](https://developer.apple.com/documentation/swiftui/view/toolbartitledisplaymode(_:))
 
 ## To do
+### Deployment
+- [x] validate best method for stakeholder review (app clip, test flight, app store release?)
+- [ ] testflight release
+
+### Toolbar
+- [ ] avatar image without button border
+- [ ] menu item avatar circled
+
 ### Video
+- [ ] `In progress` segment control component add "Video" tab
 - [ ] native inline video player
 - [ ] autoplay on scroll
 - [ ] tap to unmute
@@ -17,7 +26,7 @@ This is a SwiftUI-based iOS application prototype.
 - [ ] drag to minimize PiP
 
 ### Admin mode
-- [ ] Admin settings sheet [Figma(https://www.figma.com/design/H6KATGFhQ5fAOsegREtzBg/Circle-4.0-Mobile?node-id=2040-53037&t=Kcwlyc56hddeSD0c-1)]
+- [ ] Admin settings sheet [Figma](https://www.figma.com/design/H6KATGFhQ5fAOsegREtzBg/Circle-4.0-Mobile?node-id=2040-53037&t=Kcwlyc56hddeSD0c-1)
 - [ ] Co-pilot interface
 
 ### Search
@@ -35,4 +44,4 @@ This is a SwiftUI-based iOS application prototype.
 ### iPad
 - [x] validate native tab bar and toolbars play nicely
 - [ ] Feed layout change for wide displays
- - [ ] Support Split View and Stage Manager
+- [ ] Support Split View and Stage Manager
