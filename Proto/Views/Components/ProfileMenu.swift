@@ -10,26 +10,14 @@ import SwiftUI
 struct ProfileMenu: View {
     let onProfile: () -> Void
     let onNotifications: () -> Void
-    let onSwitchCommunity: () -> Void
-    let onAdminSettings: () -> Void
     let onSignOut: () -> Void
     
     var body: some View {
-        Menu {
-            profileMenuContent(
-                onProfile: onProfile,
-                onNotifications: onNotifications,
-                onSwitchCommunity: onSwitchCommunity,
-                onAdminSettings: onAdminSettings,
-                onSignOut: onSignOut
-            )
-        } label: {
-            Image("Avatar")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 36, height: 36)
-                .clipShape(Circle())
-        }
+        PrimaryMenu(
+            onProfile: onProfile,
+            onNotifications: onNotifications,
+            onSignOut: onSignOut
+        )
     }
 }
 
@@ -37,8 +25,6 @@ struct ProfileMenu: View {
     ProfileMenu(
         onProfile: { print("Profile tapped") },
         onNotifications: { print("Notifications tapped") },
-        onSwitchCommunity: { print("Switch community tapped") },
-        onAdminSettings: { print("Admin settings tapped") },
         onSignOut: { print("Sign out tapped") }
     )
 }

@@ -27,8 +27,6 @@ struct SearchTab: View {
                     ProfileMenu(
                         onProfile: { /* Add profile action here */ },
                         onNotifications: { /* Add notifications action here */ },
-                        onSwitchCommunity: { /* Add switch community action here */ },
-                        onAdminSettings: { /* Add admin settings action here */ },
                         onSignOut: { /* Add sign out action here */ }
                     )
                 }
