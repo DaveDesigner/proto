@@ -168,7 +168,7 @@ struct PostDetails: View {
                                 }
                             } label: {
                                 Image(systemName: "plus")
-                                    .font(.title3)
+                                    .font(.body)
                                     .foregroundColor(.primary)
                             }
                         } else {
@@ -182,7 +182,7 @@ struct PostDetails: View {
                                 isToolbarVisible = !isTabBarVisible
                             }) {
                                 Image(systemName: "rectangle.fill.on.rectangle.angled.fill")
-                                    .font(.title2)
+                                    .font(.body)
                                     .foregroundColor(.primary)
                         }
                     }
@@ -260,7 +260,7 @@ struct PostDetails: View {
                                 isHeartFilled.toggle()
                             }) {
                                 Image(systemName: isHeartFilled ? "heart.fill" : "heart")
-                                    .font(.title2)
+                                    .font(.body)
                                     .foregroundColor(.primary)
                             }
                         } else {
