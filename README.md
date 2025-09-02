@@ -6,7 +6,12 @@ Initial app prototype for iOS development.
 This is a SwiftUI-based iOS application prototype.
 
 ## Features
-- demonstrates [.toolbarTitleDisplayMode(.inlineLarge)](https://developer.apple.com/documentation/swiftui/view/toolbartitledisplaymode(_:))
+- [.toolbarTitleDisplayMode(.inlineLarge)](https://developer.apple.com/documentation/swiftui/view/toolbartitledisplaymode(_:))
+- tabBar expand collapse in primary tabs
+- subview (eg Post details) toolbar toggle with TabBar
+- avatar triggers overflow menu
+- options for admin settings menu (sheet on Community tab, menu on Notifications tab)
+- trigger half sheets from overflow menus
 
 ## To do
 ### Deployment
