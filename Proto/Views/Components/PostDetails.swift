@@ -11,7 +11,7 @@ struct PostDetails: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isToolbarVisible = true
     @State private var isTabBarVisible = false
-    @State private var scrollTimer: Timer?
+    @State private var hasUserToggled = false
     
     var body: some View {
         NavigationStack {
@@ -38,22 +38,20 @@ struct PostDetails: View {
                 }
             }
             .onAppear {
-                // Reset visibility when view appears
-                isToolbarVisible = true
-                isTabBarVisible = false
+                // Only reset to default state if user hasn't manually toggled
+                if !hasUserToggled {
+                    isToolbarVisible = true
+                    isTabBarVisible = false
+                }
             }
             .simultaneousGesture(
                 DragGesture()
                     .onChanged { _ in
-                        // Cancel any existing timer
-                        scrollTimer?.invalidate()
-                        
-                        // Start a new timer
-                        scrollTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
-                            // Always collapse to default state on scroll
-                            isToolbarVisible = true
-                            isTabBarVisible = false
-                        }
+                        // Immediately return to default state when scrolling starts
+                        // This also resets the user toggle flag so onAppear will work correctly next time
+                        hasUserToggled = false
+                        isToolbarVisible = true
+                        isTabBarVisible = false
                     }
             )
 
@@ -98,6 +96,8 @@ struct PostDetails: View {
             .toolbar {
                 ToolbarItemGroup(placement: .bottomBar) {
                     Button(action: {
+                        // Mark that user has manually toggled
+                        hasUserToggled = true
                         // Toggle: when tab bar is visible, hide bottom toolbar; when tab bar is hidden, show bottom toolbar
                         isTabBarVisible.toggle()
                         // Bottom toolbar visibility is opposite of tab bar visibility
