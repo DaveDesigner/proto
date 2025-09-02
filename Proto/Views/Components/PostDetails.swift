@@ -17,6 +17,7 @@ struct PostDetails: View {
     @FocusState private var isCommentFieldFocused: Bool
     @State private var showCommentMode = false
     @State private var shouldMaintainFocus = false
+    @State private var isHeartFilled = false
     
     // Computed property to help with toolbar updates
     private var toolbarState: String {
@@ -255,8 +256,10 @@ struct PostDetails: View {
                     // Trailing button area - always present to maintain layout structure
                     Group {
                         if !showCommentMode {
-                            Button(action: {}) {
-                                Image(systemName: "heart")
+                            Button(action: {
+                                isHeartFilled.toggle()
+                            }) {
+                                Image(systemName: isHeartFilled ? "heart.fill" : "heart")
                                     .font(.title2)
                                     .foregroundColor(.primary)
                             }
