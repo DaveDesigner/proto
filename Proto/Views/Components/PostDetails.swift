@@ -62,7 +62,7 @@ struct PostDetails: View {
                     Menu {
                         Button(action: {}) {
                             Label("Summarize", systemImage: "sparkle")
-                                .tint(Color(hex: "#9676F8"))
+                                .tint(Color(red: 150/255, green: 118/255, blue: 248/255))
                         }
                         
                         Divider()
