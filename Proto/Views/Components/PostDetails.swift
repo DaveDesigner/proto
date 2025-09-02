@@ -167,7 +167,7 @@ struct PostDetails: View {
                                 }
                             } label: {
                                 Image(systemName: "plus")
-                                    .font(.title2)
+                                    .font(.title3)
                                     .foregroundColor(.primary)
                             }
                         } else {
@@ -191,14 +191,13 @@ struct PostDetails: View {
                     Spacer(minLength: 16)
                     
                     // Comment input area - always present, changes content based on state
-                    HStack(alignment: .bottom, spacing: 0) {
-                        if showCommentMode {
-                            // Real text editor when in comment mode - supports multiple lines
+                    if showCommentMode {
+                        // Real text editor when in comment mode - supports multiple lines
+                        HStack(alignment: .bottom, spacing: 0) {
                             TextEditor(text: $commentText)
                                 .font(.body) // Ensure regular weight
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4) // Add vertical padding for better appearance
-                                .frame(minHeight: 36, maxHeight: 120) // Allow height to grow naturally
                                 .background(.clear) // Transparent background to show toolbar glass
                                 .scrollContentBackground(.hidden) // Hide scroll background
                                 .focused($isCommentFieldFocused)
@@ -210,8 +209,33 @@ struct PostDetails: View {
                                         }
                                     }
                                 }
-                        } else {
-                            // Fake text field when not in comment mode
+                            
+                            // Submit button - only show when there's text
+                            if !commentText.isEmpty {
+                                Button(action: {
+                                    // Submit comment
+                                    commentText = ""
+                                    isCommentFieldFocused = false
+                                    showCommentMode = false
+                                    shouldMaintainFocus = false
+                                }) {
+                                    Image(systemName: "arrow.up.circle.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.primary)
+                                }
+                            } else {
+                                // Disabled submit button when no text
+                                Button(action: {}) {
+                                    Image(systemName: "arrow.up.circle.fill")
+                                        .font(.title3)
+                                        .foregroundStyle(.tertiary)
+                                }
+                                .disabled(true)
+                            }
+                        }
+                    } else {
+                        // Fake text field when not in comment mode
+                        HStack(alignment: .bottom, spacing: 0) {
                             Text("Add comment")
                                 .font(.body) // Ensure regular weight
                                 .foregroundStyle(.tertiary) // Match text field placeholder color
@@ -223,31 +247,8 @@ struct PostDetails: View {
                                     showCommentMode = true
                                 }
                         }
-                        
-                        // Submit button - only show when in comment mode and there's text
-                        if showCommentMode && !commentText.isEmpty {
-                            Button(action: {
-                                // Submit comment
-                                commentText = ""
-                                isCommentFieldFocused = false
-                                showCommentMode = false
-                                shouldMaintainFocus = false
-                            }) {
-                                Image(systemName: "arrow.up.circle.fill")
-                                    .font(.title3)
-                                    .foregroundColor(.primary)
-                            }
-                        } else if showCommentMode {
-                            // Disabled submit button when no text
-                            Button(action: {}) {
-                                Image(systemName: "arrow.up.circle.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(.tertiary)
-                            }
-                            .disabled(true)
-                        }
                     }
-                    .frame(minHeight: showCommentMode ? 44 : 36) // Ensure toolbar can expand with content
+
                     
                     Spacer(minLength: 16)
                     
