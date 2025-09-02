@@ -140,7 +140,7 @@ struct AdminSettingsSheet: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(32)
-        .presentationBackground(.ultraThinMaterial)
+        .glassEffect()
     }
 }
 
