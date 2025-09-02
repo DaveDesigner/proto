@@ -91,7 +91,7 @@ struct NotificationsTab: View {
                                     Text("Copilot")
                                 }
                             }
-                            .tint(Color(hex: "#9676F8"))
+                            .tint(Color(red: 150/255, green: 118/255, blue: 248/255))
                             
                             Button(action: {}) {
                                 Label("AI Inbox", systemImage: "tray")
@@ -130,10 +130,6 @@ struct NotificationsTab: View {
         }
         .sheet(isPresented: $showingManageNotifications) {
             ManageNotificationsSheet()
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(32)
-                .presentationBackground(.ultraThinMaterial)
         }
     }
 }

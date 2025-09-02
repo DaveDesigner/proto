@@ -62,14 +62,14 @@ struct PrimaryMenu: View {
     var body: some View {
         Menu {
             // Community-specific actions (only shown when provided)
-            if let onSummarize = onSummarize {
+            if onSummarize != nil {
                 Button(action: { showingSummarize = true }) {
                     HStack {
                         Image(systemName: "sparkle")
                         Text("Summarize")
                     }
                 }
-                .tint(Color(hex: "#9676F8"))
+                .tint(Color(red: 150/255, green: 118/255, blue: 248/255))
                 
                 Divider()
             }
@@ -148,7 +148,7 @@ struct PrimaryMenu: View {
             Divider()
             
             // Switch community (only shown when provided)
-            if let onSwitchCommunity = onSwitchCommunity {
+            if onSwitchCommunity != nil {
                 Button(action: { showingSwitchCommunity = true }) {
                     Label("Switch community", systemImage: "rectangle.on.rectangle.angled")
                 }
@@ -174,35 +174,15 @@ struct PrimaryMenu: View {
         }
         .sheet(isPresented: $showingAdminSettings) {
             AdminSettingsSheet()
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(32)
-                .presentationBackground(.ultraThinMaterial)
-                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
         }
         .sheet(isPresented: $showingSummarize) {
             SummarizeSheet()
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(32)
-                .presentationBackground(.ultraThinMaterial)
-                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
         }
         .sheet(isPresented: $showingSwitchCommunity) {
             SwitchCommunitySheet()
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(32)
-                .presentationBackground(.ultraThinMaterial)
-                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
         }
         .sheet(isPresented: $showingManageNotifications) {
             ManageNotificationsSheet()
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(32)
-                .presentationBackground(.ultraThinMaterial)
-                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
         }
     }
 }
