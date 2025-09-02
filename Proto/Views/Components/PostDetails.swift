@@ -12,13 +12,6 @@ struct PostDetails: View {
     @State private var isToolbarVisible = true
     @State private var isTabBarVisible = false
     @State private var scrollTimer: Timer?
-    @State private var lastScrollOffset: CGFloat = 0
-    @State private var scrollDirection: ScrollDirection = .none
-    @State private var isUserScrolling = false
-    
-    enum ScrollDirection {
-        case up, down, none
-    }
     
     var body: some View {
         NavigationStack {
@@ -48,19 +41,21 @@ struct PostDetails: View {
                 // Reset visibility when view appears
                 isToolbarVisible = true
                 isTabBarVisible = false
-                isUserScrolling = false
-                scrollDirection = .none
             }
-            .background(
-                GeometryReader { geometry in
-                    Color.clear
-                        .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).minY)
-                }
+            .simultaneousGesture(
+                DragGesture()
+                    .onChanged { _ in
+                        // Cancel any existing timer
+                        scrollTimer?.invalidate()
+                        
+                        // Start a new timer
+                        scrollTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
+                            // Always collapse to default state on scroll
+                            isToolbarVisible = true
+                            isTabBarVisible = false
+                        }
+                    }
             )
-            .coordinateSpace(name: "scroll")
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                handleScrollOffsetChange(value)
-            }
 
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -103,13 +98,14 @@ struct PostDetails: View {
             .toolbar {
                 ToolbarItemGroup(placement: .bottomBar) {
                     Button(action: {
-                        toggleToolbarState()
+                        // Toggle: when tab bar is visible, hide bottom toolbar; when tab bar is hidden, show bottom toolbar
+                        isTabBarVisible.toggle()
+                        // Bottom toolbar visibility is opposite of tab bar visibility
+                        isToolbarVisible = !isTabBarVisible
                     }) {
-                        Image(systemName: isTabBarVisible ? "rectangle.on.rectangle.angled" : "rectangle.fill.on.rectangle.angled.fill")
+                        Image(systemName: "rectangle.fill.on.rectangle.angled.fill")
                             .font(.title2)
                             .foregroundColor(.primary)
-                            .scaleEffect(isTabBarVisible ? 0.9 : 1.0)
-                            .animation(.easeInOut(duration: 0.2), value: isTabBarVisible)
                     }
                     Spacer(minLength: 16)
                     TextField("Add comment", text: .constant(""))
@@ -128,71 +124,6 @@ struct PostDetails: View {
             .toolbar(isTabBarVisible ? .visible : .hidden, for: .tabBar)
                 .animation(.easeInOut(duration: 0.3), value: isTabBarVisible)
         }
-    }
-    
-    // MARK: - Helper Methods
-    
-    private func toggleToolbarState() {
-        // Add haptic feedback
-        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-        impactFeedback.impactOccurred()
-        
-        withAnimation(.easeInOut(duration: 0.3)) {
-            isTabBarVisible.toggle()
-            isToolbarVisible = !isTabBarVisible
-        }
-    }
-    
-    private func handleScrollOffsetChange(_ offset: CGFloat) {
-        let threshold: CGFloat = 10.0
-        let delta = offset - lastScrollOffset
-        
-        // Determine scroll direction
-        if abs(delta) > threshold {
-            if delta > 0 {
-                scrollDirection = .up
-            } else {
-                scrollDirection = .down
-            }
-            lastScrollOffset = offset
-        }
-        
-        // Cancel any existing timer
-        scrollTimer?.invalidate()
-        
-        // Start a new timer for scroll end detection
-        scrollTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { _ in
-            handleScrollEnd()
-        }
-    }
-    
-    private func handleScrollEnd() {
-        // Only auto-hide toolbar when scrolling down significantly
-        if scrollDirection == .down && lastScrollOffset < -50 {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                isToolbarVisible = false
-                isTabBarVisible = true
-            }
-        } else if scrollDirection == .up {
-            // Show toolbar when scrolling up
-            withAnimation(.easeInOut(duration: 0.3)) {
-                isToolbarVisible = true
-                isTabBarVisible = false
-            }
-        }
-        
-        scrollDirection = .none
-        isUserScrolling = false
-    }
-}
-
-// MARK: - Scroll Offset Preference Key
-
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }
 
