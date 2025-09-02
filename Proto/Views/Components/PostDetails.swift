@@ -12,6 +12,16 @@ struct PostDetails: View {
     @State private var isToolbarVisible = true
     @State private var isTabBarVisible = false
     @State private var hasUserToggled = false
+
+    @State private var commentText = ""
+    @FocusState private var isCommentFieldFocused: Bool
+    @State private var showCommentMode = false
+    @State private var shouldMaintainFocus = false
+    
+    // Computed property to help with toolbar updates
+    private var toolbarState: String {
+        "\(showCommentMode)-\(commentText.isEmpty)-\(isCommentFieldFocused)"
+    }
     
     var body: some View {
         NavigationStack {
@@ -37,6 +47,14 @@ struct PostDetails: View {
                     }   
                 }
             }
+            .onTapGesture {
+                // Dismiss comment mode when tapping outside
+                if showCommentMode {
+                    showCommentMode = false
+                    isCommentFieldFocused = false
+                    shouldMaintainFocus = false
+                }
+            }
             .onAppear {
                 // Only reset to default state if user hasn't manually toggled
                 if !hasUserToggled {
@@ -52,6 +70,13 @@ struct PostDetails: View {
                         hasUserToggled = false
                         isToolbarVisible = true
                         isTabBarVisible = false
+                        
+                        // Also dismiss keyboard and reset comment mode when scrolling
+                        if isCommentFieldFocused {
+                            isCommentFieldFocused = false
+                            showCommentMode = false
+                            shouldMaintainFocus = false
+                        }
                     }
             )
 
@@ -95,27 +120,147 @@ struct PostDetails: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .bottomBar) {
-                    Button(action: {
-                        // Mark that user has manually toggled
-                        hasUserToggled = true
-                        // Toggle: when tab bar is visible, hide bottom toolbar; when tab bar is hidden, show bottom toolbar
-                        isTabBarVisible.toggle()
-                        // Bottom toolbar visibility is opposite of tab bar visibility
-                        isToolbarVisible = !isTabBarVisible
-                    }) {
-                        Image(systemName: "rectangle.fill.on.rectangle.angled.fill")
-                            .font(.title2)
-                            .foregroundColor(.primary)
+                    // Allow toolbar to expand with content height
+                                        // Leading button - always present, changes content based on state
+                    Group {
+                        if showCommentMode {
+                            // Show + button when comment field is active
+                            Menu {
+                                Button(action: {
+                                    // Tag content
+                                    commentText += " #"
+                                }) {
+                                    Label("Tag content", systemImage: "number")
+                                }
+                                
+                                Button(action: {
+                                    // Mention
+                                    commentText += " @"
+                                }) {
+                                    Label("Mention", systemImage: "at")
+                                }
+                                
+                                Divider()
+                                
+                                Button(action: {
+                                    // Image
+                                }) {
+                                    Label("Image", systemImage: "photo")
+                                }
+                                
+                                Button(action: {
+                                    // GIF
+                                }) {
+                                    Label("GIF", systemImage: "rectangle.3.group")
+                                }
+                                
+                                Button(action: {
+                                    // Attach
+                                }) {
+                                    Label("Attach", systemImage: "paperclip")
+                                }
+                                
+                                Button(action: {
+                                    // Record
+                                }) {
+                                    Label("Record", systemImage: "waveform")
+                                }
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.title2)
+                                    .foregroundColor(.primary)
+                            }
+                        } else {
+                            // Show tabbar toggle when comment field is inactive
+                            Button(action: {
+                                // Mark that user has manually toggled
+                                hasUserToggled = true
+                                // Toggle: when tab bar is visible, hide bottom toolbar; when tab bar is hidden, show bottom toolbar
+                                isTabBarVisible.toggle()
+                                // Bottom toolbar visibility is opposite of tab bar visibility
+                                isToolbarVisible = !isTabBarVisible
+                            }) {
+                                Image(systemName: "rectangle.fill.on.rectangle.angled.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.primary)
+                        }
                     }
+                    }
+                    
+                    // Consistent spacing - let SwiftUI handle it naturally
                     Spacer(minLength: 16)
-                    TextField("Add comment", text: .constant(""))
-                        .textFieldStyle(.plain)
-                        .padding(.horizontal, 8)
+                    
+                    // Comment input area - always present, changes content based on state
+                    HStack(alignment: .bottom, spacing: 0) {
+                        if showCommentMode {
+                            // Real text editor when in comment mode - supports multiple lines
+                            TextEditor(text: $commentText)
+                                .font(.body) // Ensure regular weight
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4) // Add vertical padding for better appearance
+                                .frame(minHeight: 36, maxHeight: 120) // Allow height to grow naturally
+                                .background(.clear) // Transparent background to show toolbar glass
+                                .scrollContentBackground(.hidden) // Hide scroll background
+                                .focused($isCommentFieldFocused)
+                                .onAppear {
+                                    // Auto-focus the text field when it appears
+                                    if shouldMaintainFocus {
+                                        DispatchQueue.main.async {
+                                            isCommentFieldFocused = true
+                                        }
+                                    }
+                                }
+                        } else {
+                            // Fake text field when not in comment mode
+                            Text("Add comment")
+                                .font(.body) // Ensure regular weight
+                                .foregroundStyle(.tertiary) // Match text field placeholder color
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 8) // Add padding to match text field
+                                .contentShape(Rectangle()) // Make entire area tappable
+                                .onTapGesture {
+                                    shouldMaintainFocus = true
+                                    showCommentMode = true
+                                }
+                        }
+                        
+                        // Submit button - only show when in comment mode and there's text
+                        if showCommentMode && !commentText.isEmpty {
+                            Button(action: {
+                                // Submit comment
+                                commentText = ""
+                                isCommentFieldFocused = false
+                                showCommentMode = false
+                                shouldMaintainFocus = false
+                            }) {
+                                Image(systemName: "arrow.up.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(.primary)
+                            }
+                        } else if showCommentMode {
+                            // Disabled submit button when no text
+                            Button(action: {}) {
+                                Image(systemName: "arrow.up.circle.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.tertiary)
+                            }
+                            .disabled(true)
+                        }
+                    }
+                    .frame(minHeight: showCommentMode ? 44 : 36) // Ensure toolbar can expand with content
+                    
                     Spacer(minLength: 16)
-                    Button(action: {}) {
-                        Image(systemName: "heart")
-                            .font(.title2)
-                            .foregroundColor(.primary)
+                    
+                    // Trailing button area - always present to maintain layout structure
+                    Group {
+                        if !showCommentMode {
+                            Button(action: {}) {
+                                Image(systemName: "heart")
+                                    .font(.title2)
+                                    .foregroundColor(.primary)
+                            }
+                        } else {
+                        }
                     }
                 }
             }
