@@ -9,18 +9,11 @@ import SwiftUI
 
 struct AdminSettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var showDraftsSheet = false
     
     var body: some View {
-        SheetTemplate {
-            ScrollView {
+        SheetTemplate(title: "Admin settings") {
             VStack(spacing: 0) {
-                // Custom title
-                Text("Admin settings")
-                    .font(.title3.bold())
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
                 
                 // Menu items
                 VStack(spacing: 0) {
@@ -121,7 +114,9 @@ struct AdminSettingsSheet: View {
                         .padding(.horizontal, 20)
                     
                     // Drafts
-                    Button(action: {}) {
+                    Button(action: {
+                        showDraftsSheet = true
+                    }) {
                         HStack(spacing: 16) {
                             Image(systemName: "doc.text")
                                 .foregroundColor(.secondary)
@@ -137,9 +132,10 @@ struct AdminSettingsSheet: View {
             }
             .frame(maxWidth: .infinity, alignment: .top)
         }
-        //.scrollIndicators(.hidden)
+        .sheet(isPresented: $showDraftsSheet) {
+            DraftsSheet()
+        }
     }
-}
 }
 #Preview {
     AdminSettingsSheet()

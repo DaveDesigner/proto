@@ -11,16 +11,8 @@ struct SummarizeSheet: View {
     @State private var isLoading = true
     
     var body: some View {
-        SheetTemplate {
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Custom title
-                    Text("Summarize")
-                        .font(.title3.bold())
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 16)
+        SheetTemplate(title: "Summarize") {
+            VStack(spacing: 0) {
                     
                     // Skeleton loading content
                     if isLoading {
@@ -94,7 +86,6 @@ struct SummarizeSheet: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
-            }
         }
     }
 }
