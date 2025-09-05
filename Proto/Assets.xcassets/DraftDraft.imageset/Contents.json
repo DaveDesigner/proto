@@ -17,7 +17,7 @@
       "scale" : "1x"
     },
     {
-      "filename" : "DraftDraft-Light@2x.png",
+      "filename" : "drafts light.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
@@ -28,9 +28,23 @@
           "value" : "dark"
         }
       ],
-      "filename" : "DraftDraft-Dark@2x.png",
+      "filename" : "drafts dark.png",
       "idiom" : "universal",
       "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {
