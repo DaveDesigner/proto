@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CommunityTab: View {
     @State private var currentSort = "Latest"
+    @State private var showDraftsSheet = false
     
     var body: some View {
         NavigationStack {
@@ -46,7 +47,7 @@ struct CommunityTab: View {
                         onCreatePost: { /* Create a post action */ },
                         onCreateImage: { /* Create an image action */ },
                         onGoLive: { /* Go live action */ },
-                        onDrafts: { /* Drafts action */ }
+                        onDrafts: { showDraftsSheet = true }
                     )
                 }
                 ToolbarSpacer()
@@ -64,7 +65,9 @@ struct CommunityTab: View {
                 }
             }
         }
-
+        .sheet(isPresented: $showDraftsSheet) {
+            DraftsSheet()
+        }
     }
 }
 
