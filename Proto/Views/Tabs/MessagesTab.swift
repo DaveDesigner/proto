@@ -8,28 +8,60 @@
 import SwiftUI
 
 struct MessagesTab: View {
+    @State private var selectedSegment = 0
+    
+    private let messageSegments = ["Inbox", "Agents"]
+    
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack() {
-                    // Messages image scaled to fill width and fully scrollable
-                    if let _ = UIImage(named: "Messages") {
-                        Image("Messages")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity)
-                            .clipped()
-                    } else {
-                        // Fallback if image not found
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.ultraThinMaterial)
-                            .frame(height: 400)
-                            .overlay(
-                                Text("Messages Image")
-                                    .font(.headline)
-                            )
-                            .padding(.horizontal)
-                    }   
+                VStack(spacing: 16) {
+                    // Segment control for content switching
+                    SegmentControl(
+                        segments: messageSegments,
+                        selectedIndex: $selectedSegment,
+                        onSelectionChanged: { index in
+                            selectedSegment = index
+                        }
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    
+                    // Content based on selected segment
+                    Group {
+                        switch messageSegments[selectedSegment] {
+                        case "Inbox":
+                            // Messages image scaled to fill width and fully scrollable
+                            if let _ = UIImage(named: "Messages") {
+                                Image("Messages")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxWidth: .infinity)
+                                    .clipped()
+                            } else {
+                                // Fallback if image not found
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial)
+                                    .frame(height: 400)
+                                    .overlay(
+                                        Text("Inbox Messages")
+                                            .font(.headline)
+                                    )
+                                    .padding(.horizontal)
+                            }
+                        case "Agents":
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 300)
+                                .overlay(
+                                    Text("Agents Content")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        default:
+                            EmptyView()
+                        }
+                    }
                 }
             }
             .navigationBarTitle("Messages")

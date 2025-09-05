@@ -10,33 +10,100 @@ import SwiftUI
 struct CommunityTab: View {
     @State private var currentSort = "Latest"
     @State private var showDraftsSheet = false
+    @State private var selectedSegment = 0
+    
+    private let communitySegments = ["Feed", "Video", "Courses", "Events", "Members", "Leaderboard"]
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack() {
-                    // Feed image scaled to fill width and fully scrollable
-                    if let _ = UIImage(named: "Feed") {
-                        NavigationLink(destination: PostDetails()) {
-                            Image("Feed")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxWidth: .infinity)
-                                .clipped()
+                VStack(spacing: 16) {
+                    // Segment control for content switching
+                    SegmentControl(
+                        segments: communitySegments,
+                        selectedIndex: $selectedSegment,
+                        onSelectionChanged: { index in
+                            selectedSegment = index
                         }
-                    } else {
-                        // Fallback if image not found
-                        NavigationLink(destination: PostDetails()) {
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    
+                    // Content based on selected segment
+                    Group {
+                        switch communitySegments[selectedSegment] {
+                        case "Feed":
+                            // Feed image scaled to fill width and fully scrollable
+                            if let _ = UIImage(named: "Feed") {
+                                NavigationLink(destination: PostDetails()) {
+                                    Image("Feed")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxWidth: .infinity)
+                                        .clipped()
+                                }
+                            } else {
+                                // Fallback if image not found
+                                NavigationLink(destination: PostDetails()) {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(.ultraThinMaterial)
+                                        .frame(height: 400)
+                                        .overlay(
+                                            Text("Feed Image")
+                                                .font(.headline)
+                                        )
+                                        .padding(.horizontal)
+                                }
+                            }
+                        case "Video":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
-                                .frame(height: 400)
+                                .frame(height: 300)
                                 .overlay(
-                                    Text("Feed Image")
+                                    Text("Video Content")
                                         .font(.headline)
                                 )
                                 .padding(.horizontal)
+                        case "Courses":
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 300)
+                                .overlay(
+                                    Text("Courses Content")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        case "Events":
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 300)
+                                .overlay(
+                                    Text("Events Content")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        case "Members":
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 300)
+                                .overlay(
+                                    Text("Members Content")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        case "Leaderboard":
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 300)
+                                .overlay(
+                                    Text("Leaderboard Content")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        default:
+                            EmptyView()
                         }
-                    }   
+                    }
                 }
             }
             .navigationBarTitle("Community")

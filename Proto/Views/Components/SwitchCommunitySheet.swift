@@ -8,17 +8,24 @@
 import SwiftUI
 
 struct SwitchCommunitySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         SheetTemplate(title: "Switch Community") {
-            // Blank content area
             VStack(spacing: 16) {
-                // Placeholder for future content
                 Spacer(minLength: 100)
                 
                 Text("Community switching functionality")
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 20)
+                
+                Button("Switch to Community Color") {
+                    // TODO: Implement community color switching
+                    dismiss()
+                }
+                .buttonStyle(.borderedProminent)
+                .padding()
                 
                 Spacer(minLength: 100)
             }
