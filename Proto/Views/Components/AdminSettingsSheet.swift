@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AdminSettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var showDraftsSheet = false
     
     var body: some View {
         SheetTemplate {
@@ -121,7 +122,9 @@ struct AdminSettingsSheet: View {
                         .padding(.horizontal, 20)
                     
                     // Drafts
-                    Button(action: {}) {
+                    Button(action: {
+                        showDraftsSheet = true
+                    }) {
                         HStack(spacing: 16) {
                             Image(systemName: "doc.text")
                                 .foregroundColor(.secondary)
@@ -136,6 +139,9 @@ struct AdminSettingsSheet: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .top)
+        }
+        .sheet(isPresented: $showDraftsSheet) {
+            DraftsSheet()
         }
         //.scrollIndicators(.hidden)
     }
