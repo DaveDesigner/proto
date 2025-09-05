@@ -112,6 +112,7 @@ struct NotificationsTab: View {
                         Button(action: { showingManageNotifications = true }) {
                             Label("Manage notifications", systemImage: "bell.badge")
                         }
+                        .tint(.primary)
                         
                         // Profile
                         Button(action: { /* Add profile action here */ }) {
@@ -124,6 +125,7 @@ struct NotificationsTab: View {
                                 Text("Profile")
                             }
                         }
+                        .tint(.primary)
                         
                         Divider()
                         
@@ -132,14 +134,17 @@ struct NotificationsTab: View {
                             Button(action: {}) {
                                 Label("View as", systemImage: "eye")
                             }
+                            .tint(.primary)
                             
                             Button(action: {}) {
                                 Label("Invite members", systemImage: "person.badge.plus")
                             }
+                            .tint(.primary)
                             
                             Button(action: {}) {
                                 Label("Manage members", systemImage: "person.2")
                             }
+                            .tint(.primary)
 
                             Divider()
                             
@@ -154,28 +159,35 @@ struct NotificationsTab: View {
                             Button(action: {}) {
                                 Label("AI Inbox", systemImage: "tray")
                             }
+                            .tint(.primary)
                             
                             Divider()
 
                             Button(action: {}) {
                                 Label("Push notification", systemImage: "bell")
                             }
+                            .tint(.primary)
                             
                             Button(action: {}) {
                                 Label("Drafts", systemImage: "doc.text")
                             }
+                            .tint(.primary)
                         } label: {
                             Label("Admin settings", systemImage: "gearshape")
                         }
+                        .tint(.primary)
                         
                         Divider()
                         
                         // Sign out
                         Button(role: .destructive) {
                             /* Add sign out action here */
-                        } label: {
+                        }
+                        label: {
                             Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
                         }
+                        // Explicitly force red to avoid being overridden by a global .tint
+                        .tint(.red)
                     } label: {
                         Image("Avatar")
                             .resizable()

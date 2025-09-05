@@ -70,7 +70,7 @@ struct PrimaryMenu: View {
                     }
                 }
                 .tint(Color(red: 150/255, green: 118/255, blue: 248/255))
-                
+
                 Divider()
             }
             
@@ -83,10 +83,10 @@ struct PrimaryMenu: View {
                             Spacer()
                             if currentSort == "Latest" {
                                 Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
                             }
                         }
                     }
+                    .tint(currentSort == "Latest" ? .secondary : .primary)
                     
                     Button(action: { onSort("Alphabetical") }) {
                         HStack {
@@ -94,10 +94,10 @@ struct PrimaryMenu: View {
                             Spacer()
                             if currentSort == "Alphabetical" {
                                 Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
                             }
                         }
                     }
+                    .tint(currentSort == "Alphabetical" ? .secondary : .primary)
                     
                     Button(action: { onSort("Oldest") }) {
                         HStack {
@@ -105,10 +105,10 @@ struct PrimaryMenu: View {
                             Spacer()
                             if currentSort == "Oldest" {
                                 Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
                             }
                         }
                     }
+                    .tint(currentSort == "Oldest" ? .secondary : .primary)
                     
                     Button(action: { onSort("Popular") }) {
                         HStack {
@@ -116,15 +116,16 @@ struct PrimaryMenu: View {
                             Spacer()
                             if currentSort == "Popular" {
                                 Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
                             }
                         }
                     }
+                    .tint(currentSort == "Popular" ? .secondary : .primary)
                 } label: {
                     Label("Sort", systemImage: "arrow.up.arrow.down")
                         .labelStyle(.titleAndIcon)
                         .badge(currentSort)
                 }
+                .tint(.primary)
                 
                 Divider()
             }
@@ -133,6 +134,7 @@ struct PrimaryMenu: View {
             Button(action: { showingManageNotifications = true }) {
                 Label("Manage notifications", systemImage: "bell.badge")
             }
+            .tint(.primary)
             
             Button(action: onProfile) {
                 HStack {
@@ -152,19 +154,23 @@ struct PrimaryMenu: View {
                 Button(action: { showingSwitchCommunity = true }) {
                     Label("Switch community", systemImage: "rectangle.on.rectangle.angled")
                 }
+                .tint(.primary)
             }
             
             Button(action: { showingAdminSettings = true }) {
                 Label("Admin settings", systemImage: "gearshape")
             }
+            .tint(.primary)
             
             Divider()
             
             Button(role: .destructive) {
                 onSignOut()
-            } label: {
+            }
+            label: {
                 Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
             }
+            .tint(.red)
         } label: {
             Image("Avatar")
                 .resizable()
@@ -194,6 +200,7 @@ struct PrimaryMenu: View {
         onSignOut: { print("Sign out tapped") }
     )
 }
+
 
 #Preview("Community Profile Menu") {
     PrimaryMenu(
