@@ -24,7 +24,7 @@ This is a SwiftUI-based iOS application prototype.
 - [x] menu item avatar circled
 
 ### Video
-- [ ] `In progress` segment control component add "Video" tab
+- [x] segment control component add "Video" tab [PR #4](https://github.com/DaveDesigner/proto/pull/4)
 - [ ] native inline video player
 - [ ] autoplay on scroll
 - [ ] tap to unmute
