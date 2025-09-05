@@ -30,7 +30,8 @@ struct CommunityTab: View {
                         selectedIndex: $selectedSegment,
                         onSelectionChanged: { index in
                             selectedSegment = index
-                        }
+                        },
+                        tintColor: selectedTintColor
                     )
                     .padding(.horizontal)
                     .padding(.top, 8)

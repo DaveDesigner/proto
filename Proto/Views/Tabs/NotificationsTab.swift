@@ -10,6 +10,7 @@ import SwiftUI
 struct NotificationsTab: View {
     @State private var showingManageNotifications = false
     @State private var selectedSegment = 0
+    @Binding var selectedTintColor: Color
     
     private let notificationSegments = ["Inbox", "Mentions", "Threads", "Following", "Archive"]
     
@@ -23,7 +24,8 @@ struct NotificationsTab: View {
                         selectedIndex: $selectedSegment,
                         onSelectionChanged: { index in
                             selectedSegment = index
-                        }
+                        },
+                        tintColor: selectedTintColor
                     )
                     .padding(.horizontal)
                     .padding(.top, 8)
@@ -205,5 +207,5 @@ struct NotificationsTab: View {
 }
 
 #Preview {
-    NotificationsTab()
+    NotificationsTab(selectedTintColor: .constant(Color.blue))
 }

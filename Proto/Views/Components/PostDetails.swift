@@ -94,24 +94,29 @@ struct PostDetails: View {
                         Button(action: {}) {
                             Label("23 likes", systemImage: "heart")
                         }
+                        .tint(.primary)
                         
                         Button(action: {}) {
                             Label("11 comments", systemImage: "message")
                         }
+                        .tint(.primary)
                         
                         Divider()
                         
                         Button(action: {}) {
                             Label("Share", systemImage: "square.and.arrow.up")
                         }
+                        .tint(.primary)
                         
                         Button(action: {}) {
                             Label("Bookmark", systemImage: "bookmark")
                         }
+                        .tint(.primary)
                         
                         Button(action: {}) {
                             Label("Follow", systemImage: "bell")
                         }
+                        .tint(.primary)
                     } label: {
                         Image(systemName: "ellipsis")
                             .font(.body)
@@ -133,6 +138,7 @@ struct PostDetails: View {
                                 }) {
                                     Label("Tag content", systemImage: "number")
                                 }
+                                .tint(.primary)
                                 
                                 Button(action: {
                                     // Mention
@@ -140,6 +146,7 @@ struct PostDetails: View {
                                 }) {
                                     Label("Mention", systemImage: "at")
                                 }
+                                .tint(.primary)
                                 
                                 Divider()
                                 
@@ -148,24 +155,28 @@ struct PostDetails: View {
                                 }) {
                                     Label("Image", systemImage: "photo")
                                 }
+                                .tint(.primary)
                                 
                                 Button(action: {
                                     // GIF
                                 }) {
                                     Label("GIF", systemImage: "rectangle.3.group")
                                 }
+                                .tint(.primary)
                                 
                                 Button(action: {
                                     // Attach
                                 }) {
                                     Label("Attach", systemImage: "paperclip")
                                 }
+                                .tint(.primary)
                                 
                                 Button(action: {
                                     // Record
                                 }) {
                                     Label("Record", systemImage: "waveform")
                                 }
+                                .tint(.primary)
                             } label: {
                                 Image(systemName: "plus")
                                     .font(.body)

@@ -10,7 +10,8 @@ import SwiftUI
 // MARK: - Main Content View
 
 struct ContentView: View {
-    @State private var selectedTintColor = Color(red: 6/255.0, green: 60/255.0, blue: 255/255.0)
+    @State private var selectedTintColor = Color.primary
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         TabView {
@@ -21,7 +22,7 @@ struct ContentView: View {
             }
             
             Tab {
-                NotificationsTab()
+                NotificationsTab(selectedTintColor: $selectedTintColor)
             } label: {
                 Label("Notifications", systemImage: "bell")
             }
