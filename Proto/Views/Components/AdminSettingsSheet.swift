@@ -12,16 +12,8 @@ struct AdminSettingsSheet: View {
     @State private var showDraftsSheet = false
     
     var body: some View {
-        SheetTemplate {
-            ScrollView {
+        SheetTemplate(title: "Admin settings") {
             VStack(spacing: 0) {
-                // Custom title
-                Text("Admin settings")
-                    .font(.title3.bold())
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
                 
                 // Menu items
                 VStack(spacing: 0) {
@@ -143,9 +135,7 @@ struct AdminSettingsSheet: View {
         .sheet(isPresented: $showDraftsSheet) {
             DraftsSheet()
         }
-        //.scrollIndicators(.hidden)
     }
-}
 }
 #Preview {
     AdminSettingsSheet()

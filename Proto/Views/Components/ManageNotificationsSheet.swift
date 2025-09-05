@@ -9,33 +9,20 @@ import SwiftUI
 
 struct ManageNotificationsSheet: View {
     var body: some View {
-        SheetTemplate {
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Custom title
-                    Text("Manage Notifications")
-                        .font(.title3.bold())
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 16)
-                    
-                    // Blank content area
-                    VStack(spacing: 16) {
-                        // Placeholder for future content
-                        Spacer(minLength: 100)
-                        
-                        Text("Notification management functionality")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 20)
-                        
-                        Spacer(minLength: 100)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .top)
+        SheetTemplate(title: "Manage Notifications") {
+            // Blank content area
+            VStack(spacing: 16) {
+                // Placeholder for future content
+                Spacer(minLength: 100)
+                
+                Text("Notification management functionality")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 20)
+                
+                Spacer(minLength: 100)
             }
-            .scrollIndicators(.hidden)
+            .frame(maxWidth: .infinity, alignment: .top)
         }
     }
 }

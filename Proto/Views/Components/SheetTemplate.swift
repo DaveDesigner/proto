@@ -35,14 +35,17 @@ import SwiftUI
 struct SheetTemplate<Content: View>: View {
     let detents: Set<PresentationDetent>
     let dragIndicator: Visibility
+    let title: String
     let content: Content
     @State private var selectedDetent: PresentationDetent
 
     init(
+        title: String,
         detents: Set<PresentationDetent> = [.medium, .large],
         dragIndicator: Visibility = .visible,
         @ViewBuilder content: () -> Content
     ) {
+        self.title = title
         self.detents = detents
         self.dragIndicator = dragIndicator
         self.content = content()
@@ -59,41 +62,75 @@ struct SheetTemplate<Content: View>: View {
     }
     
     var body: some View {
-        content
-            .presentationDetents(detents, selection: $selectedDetent)
-            .presentationDragIndicator(dragIndicator)
-            .presentationBackgroundInteraction(.enabled(upThrough: .medium)) // Reduce dimming overlay
-            // Note: No presentationBackground() - let iOS 26 apply Liquid Glass automatically
+        NavigationStack {
+            ZStack {
+                ScrollView {
+                    content
+                }
+                .scrollIndicators(.hidden)
+                .navigationTitle(" ")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text(" ")
+                            .font(.title3.bold())
+                            .foregroundStyle(.primary)
+                    }
+                }
+                //.toolbarBackground(.glassEffect, for: .navigationBar)
+                //.toolbarBackground(.visible, for: .navigationBar)
+                
+                // Fixed overlay title
+                VStack {
+                    HStack {
+                        Text(title)
+                            .font(.title3.bold())
+                            .foregroundStyle(.primary)
+                            .padding(.leading, 20)
+                        Spacer()
+                    }
+                    .padding(.top, -38) // Negative margin to move up into toolbar area
+                    Spacer()
+                }
+            }
+        }
+        .presentationDetents(detents, selection: $selectedDetent)
+        .presentationDragIndicator(dragIndicator)
+        .presentationBackgroundInteraction(.enabled(upThrough: .medium))
     }
 }
 
 // Convenience initializers for common use cases
 extension SheetTemplate {
     init(
+        title: String,
         detents: PresentationDetent...,
         dragIndicator: Visibility = .visible,
         @ViewBuilder content: () -> Content
     ) {
-        self.init(detents: Set(detents), dragIndicator: dragIndicator, content: content)
+        self.init(title: title, detents: Set(detents), dragIndicator: dragIndicator, content: content)
     }
     
     init(
+        title: String,
         detent: PresentationDetent,
         dragIndicator: Visibility = .visible,
         @ViewBuilder content: () -> Content
     ) {
-        self.init(detents: [detent], dragIndicator: dragIndicator, content: content)
+        self.init(title: title, detents: [detent], dragIndicator: dragIndicator, content: content)
     }
 }
 
 #Preview {
-    SheetTemplate {
+    SheetTemplate(title: "Sheet Template Preview") {
         VStack(spacing: 20) {
-            Text("Sheet Template Preview")
-                .font(.title2.bold())
-            
             Text("This sheet template uses iOS 26's automatic Liquid Glass appearance with consistent presentation modifiers.")
                 .multilineTextAlignment(.center)
+            
+            ForEach(0..<10, id: \.self) { index in
+                Text("Scrollable content item \(index + 1)")
+                    .padding()
+            }
         }
         .padding()
     }
