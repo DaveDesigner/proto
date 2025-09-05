@@ -16,11 +16,12 @@ This is a SwiftUI-based iOS application prototype.
 ## To do
 ### Deployment
 - [x] validate best method for stakeholder review (app clip, test flight, app store release?)
-- [ ] testflight release
+- [x] testflight internal release
+- [ ] `In review` Apple review for TestFlight external URL
 
 ### Toolbar
 - [ ] avatar image without button border
-- [ ] menu item avatar circled
+- [x] menu item avatar circled
 
 ### Video
 - [ ] `In progress` segment control component add "Video" tab
@@ -32,11 +33,11 @@ This is a SwiftUI-based iOS application prototype.
 
 ### Admin mode
 - [x] Admin settings sheet [Figma](https://www.figma.com/design/H6KATGFhQ5fAOsegREtzBg/Circle-4.0-Mobile?node-id=2040-53037&t=Kcwlyc56hddeSD0c-1)
-- [ ] Co-pilot interface
+- [ ] `In progress` Co-pilot sparkle UI edges [PR #2](https://github.com/DaveDesigner/proto/pull/2)
+- [ ] Figma consistency across across settings destinations
 
 ### Search
-[Figma spec](https://www.figma.com/design/NdwIk4iFCNFsrBOA1I2S2b/%F0%9F%93%90-Mobile-Build?node-id=26801-116894&t=GwwykqKG33UxJcNw-1)
-- [ ] Activate search on tap 
+- [ ] Activate search on tap [Figma spec](https://www.figma.com/design/NdwIk4iFCNFsrBOA1I2S2b/%F0%9F%93%90-Mobile-Build?node-id=26801-116894&t=GwwykqKG33UxJcNw-1)
 - [ ] Expand virtual keyboard when search is active
 - [ ] Render search input as a toolbar above the tab bar (toggle bar state)
 
