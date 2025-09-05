@@ -10,8 +10,13 @@ import SwiftUI
 struct MessagesTab: View {
     @State private var selectedSegment = 0
     @Binding var selectedTintColor: Color
+    @Environment(\.colorScheme) private var colorScheme
     
     private let messageSegments = ["Inbox", "Agents"]
+    
+    private var messagesBlendMode: BlendMode {
+        colorScheme == .dark ? .screen : .multiply
+    }
     
     var body: some View {
         NavigationStack {
@@ -40,6 +45,7 @@ struct MessagesTab: View {
                                     .scaledToFit()
                                     .frame(maxWidth: .infinity)
                                     .clipped()
+                                    .blendMode(messagesBlendMode)
                             } else {
                                 // Fallback if image not found
                                 RoundedRectangle(cornerRadius: 12)

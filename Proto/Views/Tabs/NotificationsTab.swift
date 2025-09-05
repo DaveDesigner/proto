@@ -11,8 +11,13 @@ struct NotificationsTab: View {
     @State private var showingManageNotifications = false
     @State private var selectedSegment = 0
     @Binding var selectedTintColor: Color
+    @Environment(\.colorScheme) private var colorScheme
     
     private let notificationSegments = ["Inbox", "Mentions", "Threads", "Following", "Archive"]
+    
+    private var notificationsBlendMode: BlendMode {
+        colorScheme == .dark ? .screen : .multiply
+    }
     
     var body: some View {
         NavigationStack {
@@ -41,6 +46,7 @@ struct NotificationsTab: View {
                                     .scaledToFit()
                                     .frame(maxWidth: .infinity)
                                     .clipped()
+                                    .blendMode(notificationsBlendMode)
                             } else {
                                 // Fallback if image not found
                                 RoundedRectangle(cornerRadius: 12)
