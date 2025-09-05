@@ -19,6 +19,9 @@ struct PrimaryMenu: View {
     let currentSort: String?
     let onSwitchCommunity: (() -> Void)?
     
+    // Tint color binding for community switching
+    @Binding var selectedTintColor: Color
+    
     // Admin settings state
     @State private var showingAdminSettings = false
     @State private var showingSummarize = false
@@ -29,7 +32,8 @@ struct PrimaryMenu: View {
     init(
         onProfile: @escaping () -> Void,
         onNotifications: @escaping () -> Void,
-        onSignOut: @escaping () -> Void
+        onSignOut: @escaping () -> Void,
+        selectedTintColor: Binding<Color>
     ) {
         self.onProfile = onProfile
         self.onNotifications = onNotifications
@@ -38,6 +42,7 @@ struct PrimaryMenu: View {
         self.onSort = nil
         self.currentSort = nil
         self.onSwitchCommunity = nil
+        self._selectedTintColor = selectedTintColor
     }
     
     // Initialize for community profile menu
@@ -48,7 +53,8 @@ struct PrimaryMenu: View {
         onSummarize: @escaping () -> Void,
         onSort: @escaping (String) -> Void,
         currentSort: String,
-        onSwitchCommunity: @escaping () -> Void
+        onSwitchCommunity: @escaping () -> Void,
+        selectedTintColor: Binding<Color>
     ) {
         self.onProfile = onProfile
         self.onNotifications = onNotifications
@@ -57,6 +63,7 @@ struct PrimaryMenu: View {
         self.onSort = onSort
         self.currentSort = currentSort
         self.onSwitchCommunity = onSwitchCommunity
+        self._selectedTintColor = selectedTintColor
     }
     
     var body: some View {
@@ -185,7 +192,7 @@ struct PrimaryMenu: View {
             SummarizeSheet()
         }
         .sheet(isPresented: $showingSwitchCommunity) {
-            SwitchCommunitySheet()
+            SwitchCommunitySheet(selectedTintColor: $selectedTintColor)
         }
         .sheet(isPresented: $showingManageNotifications) {
             ManageNotificationsSheet()
@@ -197,7 +204,8 @@ struct PrimaryMenu: View {
     PrimaryMenu(
         onProfile: { print("Profile tapped") },
         onNotifications: { print("Notifications tapped") },
-        onSignOut: { print("Sign out tapped") }
+        onSignOut: { print("Sign out tapped") },
+        selectedTintColor: .constant(Color.blue)
     )
 }
 
@@ -210,6 +218,7 @@ struct PrimaryMenu: View {
         onSummarize: { print("Summarize tapped") },
         onSort: { sort in print("Sort changed to: \(sort)") },
         currentSort: "Latest",
-        onSwitchCommunity: { print("Switch community tapped") }
+        onSwitchCommunity: { print("Switch community tapped") },
+        selectedTintColor: .constant(Color.blue)
     )
 }

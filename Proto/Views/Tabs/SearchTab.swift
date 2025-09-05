@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SearchTab: View {
+    @Binding var selectedTintColor: Color
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -27,7 +29,8 @@ struct SearchTab: View {
                     ProfileMenu(
                         onProfile: { /* Add profile action here */ },
                         onNotifications: { /* Add notifications action here */ },
-                        onSignOut: { /* Add sign out action here */ }
+                        onSignOut: { /* Add sign out action here */ },
+                        selectedTintColor: $selectedTintColor
                     )
                 }
             }
@@ -37,5 +40,5 @@ struct SearchTab: View {
 }
 
 #Preview {
-    SearchTab()
+    SearchTab(selectedTintColor: .constant(Color.blue))
 }

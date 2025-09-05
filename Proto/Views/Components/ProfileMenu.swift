@@ -11,12 +11,14 @@ struct ProfileMenu: View {
     let onProfile: () -> Void
     let onNotifications: () -> Void
     let onSignOut: () -> Void
+    @Binding var selectedTintColor: Color
     
     var body: some View {
         PrimaryMenu(
             onProfile: onProfile,
             onNotifications: onNotifications,
-            onSignOut: onSignOut
+            onSignOut: onSignOut,
+            selectedTintColor: $selectedTintColor
         )
     }
 }
@@ -25,6 +27,7 @@ struct ProfileMenu: View {
     ProfileMenu(
         onProfile: { print("Profile tapped") },
         onNotifications: { print("Notifications tapped") },
-        onSignOut: { print("Sign out tapped") }
+        onSignOut: { print("Sign out tapped") },
+        selectedTintColor: .constant(Color.blue)
     )
 }

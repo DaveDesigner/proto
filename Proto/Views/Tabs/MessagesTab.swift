@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MessagesTab: View {
     @State private var selectedSegment = 0
+    @Binding var selectedTintColor: Color
     
     private let messageSegments = ["Inbox", "Agents"]
     
@@ -82,7 +83,8 @@ struct MessagesTab: View {
                     ProfileMenu(
                         onProfile: { /* Add profile action here */ },
                         onNotifications: { /* Add notifications action here */ },
-                        onSignOut: { /* Add sign out action here */ }
+                        onSignOut: { /* Add sign out action here */ },
+                        selectedTintColor: $selectedTintColor
                     )
                 }
             }
@@ -91,5 +93,5 @@ struct MessagesTab: View {
 }
 
 #Preview {
-    MessagesTab()
+    MessagesTab(selectedTintColor: .constant(Color.blue))
 }

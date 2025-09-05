@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SwitchCommunitySheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Binding var selectedTintColor: Color
     
     var body: some View {
         SheetTemplate(title: "Switch Community") {
@@ -21,7 +22,8 @@ struct SwitchCommunitySheet: View {
                     .padding(.horizontal, 20)
                 
                 Button("Switch to Community Color") {
-                    // TODO: Implement community color switching
+                    // Generate a new random color for the community
+                    selectedTintColor = Color(red: Double.random(in: 0...1), green: Double.random(in: 0...1), blue: Double.random(in: 0...1))
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
@@ -35,5 +37,5 @@ struct SwitchCommunitySheet: View {
 }
 
 #Preview {
-    SwitchCommunitySheet()
+    SwitchCommunitySheet(selectedTintColor: .constant(Color.blue))
 }

@@ -10,10 +10,12 @@ import SwiftUI
 // MARK: - Main Content View
 
 struct ContentView: View {
+    @State private var selectedTintColor = Color(red: 6/255.0, green: 60/255.0, blue: 255/255.0)
+    
     var body: some View {
         TabView {
             Tab {
-                CommunityTab()
+                CommunityTab(selectedTintColor: $selectedTintColor)
             } label: {
                 Label("Community", systemImage: "rectangle.on.rectangle.angled")
             }
@@ -25,21 +27,21 @@ struct ContentView: View {
             }
             
             Tab {
-                MessagesTab()
+                MessagesTab(selectedTintColor: $selectedTintColor)
             } label: {
                 Label("Messages", systemImage: "message")
             }
             
             // Remove unsupported role: parameter and use the standard Tab initializer
             Tab {
-                SearchTab()
+                SearchTab(selectedTintColor: $selectedTintColor)
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
             }
         }
         //.tabViewSearchActivation(.searchTabSelection)
         .tabBarMinimizeBehavior(.onScrollDown) // onScrolUp for chat views, messaging, where latest appears at bottom and scroll up searches back through time
-        .tint(Color(red: 6/255.0, green: 60/255.0, blue: 255/255.0))
+        .tint(selectedTintColor)
     }
 }
 

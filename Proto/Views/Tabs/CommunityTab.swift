@@ -12,6 +12,7 @@ struct CommunityTab: View {
     @State private var showDraftsSheet = false
     @State private var selectedSegment = 0
     @Environment(\.colorScheme) private var colorScheme
+    @Binding var selectedTintColor: Color
     
     private let communitySegments = ["Feed", "Video", "Courses", "Events", "Members", "Leaderboard"]
     
@@ -133,7 +134,8 @@ struct CommunityTab: View {
                         onSummarize: { /* Add summarize action here */ },
                         onSort: { sort in currentSort = sort },
                         currentSort: currentSort,
-                        onSwitchCommunity: { /* Add switch community action here */ }
+                        onSwitchCommunity: { /* Add switch community action here */ },
+                        selectedTintColor: $selectedTintColor
                     )
                 }
             }
@@ -145,5 +147,5 @@ struct CommunityTab: View {
 }
 
 #Preview {
-    CommunityTab()
+    CommunityTab(selectedTintColor: .constant(Color.blue))
 }
