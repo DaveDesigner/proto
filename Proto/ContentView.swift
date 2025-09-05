@@ -32,15 +32,14 @@ struct ContentView: View {
                 Label("Messages", systemImage: "message")
             }
             
-            // Remove unsupported role: parameter and use the standard Tab initializer
-            Tab {
+            Tab(role: .search) {
                 SearchTab(selectedTintColor: $selectedTintColor)
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
             }
         }
         //.tabViewSearchActivation(.searchTabSelection)
-        .tabBarMinimizeBehavior(.onScrollDown) // onScrolUp for chat views, messaging, where latest appears at bottom and scroll up searches back through time
+        .tabBarMinimizeBehavior(.onScrollDown)
         .tint(selectedTintColor)
     }
 }
