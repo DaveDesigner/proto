@@ -21,7 +21,7 @@ struct SearchTab: View {
             .navigationBarTitle("Search")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
-                ToolbarSpacer()
+                //ToolbarSpacer(.fixed)
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     ProfileMenu(

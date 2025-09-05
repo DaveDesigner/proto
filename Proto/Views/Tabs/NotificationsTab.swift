@@ -9,29 +9,87 @@ import SwiftUI
 
 struct NotificationsTab: View {
     @State private var showingManageNotifications = false
+    @State private var selectedSegment = 0
+    
+    private let notificationSegments = ["Inbox", "Mentions", "Threads", "Following", "Archive"]
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack() {
-                    // Notifications image scaled to fill width and fully scrollable
-                    if let _ = UIImage(named: "Notifications") {
-                        Image("Notifications")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity)
-                            .clipped()
-                    } else {
-                        // Fallback if image not found
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.ultraThinMaterial)
-                            .frame(height: 400)
-                            .overlay(
-                                Text("Notifications Image")
-                                    .font(.headline)
-                            )
-                            .padding(.horizontal)
-                    }   
+                VStack(spacing: 16) {
+                    // Segment control for content switching
+                    SegmentControl(
+                        segments: notificationSegments,
+                        selectedIndex: $selectedSegment,
+                        onSelectionChanged: { index in
+                            selectedSegment = index
+                        }
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    
+                    // Content based on selected segment
+                    Group {
+                        switch notificationSegments[selectedSegment] {
+                        case "Inbox":
+                            // Notifications image scaled to fill width and fully scrollable
+                            if let _ = UIImage(named: "Notifications") {
+                                Image("Notifications")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxWidth: .infinity)
+                                    .clipped()
+                            } else {
+                                // Fallback if image not found
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial)
+                                    .frame(height: 400)
+                                    .overlay(
+                                        Text("Inbox Notifications")
+                                            .font(.headline)
+                                    )
+                                    .padding(.horizontal)
+                            }
+                        case "Mentions":
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 300)
+                                .overlay(
+                                    Text("Mentions Content")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        case "Threads":
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 300)
+                                .overlay(
+                                    Text("Threads Content")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        case "Following":
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 300)
+                                .overlay(
+                                    Text("Following Content")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        case "Archive":
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                                .frame(height: 300)
+                                .overlay(
+                                    Text("Archive Content")
+                                        .font(.headline)
+                                )
+                                .padding(.horizontal)
+                        default:
+                            EmptyView()
+                        }
+                    }
                 }
             }
             .navigationBarTitle("Notifications")

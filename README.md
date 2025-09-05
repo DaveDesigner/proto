@@ -34,7 +34,8 @@ This is a SwiftUI-based iOS application prototype.
 ### Admin mode
 - [x] Admin settings sheet [Figma](https://www.figma.com/design/H6KATGFhQ5fAOsegREtzBg/Circle-4.0-Mobile?node-id=2040-53037&t=Kcwlyc56hddeSD0c-1)
 - [ ] `In progress` Co-pilot sparkle UI edges [PR #2](https://github.com/DaveDesigner/proto/pull/2)
-- [ ] Figma consistency across across settings destinations
+- [ ] Figma consistency across settings destinations
+- [x] Drafts sheet [PR #3](https://github.com/DaveDesigner/proto/pull/3)
 
 ### Search
 - [ ] Activate search on tap [Figma spec](https://www.figma.com/design/NdwIk4iFCNFsrBOA1I2S2b/%F0%9F%93%90-Mobile-Build?node-id=26801-116894&t=GwwykqKG33UxJcNw-1)
