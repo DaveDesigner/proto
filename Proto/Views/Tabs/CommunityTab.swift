@@ -11,8 +11,13 @@ struct CommunityTab: View {
     @State private var currentSort = "Latest"
     @State private var showDraftsSheet = false
     @State private var selectedSegment = 0
+    @Environment(\.colorScheme) private var colorScheme
     
     private let communitySegments = ["Feed", "Video", "Courses", "Events", "Members", "Leaderboard"]
+    
+    private var feedBlendMode: BlendMode {
+        colorScheme == .dark ? .screen : .multiply
+    }
     
     var body: some View {
         NavigationStack {
@@ -41,6 +46,7 @@ struct CommunityTab: View {
                                         .scaledToFit()
                                         .frame(maxWidth: .infinity)
                                         .clipped()
+                                        .blendMode(feedBlendMode)
                                 }
                             } else {
                                 // Fallback if image not found

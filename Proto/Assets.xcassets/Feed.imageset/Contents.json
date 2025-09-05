@@ -15,7 +15,7 @@
       "scale" : "1x"
     },
     {
-      "filename" : "Feed.jpg",
+      "filename" : "Feed Light Image.jpg",
       "idiom" : "universal",
       "scale" : "2x"
     },
@@ -26,7 +26,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "dark feed.jpg",
+      "filename" : "Feed Dark Image.jpg",
       "idiom" : "universal",
       "scale" : "2x"
     },
