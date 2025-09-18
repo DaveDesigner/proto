@@ -139,6 +139,7 @@ struct CommunityTab: View {
                         selectedTintColor: $selectedTintColor
                     )
                 }
+                .sharedBackgroundHidden()
             }
         }
         .sheet(isPresented: $showDraftsSheet) {

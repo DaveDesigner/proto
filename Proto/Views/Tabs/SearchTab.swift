@@ -33,6 +33,7 @@ struct SearchTab: View {
                         selectedTintColor: $selectedTintColor
                     )
                 }
+                .sharedBackgroundHidden()
             }
             .searchToolbarBehavior(.automatic)
         }
