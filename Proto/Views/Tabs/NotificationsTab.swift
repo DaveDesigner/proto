@@ -200,7 +200,7 @@ struct NotificationsTab: View {
                         Image("Avatar")
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 36, height: 36)
+                            .frame(width: 44, height: 44)
                             .clipShape(Circle())
                     }
                 }
