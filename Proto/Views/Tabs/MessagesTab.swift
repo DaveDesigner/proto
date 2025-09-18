@@ -94,6 +94,7 @@ struct MessagesTab: View {
                         selectedTintColor: $selectedTintColor
                     )
                 }
+                .sharedBackgroundHidden()
             }
         }
     }

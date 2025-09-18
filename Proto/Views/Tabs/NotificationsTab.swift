@@ -204,6 +204,7 @@ struct NotificationsTab: View {
                             .clipShape(Circle())
                     }
                 }
+                .sharedBackgroundHidden()
             }
         }
         .sheet(isPresented: $showingManageNotifications) {
