@@ -12,6 +12,7 @@ This is a SwiftUI-based iOS application prototype.
 - avatar triggers overflow menu
 - options for admin settings menu (sheet on Community tab, menu on Notifications tab)
 - trigger half sheets from overflow menus
+- simplified divider component with improved layout [PR #7](https://github.com/DaveDesigner/proto/pull/7)
 
 ## To do
 ### Deployment
@@ -44,10 +45,10 @@ TestFlight via email invite Apple ID. Won’t do: public URL, as proto won't pas
 - [ ] Render search input as a toolbar above the tab bar (toggle bar state)
 
 ### Posts toolbar actions
-- [ ] Click through from Feed to post view
-- [ ] Post toolbar toggles native tab bar with primary heart action
-- [ ] Comment text input bottom toolbar
-- [ ] Native menu for overflow and admin tasks (edit post, etc, [Figma spec](https://www.figma.com/design/W7x7IvJBDsSw43zcIKMJeR/%E2%9D%96-Mobile-Design-System?node-id=12807-69973&t=wAl175S4870CppoP-1))
+- [x] Click through from Feed to post view
+- [x] Post toolbar toggles native tab bar with primary heart action
+- [x] Comment text input bottom toolbar
+- [x] Native menu for overflow and admin tasks (edit post, etc, [Figma spec](https://www.figma.com/design/W7x7IvJBDsSw43zcIKMJeR/%E2%9D%96-Mobile-Design-System?node-id=12807-69973&t=wAl175S4870CppoP-1))
 
 ### iPad
 - [x] validate native tab bar and toolbars play nicely
