@@ -1,4 +1,5 @@
 ## Next steps
+add: connect actions on profile, accessed via notification
 1. **Image lightbox** - Tap on images to open full-screen lightbox view
 2. **Video inline player** - Native video player with autoplay on scroll position
 3. **iPad multi-column layouts** - Support for wide displays with responsive grid layouts
