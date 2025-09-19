@@ -15,12 +15,13 @@ This is a SwiftUI-based iOS application prototype.
 
 ## To do
 ### Deployment
+TestFlight via email invite Apple ID. Won’t do: public URL, as proto won't pass review.
 - [x] validate best method for stakeholder review (app clip, test flight, app store release?)
 - [x] testflight internal release
-- [ ] `In review` Apple review for TestFlight external URL
+- [x] Apple review for TestFlight external URL
 
 ### Toolbar
-- [ ] avatar image without button border
+- [x] avatar image without button border [PR #6](https://github.com/DaveDesigner/proto/pull/6)
 - [x] menu item avatar circled
 
 ### Video

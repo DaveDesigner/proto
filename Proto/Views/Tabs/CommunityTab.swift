@@ -40,27 +40,81 @@ struct CommunityTab: View {
                     Group {
                         switch communitySegments[selectedSegment] {
                         case "Feed":
-                            // Feed image scaled to fill width and fully scrollable
-                            if let _ = UIImage(named: "Feed") {
-                                NavigationLink(destination: PostDetails()) {
-                                    Image("Feed")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(maxWidth: .infinity)
-                                        .clipped()
-                                        .blendMode(feedBlendMode)
+                            VStack(alignment: .leading, spacing: 12) {
+                                // Multiple PostMetadata instances to showcase different behaviors
+                                VStack(alignment: .leading, spacing: 8) {
+                                    // Short text - should hug content
+                                    PostMetadata(
+                                        authorName: "Alex",
+                                        spaceName: "Dev",
+                                        timeAgo: "2h",
+                                        avatarInitials: "AJ"
+                                    )
+                                    
+                                    // Medium text - should fill available space
+                                    PostMetadata(
+                                        authorName: "Sally Flower",
+                                        spaceName: "Design Team",
+                                        timeAgo: "4d",
+                                        avatarInitials: "SF"
+                                    )
+                                    
+                                    // Long text - should truncate
+                                    PostMetadata(
+                                        authorName: "Christopher Alexander Johnson",
+                                        spaceName: "Product Management and Strategy",
+                                        timeAgo: "1w",
+                                        avatarInitials: "CAJ"
+                                    )
+                                    
+                                    // Very long text - should truncate heavily
+                                    PostMetadata(
+                                        authorName: "Dr. Elizabeth Margaret Thompson-Williams",
+                                        spaceName: "Advanced Research and Development Division",
+                                        timeAgo: "3d",
+                                        avatarInitials: "EMT"
+                                    )
+                                    
+                                    // Short with image avatar
+                                    PostMetadata(
+                                        authorName: "Maria",
+                                        spaceName: "UX",
+                                        timeAgo: "30m",
+                                        avatarImageName: "Avatar"
+                                    )
+                                    
+                                    // Medium with different time format
+                                    PostMetadata(
+                                        authorName: "David Chen",
+                                        spaceName: "Engineering",
+                                        timeAgo: "2d ago",
+                                        avatarInitials: "DC"
+                                    )
                                 }
-                            } else {
-                                // Fallback if image not found
-                                NavigationLink(destination: PostDetails()) {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(.ultraThinMaterial)
-                                        .frame(height: 400)
-                                        .overlay(
-                                            Text("Feed Image")
-                                                .font(.headline)
-                                        )
-                                        .padding(.horizontal)
+                                .padding(.horizontal)
+                                
+                                // Feed image scaled to fill width and fully scrollable
+                                if let _ = UIImage(named: "Feed") {
+                                    NavigationLink(destination: PostDetails()) {
+                                        Image("Feed")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(maxWidth: .infinity)
+                                            .clipped()
+                                            .blendMode(feedBlendMode)
+                                    }
+                                } else {
+                                    // Fallback if image not found
+                                    NavigationLink(destination: PostDetails()) {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(.ultraThinMaterial)
+                                            .frame(height: 400)
+                                            .overlay(
+                                                Text("Feed Image")
+                                                    .font(.headline)
+                                            )
+                                            .padding(.horizontal)
+                                    }
                                 }
                             }
                         case "Video":
