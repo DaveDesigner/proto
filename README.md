@@ -1,9 +1,11 @@
-# Proto
+## Next steps
+1. **Image lightbox** - Tap on images to open full-screen lightbox view
+2. **Video inline player** - Native video player with autoplay on scroll position
+3. **iPad multi-column layouts** - Support for wide displays with responsive grid layouts
+4. **Enhanced video controls** - Tap to unmute, tap to fullscreen, drag to minimize PiP
+5. **Search functionality** - Activate search on tap with virtual keyboard expansion
+6. **Admin mode completion** - Finish Co-pilot sparkle UI edges and Figma consistency
 
-Initial app prototype for iOS development.
-
-## Overview
-This is a SwiftUI-based iOS application prototype.
 
 ## Features
 - [.toolbarTitleDisplayMode(.inlineLarge)](https://developer.apple.com/documentation/swiftui/view/toolbartitledisplaymode(_:))
