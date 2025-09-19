@@ -120,6 +120,8 @@ class UnsplashService: ObservableObject {
                     let photos = try JSONDecoder().decode([UnsplashPhoto].self, from: data)
                     self?.featuredPhotos = photos
                     print("✅ Successfully loaded \(photos.count) photos")
+                    // Reset the image counter when new photos are loaded
+                    PostPreview.resetImageCounter()
                 } catch {
                     self?.error = "Failed to decode photos: \(error.localizedDescription)"
                     print("❌ Decode error: \(error.localizedDescription)")

@@ -26,6 +26,9 @@ struct PostPreview: View {
     
     @StateObject private var unsplashService = UnsplashService.shared
     
+    // Static counter to ensure sequential image assignment
+    private static var imageCounter = 0
+    
     init(
         authorName: String,
         spaceName: String,
@@ -73,14 +76,14 @@ struct PostPreview: View {
             VStack(alignment: .leading, spacing: 8) {
                 // Post title
                 Text(postTitle)
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.title3.weight(.semibold))
                     .foregroundColor(.primary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                 
                 // Post description
                 Text(postDescription)
-                    .font(.system(size: 17, weight: .regular))
+                    .font(.body)
                     .foregroundColor(.secondary)
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
@@ -88,8 +91,8 @@ struct PostPreview: View {
             
             // Post image
             if let postImageName = postImageName {
-                // Convert postImageName to an index for sequential assignment
-                let imageIndex = getImageIndex(from: postImageName)
+                // Use simple sequential assignment based on postImageName
+                let imageIndex = getSequentialImageIndex(from: postImageName)
                 
                 if unsplashService.featuredPhotos.isEmpty {
                     // Show loading state while photos are being fetched
@@ -118,15 +121,28 @@ struct PostPreview: View {
                 onCommentTapped: onCommentTapped
             )
         }
-        .padding(.horizontal, 16)
         .onTapGesture {
             onPostTapped?()
         }
     }
     
-    private func getImageIndex(from postImageName: String) -> Int {
-        // Simple hash-based approach to convert string to consistent index
-        return abs(postImageName.hashValue) % 7 // 7 available images
+    private func getSequentialImageIndex(from postImageName: String) -> Int {
+        // Simple sequential assignment: image1 -> 0, image2 -> 1, image3 -> 2, etc.
+        if postImageName.hasPrefix("image") {
+            let numberString = String(postImageName.dropFirst(5)) // Remove "image" prefix
+            if let number = Int(numberString) {
+                return (number - 1) % 7 // Convert to 0-based index, cycle through 7 images
+            }
+        }
+        // Fallback: use the counter for any other naming pattern
+        let currentIndex = PostPreview.imageCounter
+        PostPreview.imageCounter += 1
+        return currentIndex % 7
+    }
+    
+    /// Reset the image counter (useful for testing or app restart)
+    static func resetImageCounter() {
+        imageCounter = 0
     }
     
 }

@@ -25,7 +25,7 @@ struct CommunityTab: View {
         NavigationStack {
             GeometryReader { geometry in
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 8) {
                     // Segment control for content switching
                     SegmentControl(
                         segments: communitySegments,
@@ -35,7 +35,7 @@ struct CommunityTab: View {
                         },
                         tintColor: selectedTintColor
                     )
-                    .padding(.horizontal)
+                    .padding(.horizontal, 16)
                     .padding(.top, 8)
                     
                     // Content based on selected segment
@@ -43,7 +43,7 @@ struct CommunityTab: View {
                         switch communitySegments[selectedSegment] {
                         case "Feed":
                             // Executive coaching community posts showcasing AI transformation
-                            VStack(alignment: .leading, spacing: 16) {
+                            VStack(alignment: .leading, spacing: 20) {
                                 // Post 1: AI Tools for Executive Coaching
                                 NavigationLink(destination: PostDetails()) {
                                     PostPreview(
@@ -53,7 +53,7 @@ struct CommunityTab: View {
                                         avatarInitials: "SC",
                                         postTitle: "Revolutionary AI Tools for Executive Coaching",
                                         postDescription: "Just discovered how ChatGPT can help executives develop better self-awareness through structured reflection prompts. The results are remarkable!",
-                                        postImageName: "ai-technology", // Will use Unsplash placeholder
+                                        postImageName: "image1", // Sequential image assignment
                                         likeCount: 42,
                                         commentCount: 8,
                                         isLiked: false,
@@ -69,7 +69,7 @@ struct CommunityTab: View {
                                     )
                                 }
                                 
-                                Divider(variant: .fullWidth)
+                                Divider()
                                 
                                 // Post 2: Leadership Development with AI
                                 PostPreview(
@@ -79,7 +79,7 @@ struct CommunityTab: View {
                                     avatarInitials: "MT",
                                     postTitle: "How AI is Transforming Leadership Development",
                                     postDescription: "Exploring how AI-powered assessments can identify leadership gaps and create personalized development plans for C-suite executives.",
-                                    postImageName: "leadership-development", // Will use Unsplash placeholder
+                                    postImageName: "image2", // Sequential image assignment
                                     likeCount: 156,
                                     commentCount: 23,
                                     isLiked: true,
@@ -95,7 +95,7 @@ struct CommunityTab: View {
                                 )
 
                                 
-                                Divider(variant: .fullWidth)
+                                Divider()
                                 
                                 // Post 3: Executive Coaching Best Practices
                                 PostPreview(
@@ -105,7 +105,7 @@ struct CommunityTab: View {
                                         avatarInitials: "ER",
                                         postTitle: "The Future of Executive Coaching: Integrating AI and Human Insight",
                                         postDescription: "A comprehensive analysis of how artificial intelligence is reshaping the executive coaching landscape while preserving the essential human elements that make coaching truly transformative.",
-                                        postImageName: "coaching-mentoring", // Will use Unsplash placeholder
+                                        postImageName: "image3", // Sequential image assignment
                                         likeCount: 1245,
                                         commentCount: 89,
                                         isLiked: false,
@@ -120,7 +120,7 @@ struct CommunityTab: View {
                                         }
                                     )
                                     
-                                    Divider(variant: .fullWidth)
+                                    Divider()
                                     
                                     // Post 4: AI Ethics in Coaching
                                     PostPreview(
@@ -130,7 +130,7 @@ struct CommunityTab: View {
                                         avatarInitials: "JM",
                                         postTitle: "Navigating AI Ethics in Executive Coaching",
                                         postDescription: "Critical considerations for maintaining confidentiality and trust when incorporating AI tools into executive coaching practices.",
-                                        postImageName: "professional-ethics", // Will use Unsplash placeholder
+                                        postImageName: "image4", // Sequential image assignment
                                         likeCount: 15,
                                         commentCount: 3,
                                         isLiked: true,
@@ -145,7 +145,7 @@ struct CommunityTab: View {
                                         }
                                     )
                                     
-                                    Divider(variant: .fullWidth)
+                                    Divider()
                                     
                                     // Post 5: Success Story with AI Integration
                                     PostPreview(
@@ -155,7 +155,7 @@ struct CommunityTab: View {
                                         avatarImageName: "Avatar",
                                         postTitle: "Client Success: 40% Improvement in Decision-Making Speed",
                                         postDescription: "Sharing how we used AI-powered scenario planning to help a Fortune 500 CEO dramatically improve their strategic decision-making process.",
-                                        postImageName: "business-success", // Will use Unsplash placeholder
+                                        postImageName: "image5", // Sequential image assignment
                                         likeCount: 89,
                                         commentCount: 12,
                                         isLiked: false,
@@ -171,6 +171,7 @@ struct CommunityTab: View {
                                     )
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
                         case "Video":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
