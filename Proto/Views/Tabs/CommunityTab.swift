@@ -13,6 +13,7 @@ struct CommunityTab: View {
     @State private var selectedSegment = 0
     @Environment(\.colorScheme) private var colorScheme
     @Binding var selectedTintColor: Color
+    @StateObject private var unsplashService = UnsplashService.shared
     
     private let communitySegments = ["Feed", "Video", "Courses", "Events", "Members", "Leaderboard"]
     
@@ -22,8 +23,9 @@ struct CommunityTab: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 16) {
                     // Segment control for content switching
                     SegmentControl(
                         segments: communitySegments,
@@ -40,10 +42,10 @@ struct CommunityTab: View {
                     Group {
                         switch communitySegments[selectedSegment] {
                         case "Feed":
-                            VStack(alignment: .leading, spacing: 0) {
-                                // Executive coaching community posts showcasing AI transformation
-                                VStack(alignment: .leading, spacing: 0) {
-                                    // Post 1: AI Tools for Executive Coaching
+                            // Executive coaching community posts showcasing AI transformation
+                            VStack(alignment: .leading, spacing: 16) {
+                                // Post 1: AI Tools for Executive Coaching
+                                NavigationLink(destination: PostDetails()) {
                                     PostPreview(
                                         authorName: "Dr. Sarah Chen",
                                         spaceName: "AI Transformation",
@@ -65,37 +67,39 @@ struct CommunityTab: View {
                                             print("Post tapped on AI tools!")
                                         }
                                     )
-                                    
-                                    Divider(variant: .fullWidth)
-                                    
-                                    // Post 2: Leadership Development with AI
-                                    PostPreview(
-                                        authorName: "Marcus Thompson",
-                                        spaceName: "Leadership Excellence",
-                                        timeAgo: "4d",
-                                        avatarInitials: "MT",
-                                        postTitle: "How AI is Transforming Leadership Development",
-                                        postDescription: "Exploring how AI-powered assessments can identify leadership gaps and create personalized development plans for C-suite executives.",
-                                        postImageName: "leadership-development", // Will use Unsplash placeholder
-                                        likeCount: 156,
-                                        commentCount: 23,
-                                        isLiked: true,
-                                        onLikeTapped: {
-                                            print("Like tapped on leadership post!")
-                                        },
-                                        onCommentTapped: {
-                                            print("Comment tapped on leadership post!")
-                                        },
-                                        onPostTapped: {
-                                            print("Post tapped on leadership!")
-                                        }
-                                    )
-                                    
-                                    Divider(variant: .fullWidth)
-                                    
-                                    // Post 3: Executive Coaching Best Practices
-                                    PostPreview(
-                                        authorName: "Dr. Elizabeth Rodriguez-Williams",
+                                }
+                                
+                                Divider(variant: .fullWidth)
+                                
+                                // Post 2: Leadership Development with AI
+                                PostPreview(
+                                    authorName: "Marcus Thompson",
+                                    spaceName: "Leadership Excellence",
+                                    timeAgo: "4d",
+                                    avatarInitials: "MT",
+                                    postTitle: "How AI is Transforming Leadership Development",
+                                    postDescription: "Exploring how AI-powered assessments can identify leadership gaps and create personalized development plans for C-suite executives.",
+                                    postImageName: "leadership-development", // Will use Unsplash placeholder
+                                    likeCount: 156,
+                                    commentCount: 23,
+                                    isLiked: true,
+                                    onLikeTapped: {
+                                        print("Like tapped on leadership post!")
+                                    },
+                                    onCommentTapped: {
+                                        print("Comment tapped on leadership post!")
+                                    },
+                                    onPostTapped: {
+                                        print("Post tapped on leadership!")
+                                    }
+                                )
+
+                                
+                                Divider(variant: .fullWidth)
+                                
+                                // Post 3: Executive Coaching Best Practices
+                                PostPreview(
+                                    authorName: "Dr. Elizabeth Rodriguez-Williams",
                                         spaceName: "Executive Coaching Mastery",
                                         timeAgo: "1w",
                                         avatarInitials: "ER",
@@ -165,33 +169,8 @@ struct CommunityTab: View {
                                             print("Post tapped on success story!")
                                         }
                                     )
-                                }
-                                
-                                // Feed image scaled to fill width and fully scrollable
-                                if let _ = UIImage(named: "Feed") {
-                                    NavigationLink(destination: PostDetails()) {
-                                        Image("Feed")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(maxWidth: .infinity)
-                                            .clipped()
-                                            .blendMode(feedBlendMode)
-                                    }
-                                } else {
-                                    // Fallback if image not found
-                                    NavigationLink(destination: PostDetails()) {
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(.ultraThinMaterial)
-                                            .frame(height: 400)
-                                            .overlay(
-                                                Text("Feed Image")
-                                                    .font(.headline)
-                                            )
-                                            .padding(.horizontal)
-                                    }
-                                }
                             }
-                            .padding(.horizontal)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         case "Video":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
@@ -270,6 +249,8 @@ struct CommunityTab: View {
                     )
                 }
                 .sharedBackgroundHidden()
+                }
+                .frame(maxWidth: .infinity)
             }
         }
         .sheet(isPresented: $showDraftsSheet) {

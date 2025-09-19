@@ -23,7 +23,7 @@ struct Divider: View {
             // List divider with symmetric spacing above and below
             VStack(spacing: 0) {
                 Spacer()
-                    .frame(height: 8) // 8pt top padding
+                    .frame(height: 16) // 8pt top padding
                 
                 Rectangle()
                     .fill(color)
@@ -31,14 +31,14 @@ struct Divider: View {
                     .padding(.horizontal, 20) // 20pt horizontal padding from Figma
                 
                 Spacer()
-                    .frame(height: 8) // 8pt bottom padding
+                    .frame(height: 16) // 8pt bottom padding
             }
-            .frame(height: 16.75) // Total height: 8 + 0.75 + 8 = 16.75pt
+            //.frame(height: 16.75) // Total height: 8 + 0.75 + 8 = 16.75pt
         case .section:
             // Section divider - thicker and more prominent with symmetric spacing
             VStack(spacing: 0) {
                 Spacer()
-                    .frame(height: 8) // 8pt top padding
+                    .frame(height: 16) // 8pt top padding
                 
                 Rectangle()
                     .fill(color)
@@ -46,7 +46,7 @@ struct Divider: View {
                     .padding(.horizontal, 20)
                 
                 Spacer()
-                    .frame(height: 8) // 8pt bottom padding
+                    .frame(height: 16) // 8pt bottom padding
             }
             .frame(height: 17) // Total height: 8 + 1.0 + 8 = 17pt
         case .minimal:

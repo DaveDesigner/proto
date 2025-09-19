@@ -24,6 +24,8 @@ struct PostPreview: View {
     let onCommentTapped: (() -> Void)?
     let onPostTapped: (() -> Void)?
     
+    @StateObject private var unsplashService = UnsplashService.shared
+    
     init(
         authorName: String,
         spaceName: String,
@@ -57,7 +59,7 @@ struct PostPreview: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             // Post metadata
             PostMetadata(
                 authorName: authorName,
@@ -84,7 +86,28 @@ struct PostPreview: View {
                     .multilineTextAlignment(.leading)
             }
             
-            // Images removed - text-only posts for now
+            // Post image
+            if let postImageName = postImageName {
+                // Convert postImageName to an index for sequential assignment
+                let imageIndex = getImageIndex(from: postImageName)
+                
+                if unsplashService.featuredPhotos.isEmpty {
+                    // Show loading state while photos are being fetched
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 200)
+                        .overlay(
+                            VStack(spacing: 8) {
+                                ProgressView()
+                                Text("Loading image...")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        )
+                } else {
+                    unsplashService.createPostImage(imageIndex: imageIndex)
+                }
+            }
             
             // Engagement bar
             EngagementBar(
@@ -95,9 +118,15 @@ struct PostPreview: View {
                 onCommentTapped: onCommentTapped
             )
         }
+        .padding(.horizontal, 16)
         .onTapGesture {
             onPostTapped?()
         }
+    }
+    
+    private func getImageIndex(from postImageName: String) -> Int {
+        // Simple hash-based approach to convert string to consistent index
+        return abs(postImageName.hashValue) % 7 // 7 available images
     }
     
 }
