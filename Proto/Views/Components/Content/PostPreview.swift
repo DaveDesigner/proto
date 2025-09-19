@@ -71,46 +71,20 @@ struct PostPreview: View {
             VStack(alignment: .leading, spacing: 8) {
                 // Post title
                 Text(postTitle)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(.primary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                 
                 // Post description
                 Text(postDescription)
-                    .font(.system(size: 14, weight: .regular))
+                    .font(.system(size: 17, weight: .regular))
                     .foregroundColor(.secondary)
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
             }
             
-            // Optional post image - use Unsplash for placeholder images
-            if let postImageName = postImageName {
-                if UIImage(named: postImageName) != nil {
-                    // Use local image if available
-                    Image(postImageName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity)
-                        .clipped()
-                        .cornerRadius(16)
-                } else {
-                    // Use Unsplash placeholder for demonstration
-                    let searchTerm = getSearchTermForImageName(postImageName)
-                    UnsplashService.shared.createAsyncImage(
-                        width: 400,
-                        height: 300,
-                        searchTerm: searchTerm
-                    ) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity)
-                            .clipped()
-                            .cornerRadius(16)
-                    }
-                }
-            }
+            // Images removed - text-only posts for now
             
             // Engagement bar
             EngagementBar(
@@ -126,34 +100,13 @@ struct PostPreview: View {
         }
     }
     
-    // Helper function to get appropriate search terms for different image types
-    private func getSearchTermForImageName(_ imageName: String?) -> String {
-        guard let imageName = imageName else { return "business meeting office" }
-        
-        switch imageName.lowercased() {
-        case let name where name.contains("ai") || name.contains("technology"):
-            return "artificial intelligence technology"
-        case let name where name.contains("leadership") || name.contains("executive"):
-            return "executive leadership meeting"
-        case let name where name.contains("coaching") || name.contains("mentoring"):
-            return "business coaching meeting"
-        case let name where name.contains("ethics") || name.contains("professional"):
-            return "professional business ethics"
-        case let name where name.contains("success") || name.contains("achievement"):
-            return "business success achievement"
-        case let name where name.contains("team") || name.contains("collaboration"):
-            return "team collaboration meeting"
-        default:
-            return "business meeting office"
-        }
-    }
 }
 
 // MARK: - Preview
 #Preview {
     ScrollView {
         VStack(spacing: 16) {
-            // Post with image
+            // Post with text content
             PostPreview(
                 authorName: "Alex Johnson",
                 spaceName: "Design Team",
@@ -161,7 +114,7 @@ struct PostPreview: View {
                 avatarInitials: "AJ",
                 postTitle: "New Design System Components",
                 postDescription: "We've just released a comprehensive set of design system components that will help us maintain consistency across all our products. This includes buttons, forms, cards, and navigation elements.",
-                postImageName: "Feed",
+                postImageName: nil,
                 likeCount: 42,
                 commentCount: 8,
                 isLiked: false,
@@ -198,7 +151,7 @@ struct PostPreview: View {
                 }
             )
             
-            // Post with long content
+            // Post with research content
             PostPreview(
                 authorName: "Dr. Elizabeth Thompson",
                 spaceName: "Research and Development",
@@ -206,9 +159,33 @@ struct PostPreview: View {
                 avatarInitials: "ET",
                 postTitle: "Advanced Machine Learning Techniques for Natural Language Processing",
                 postDescription: "Our research team has been exploring cutting-edge transformer architectures and their applications in understanding context and generating human-like responses. The results are quite promising and we're excited to share our findings with the community.",
+                postImageName: nil,
                 likeCount: 1245,
                 commentCount: 89,
                 isLiked: false,
+                onLikeTapped: {
+                    print("Like tapped!")
+                },
+                onCommentTapped: {
+                    print("Comment tapped!")
+                },
+                onPostTapped: {
+                    print("Post tapped!")
+                }
+            )
+            
+            // Post with team update
+            PostPreview(
+                authorName: "Mike Rodriguez",
+                spaceName: "Product Team",
+                timeAgo: "3d",
+                avatarInitials: "MR",
+                postTitle: "Team Collaboration Update",
+                postDescription: "Great progress on our latest feature! The team has been working closely together and we're seeing excellent results.",
+                postImageName: nil,
+                likeCount: 67,
+                commentCount: 12,
+                isLiked: true,
                 onLikeTapped: {
                     print("Like tapped!")
                 },
