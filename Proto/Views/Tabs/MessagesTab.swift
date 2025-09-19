@@ -70,6 +70,7 @@ struct MessagesTab: View {
                             EmptyView()
                         }
                     }
+                    .padding(.vertical, 16)
                 }
             }
             .navigationBarTitle("Messages")

@@ -13,6 +13,7 @@ struct CommunityTab: View {
     @State private var selectedSegment = 0
     @Environment(\.colorScheme) private var colorScheme
     @Binding var selectedTintColor: Color
+    @StateObject private var unsplashService = UnsplashService.shared
     
     private let communitySegments = ["Feed", "Video", "Courses", "Events", "Members", "Leaderboard"]
     
@@ -22,8 +23,9 @@ struct CommunityTab: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 8) {
                     // Segment control for content switching
                     SegmentControl(
                         segments: communitySegments,
@@ -33,36 +35,143 @@ struct CommunityTab: View {
                         },
                         tintColor: selectedTintColor
                     )
-                    .padding(.horizontal)
+                    .padding(.horizontal, 16)
                     .padding(.top, 8)
                     
                     // Content based on selected segment
                     Group {
                         switch communitySegments[selectedSegment] {
                         case "Feed":
-                            // Feed image scaled to fill width and fully scrollable
-                            if let _ = UIImage(named: "Feed") {
+                            // Executive coaching community posts showcasing AI transformation
+                            VStack(alignment: .leading, spacing: 20) {
+                                // Post 1: AI Tools for Executive Coaching
                                 NavigationLink(destination: PostDetails()) {
-                                    Image("Feed")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(maxWidth: .infinity)
-                                        .clipped()
-                                        .blendMode(feedBlendMode)
+                                    PostPreview(
+                                        authorName: "Dr. Sarah Chen",
+                                        spaceName: "AI Transformation",
+                                        timeAgo: "2h",
+                                        avatarInitials: "SC",
+                                        postTitle: "Revolutionary AI Tools for Executive Coaching",
+                                        postDescription: "Just discovered how ChatGPT can help executives develop better self-awareness through structured reflection prompts. The results are remarkable!",
+                                        postImageName: "image1", // Sequential image assignment
+                                        likeCount: 42,
+                                        commentCount: 8,
+                                        isLiked: false,
+                                        onLikeTapped: {
+                                            print("Like tapped on AI tools post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on AI tools post!")
+                                        },
+                                        onPostTapped: {
+                                            print("Post tapped on AI tools!")
+                                        }
+                                    )
                                 }
-                            } else {
-                                // Fallback if image not found
-                                NavigationLink(destination: PostDetails()) {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(.ultraThinMaterial)
-                                        .frame(height: 400)
-                                        .overlay(
-                                            Text("Feed Image")
-                                                .font(.headline)
-                                        )
-                                        .padding(.horizontal)
-                                }
+                                
+                                Divider()
+                                
+                                // Post 2: Leadership Development with AI
+                                PostPreview(
+                                    authorName: "Marcus Thompson",
+                                    spaceName: "Leadership Excellence",
+                                    timeAgo: "4d",
+                                    avatarInitials: "MT",
+                                    postTitle: "How AI is Transforming Leadership Development",
+                                    postDescription: "Exploring how AI-powered assessments can identify leadership gaps and create personalized development plans for C-suite executives.",
+                                    postImageName: "image2", // Sequential image assignment
+                                    likeCount: 156,
+                                    commentCount: 23,
+                                    isLiked: true,
+                                    onLikeTapped: {
+                                        print("Like tapped on leadership post!")
+                                    },
+                                    onCommentTapped: {
+                                        print("Comment tapped on leadership post!")
+                                    },
+                                    onPostTapped: {
+                                        print("Post tapped on leadership!")
+                                    }
+                                )
+
+                                
+                                Divider()
+                                
+                                // Post 3: Executive Coaching Best Practices
+                                PostPreview(
+                                    authorName: "Dr. Elizabeth Rodriguez-Williams",
+                                        spaceName: "Executive Coaching Mastery",
+                                        timeAgo: "1w",
+                                        avatarInitials: "ER",
+                                        postTitle: "The Future of Executive Coaching: Integrating AI and Human Insight",
+                                        postDescription: "A comprehensive analysis of how artificial intelligence is reshaping the executive coaching landscape while preserving the essential human elements that make coaching truly transformative.",
+                                        postImageName: "image3", // Sequential image assignment
+                                        likeCount: 1245,
+                                        commentCount: 89,
+                                        isLiked: false,
+                                        onLikeTapped: {
+                                            print("Like tapped on coaching future post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on coaching future post!")
+                                        },
+                                        onPostTapped: {
+                                            print("Post tapped on coaching future!")
+                                        }
+                                    )
+                                    
+                                    Divider()
+                                    
+                                    // Post 4: AI Ethics in Coaching
+                                    PostPreview(
+                                        authorName: "Prof. James Mitchell",
+                                        spaceName: "Ethics & AI",
+                                        timeAgo: "3d",
+                                        avatarInitials: "JM",
+                                        postTitle: "Navigating AI Ethics in Executive Coaching",
+                                        postDescription: "Critical considerations for maintaining confidentiality and trust when incorporating AI tools into executive coaching practices.",
+                                        postImageName: "image4", // Sequential image assignment
+                                        likeCount: 15,
+                                        commentCount: 3,
+                                        isLiked: true,
+                                        onLikeTapped: {
+                                            print("Like tapped on AI ethics post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on AI ethics post!")
+                                        },
+                                        onPostTapped: {
+                                            print("Post tapped on AI ethics!")
+                                        }
+                                    )
+                                    
+                                    Divider()
+                                    
+                                    // Post 5: Success Story with AI Integration
+                                    PostPreview(
+                                        authorName: "Lisa Park",
+                                        spaceName: "Success Stories",
+                                        timeAgo: "30m",
+                                        avatarImageName: "Avatar",
+                                        postTitle: "Client Success: 40% Improvement in Decision-Making Speed",
+                                        postDescription: "Sharing how we used AI-powered scenario planning to help a Fortune 500 CEO dramatically improve their strategic decision-making process.",
+                                        postImageName: "image5", // Sequential image assignment
+                                        likeCount: 89,
+                                        commentCount: 12,
+                                        isLiked: false,
+                                        onLikeTapped: {
+                                            print("Like tapped on success story post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on success story post!")
+                                        },
+                                        onPostTapped: {
+                                            print("Post tapped on success story!")
+                                        }
+                                    )
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
                         case "Video":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
@@ -112,6 +221,7 @@ struct CommunityTab: View {
                             EmptyView()
                         }
                     }
+                    .padding(.vertical, 16)
                 }
             }
             .navigationBarTitle("Community")
@@ -140,6 +250,8 @@ struct CommunityTab: View {
                     )
                 }
                 .sharedBackgroundHidden()
+                }
+                .frame(maxWidth: .infinity)
             }
         }
         .sheet(isPresented: $showDraftsSheet) {

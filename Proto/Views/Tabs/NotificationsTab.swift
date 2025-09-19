@@ -98,6 +98,7 @@ struct NotificationsTab: View {
                             EmptyView()
                         }
                     }
+                    .padding(.vertical, 16)
                 }
             }
             .navigationBarTitle("Notifications")
