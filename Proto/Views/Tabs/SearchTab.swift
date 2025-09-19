@@ -19,6 +19,7 @@ struct SearchTab: View {
                         .foregroundColor(.secondary)
                         .padding()
                 }
+                .padding(.vertical, 16)
             }
             .navigationBarTitle("Search")
             .toolbarTitleDisplayMode(.inlineLarge)

@@ -40,58 +40,132 @@ struct CommunityTab: View {
                     Group {
                         switch communitySegments[selectedSegment] {
                         case "Feed":
-                            VStack(alignment: .leading, spacing: 12) {
-                                // Multiple PostMetadata instances to showcase different behaviors
-                                VStack(alignment: .leading, spacing: 8) {
-                                    // Short text - should hug content
-                                    PostMetadata(
-                                        authorName: "Alex",
-                                        spaceName: "Dev",
+                            VStack(alignment: .leading, spacing: 0) {
+                                // Executive coaching community posts showcasing AI transformation
+                                VStack(alignment: .leading, spacing: 0) {
+                                    // Post 1: AI Tools for Executive Coaching
+                                    PostPreview(
+                                        authorName: "Dr. Sarah Chen",
+                                        spaceName: "AI Transformation",
                                         timeAgo: "2h",
-                                        avatarInitials: "AJ"
+                                        avatarInitials: "SC",
+                                        postTitle: "Revolutionary AI Tools for Executive Coaching",
+                                        postDescription: "Just discovered how ChatGPT can help executives develop better self-awareness through structured reflection prompts. The results are remarkable!",
+                                        postImageName: "ai-technology", // Will use Unsplash placeholder
+                                        likeCount: 42,
+                                        commentCount: 8,
+                                        isLiked: false,
+                                        onLikeTapped: {
+                                            print("Like tapped on AI tools post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on AI tools post!")
+                                        },
+                                        onPostTapped: {
+                                            print("Post tapped on AI tools!")
+                                        }
                                     )
                                     
-                                    // Medium text - should fill available space
-                                    PostMetadata(
-                                        authorName: "Sally Flower",
-                                        spaceName: "Design Team",
+                                    Divider(variant: .fullWidth)
+                                    
+                                    // Post 2: Leadership Development with AI
+                                    PostPreview(
+                                        authorName: "Marcus Thompson",
+                                        spaceName: "Leadership Excellence",
                                         timeAgo: "4d",
-                                        avatarInitials: "SF"
+                                        avatarInitials: "MT",
+                                        postTitle: "How AI is Transforming Leadership Development",
+                                        postDescription: "Exploring how AI-powered assessments can identify leadership gaps and create personalized development plans for C-suite executives.",
+                                        postImageName: "leadership-development", // Will use Unsplash placeholder
+                                        likeCount: 156,
+                                        commentCount: 23,
+                                        isLiked: true,
+                                        onLikeTapped: {
+                                            print("Like tapped on leadership post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on leadership post!")
+                                        },
+                                        onPostTapped: {
+                                            print("Post tapped on leadership!")
+                                        }
                                     )
                                     
-                                    // Long text - should truncate
-                                    PostMetadata(
-                                        authorName: "Christopher Alexander Johnson",
-                                        spaceName: "Product Management and Strategy",
+                                    Divider(variant: .fullWidth)
+                                    
+                                    // Post 3: Executive Coaching Best Practices
+                                    PostPreview(
+                                        authorName: "Dr. Elizabeth Rodriguez-Williams",
+                                        spaceName: "Executive Coaching Mastery",
                                         timeAgo: "1w",
-                                        avatarInitials: "CAJ"
+                                        avatarInitials: "ER",
+                                        postTitle: "The Future of Executive Coaching: Integrating AI and Human Insight",
+                                        postDescription: "A comprehensive analysis of how artificial intelligence is reshaping the executive coaching landscape while preserving the essential human elements that make coaching truly transformative.",
+                                        postImageName: "coaching-mentoring", // Will use Unsplash placeholder
+                                        likeCount: 1245,
+                                        commentCount: 89,
+                                        isLiked: false,
+                                        onLikeTapped: {
+                                            print("Like tapped on coaching future post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on coaching future post!")
+                                        },
+                                        onPostTapped: {
+                                            print("Post tapped on coaching future!")
+                                        }
                                     )
                                     
-                                    // Very long text - should truncate heavily
-                                    PostMetadata(
-                                        authorName: "Dr. Elizabeth Margaret Thompson-Williams",
-                                        spaceName: "Advanced Research and Development Division",
+                                    Divider(variant: .fullWidth)
+                                    
+                                    // Post 4: AI Ethics in Coaching
+                                    PostPreview(
+                                        authorName: "Prof. James Mitchell",
+                                        spaceName: "Ethics & AI",
                                         timeAgo: "3d",
-                                        avatarInitials: "EMT"
+                                        avatarInitials: "JM",
+                                        postTitle: "Navigating AI Ethics in Executive Coaching",
+                                        postDescription: "Critical considerations for maintaining confidentiality and trust when incorporating AI tools into executive coaching practices.",
+                                        postImageName: "professional-ethics", // Will use Unsplash placeholder
+                                        likeCount: 15,
+                                        commentCount: 3,
+                                        isLiked: true,
+                                        onLikeTapped: {
+                                            print("Like tapped on AI ethics post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on AI ethics post!")
+                                        },
+                                        onPostTapped: {
+                                            print("Post tapped on AI ethics!")
+                                        }
                                     )
                                     
-                                    // Short with image avatar
-                                    PostMetadata(
-                                        authorName: "Maria",
-                                        spaceName: "UX",
+                                    Divider(variant: .fullWidth)
+                                    
+                                    // Post 5: Success Story with AI Integration
+                                    PostPreview(
+                                        authorName: "Lisa Park",
+                                        spaceName: "Success Stories",
                                         timeAgo: "30m",
-                                        avatarImageName: "Avatar"
-                                    )
-                                    
-                                    // Medium with different time format
-                                    PostMetadata(
-                                        authorName: "David Chen",
-                                        spaceName: "Engineering",
-                                        timeAgo: "2d ago",
-                                        avatarInitials: "DC"
+                                        avatarImageName: "Avatar",
+                                        postTitle: "Client Success: 40% Improvement in Decision-Making Speed",
+                                        postDescription: "Sharing how we used AI-powered scenario planning to help a Fortune 500 CEO dramatically improve their strategic decision-making process.",
+                                        postImageName: "business-success", // Will use Unsplash placeholder
+                                        likeCount: 89,
+                                        commentCount: 12,
+                                        isLiked: false,
+                                        onLikeTapped: {
+                                            print("Like tapped on success story post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on success story post!")
+                                        },
+                                        onPostTapped: {
+                                            print("Post tapped on success story!")
+                                        }
                                     )
                                 }
-                                .padding(.horizontal)
                                 
                                 // Feed image scaled to fill width and fully scrollable
                                 if let _ = UIImage(named: "Feed") {
@@ -117,6 +191,7 @@ struct CommunityTab: View {
                                     }
                                 }
                             }
+                            .padding(.horizontal)
                         case "Video":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
@@ -166,6 +241,7 @@ struct CommunityTab: View {
                             EmptyView()
                         }
                     }
+                    .padding(.vertical, 16)
                 }
             }
             .navigationBarTitle("Community")
