@@ -1,4 +1,5 @@
 ## Next steps
+fix: transaction rule for post preview should be two line descriptions and that style should be secondary not
 add: connect actions on profile, accessed via notification
 1. **Image lightbox** - Tap on images to open full-screen lightbox view
 2. **Video inline player** - Native video player with autoplay on scroll position
