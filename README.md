@@ -1,6 +1,4 @@
 ## Next steps
-- fix: truncation rule for post preview should be two line descriptions and that style should be secondary not tertiary
-- fix: post preview title3 bold (not semibold)
 - style(icons): replace sf symbols with icons in primary nav, & post preview
 - feat: admin mode shift, navigation paradigm
 - feat: member profile
