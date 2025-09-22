@@ -69,9 +69,7 @@ struct EngagementBar: View {
                 onCommentTapped?()
             }) {
                 HStack(spacing: 8) {
-                    Image(systemName: "message")
-                        .font(.system(size: 20, weight: .regular))
-                        .foregroundColor(.secondary)
+                    CommentIcon(size: 20, color: .secondary)
                         .scaleEffect(1.0)
                         .animation(.easeInOut(duration: 0.1), value: commentCount)
                     
