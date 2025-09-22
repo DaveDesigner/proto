@@ -76,16 +76,16 @@ struct PostPreview: View {
             VStack(alignment: .leading, spacing: 8) {
                 // Post title
                 Text(postTitle)
-                    .font(.title3.weight(.semibold))
-                    .foregroundColor(.primary)
+                    .font(.title3.weight(.bold))
+                    .foregroundColor(Color.primary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                 
                 // Post description
                 Text(postDescription)
                     .font(.body)
-                    .foregroundColor(.secondary)
-                    .lineLimit(3)
+                    .foregroundColor(Color.secondary)
+                    .lineLimit(2)
                     .multilineTextAlignment(.leading)
             }
             
