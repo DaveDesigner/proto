@@ -39,25 +39,25 @@ struct PostMetadata: View {
                     // Author name - highest priority (always visible), medium weight
                     Text(authorName)
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.tertiary)
                         .layoutPriority(3)
                     
                     // "in" connector - regular weight
                     Text(" in ")
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.tertiary)
                         .layoutPriority(1)
                     
                     // Space name - lowest priority (can truncate), medium weight
                     Text(spaceName)
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.tertiary)
                         .layoutPriority(1)
                     
                     // Time - medium priority (preferred to be visible), regular weight
                     Text(" • \(timeAgo)")
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.tertiary)
                         .layoutPriority(2)
                 }
                 .lineLimit(1)
