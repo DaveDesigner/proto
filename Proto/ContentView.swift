@@ -30,11 +30,7 @@ struct ContentView: View {
             Tab {
                 MessagesTab(selectedTintColor: $selectedTintColor)
             } label: {
-                Label {
-                    Text("Messages")
-                } icon: {
-                    MessagesIcon(size: 20, color: .primary)
-                }
+                Label("Messages", systemImage: "message")
             }
             
             Tab(role: .search) {
