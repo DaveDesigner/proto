@@ -1,6 +1,11 @@
 ## Next steps
-- fix: truncation rule for post preview should be two line descriptions and that style should be secondary not
-- fix: accent color light/dark mode defined to switch like primary on nav in dark mode
+- fix: truncation rule for post preview should be two line descriptions and that style should be secondary not tertiary
+- fix: post preview title3 bold (not semibold)
+- style(icons): replace sf symbols with icons in primary nav, & post preview
+- feat: admin mode shift, navigation paradigm
+- feat: member profile
+- feat: add connection status actions to profile
+- feat: accent color light/dark mode defined to switch like primary on nav in dark mode
 - add: connect actions on profile, accessed via notification
 1. **Image lightbox** - Tap on images to open full-screen lightbox view
 2. **Video inline player** - Native video player with autoplay on scroll position
