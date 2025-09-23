@@ -61,7 +61,7 @@ struct MessagesTab: View {
             isOnline: true,
             isGroupChat: false,
             groupAvatars: nil,
-            avatarImageIndex: 3,
+            avatarImageIndex: nil, // Use initials instead of Unsplash
             groupAvatarImageIndices: nil,
             createdAt: Date().addingTimeInterval(-86400) // Yesterday
         ),
@@ -112,7 +112,7 @@ struct MessagesTab: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
-            groupAvatarImageIndices: [8, 9],
+            groupAvatarImageIndices: nil, // Use initials instead of Unsplash for group
             createdAt: Date().addingTimeInterval(-604800) // 1 week ago
         ),
         MessageData(
@@ -162,7 +162,7 @@ struct MessagesTab: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
-            groupAvatarImageIndices: [12, 13, 14, 15, 16, 17, 18, 19],
+            groupAvatarImageIndices: nil, // Use initials instead of Unsplash for group
             createdAt: Date().addingTimeInterval(-2419200) // 4 weeks ago
         ),
         MessageData(
@@ -212,7 +212,7 @@ struct MessagesTab: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
-            groupAvatarImageIndices: [17, 18, 19],
+            groupAvatarImageIndices: nil, // Use initials instead of Unsplash for group
             createdAt: Date().addingTimeInterval(-7776000) // 9 weeks ago
         ),
         MessageData(

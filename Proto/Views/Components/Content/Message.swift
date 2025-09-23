@@ -68,31 +68,19 @@ struct Message: View {
     private var avatarSection: some View {
         ZStack {
             if data.isGroupChat, let groupImageIndices = data.groupAvatarImageIndices, groupImageIndices.count >= 2 {
-                // Group chat with two avatars
-                HStack(spacing: -4) {
-                    Avatar(
-                        initials: data.senderName,
-                        imageName: nil, // Will use initials for group chats
-                        size: 24,
-                        isOnline: false // Group chats don't show online status
-                    )
-                    .zIndex(2)
-                    Avatar(
-                        initials: data.senderName,
-                        imageName: nil, // Will use initials for group chats
-                        size: 24,
-                        isOnline: false // Group chats don't show online status
-                    )
-                    .zIndex(1)
-                }
-                .frame(width: 40, height: 40)
-            } else {
-                // Single avatar with image or initials
+                // Group chat with two avatars using Unsplash
                 Avatar(
                     initials: data.senderName,
-                    imageName: data.avatarImageIndex != nil ? "Avatar" : nil, // Use Avatar image if available
-                    size: 40,
-                    isOnline: data.isOnline
+                    variant: .group(),
+                    imageIndex: groupImageIndices[0] // Use first image index for group
+                )
+            } else {
+                // Single avatar with Unsplash or initials
+                let variant: AvatarVariant = data.isOnline ? .online() : .default()
+                Avatar(
+                    initials: data.senderName,
+                    variant: variant,
+                    imageIndex: data.avatarImageIndex
                 )
             }
         }
@@ -233,9 +221,8 @@ struct Message: View {
                 ForEach(Array(data.replyAvatars.prefix(3).enumerated()), id: \.offset) { index, _ in
                     Avatar(
                         initials: "R\(index + 1)", // Reply initials
-                        imageName: nil, // Use initials for replies
-                        size: 24,
-                        isOnline: false // Replies don't show online status
+                        variant: .size24,
+                        imageIndex: index + 10 // Use different Unsplash images for replies
                     )
                     .zIndex(Double(3 - index))
                 }
