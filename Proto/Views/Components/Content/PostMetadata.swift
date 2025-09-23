@@ -71,6 +71,7 @@ struct PostMetadata: View {
                             .layoutPriority(2)
                         
                         RelativeDate(date: createdAt, variant: .abbreviated)
+                            .layoutPriority(2) // Protect the date from truncation
                     }
                 }
                 .lineLimit(1)

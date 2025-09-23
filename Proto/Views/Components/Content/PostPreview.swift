@@ -11,7 +11,7 @@ import SwiftUI
 struct PostPreview: View {
     let authorName: String
     let spaceName: String
-    let timeAgo: String
+    let createdAt: Date
     let avatarInitials: String?
     let avatarImageName: String?
     let postTitle: String
@@ -32,6 +32,39 @@ struct PostPreview: View {
     init(
         authorName: String,
         spaceName: String,
+        createdAt: Date,
+        avatarInitials: String? = nil,
+        avatarImageName: String? = nil,
+        postTitle: String,
+        postDescription: String,
+        postImageName: String? = nil,
+        likeCount: Int = 0,
+        commentCount: Int = 0,
+        isLiked: Bool = false,
+        onLikeTapped: (() -> Void)? = nil,
+        onCommentTapped: (() -> Void)? = nil,
+        onPostTapped: (() -> Void)? = nil
+    ) {
+        self.authorName = authorName
+        self.spaceName = spaceName
+        self.createdAt = createdAt
+        self.avatarInitials = avatarInitials
+        self.avatarImageName = avatarImageName
+        self.postTitle = postTitle
+        self.postDescription = postDescription
+        self.postImageName = postImageName
+        self.likeCount = likeCount
+        self.commentCount = commentCount
+        self.isLiked = isLiked
+        self.onLikeTapped = onLikeTapped
+        self.onCommentTapped = onCommentTapped
+        self.onPostTapped = onPostTapped
+    }
+    
+    // Convenience initializer for backward compatibility
+    init(
+        authorName: String,
+        spaceName: String,
         timeAgo: String,
         avatarInitials: String? = nil,
         avatarImageName: String? = nil,
@@ -47,7 +80,7 @@ struct PostPreview: View {
     ) {
         self.authorName = authorName
         self.spaceName = spaceName
-        self.timeAgo = timeAgo
+        self.createdAt = Date() // Fallback to current date
         self.avatarInitials = avatarInitials
         self.avatarImageName = avatarImageName
         self.postTitle = postTitle
@@ -67,7 +100,7 @@ struct PostPreview: View {
             PostMetadata(
                 authorName: authorName,
                 spaceName: spaceName,
-                timeAgo: timeAgo,
+                createdAt: createdAt,
                 avatarInitials: avatarInitials,
                 avatarImageName: avatarImageName
             )
@@ -155,7 +188,7 @@ struct PostPreview: View {
             PostPreview(
                 authorName: "Alex Johnson",
                 spaceName: "Design Team",
-                timeAgo: "2h",
+                createdAt: Date().addingTimeInterval(-7200), // 2 hours ago
                 avatarInitials: "AJ",
                 postTitle: "New Design System Components",
                 postDescription: "We've just released a comprehensive set of design system components that will help us maintain consistency across all our products. This includes buttons, forms, cards, and navigation elements.",
@@ -178,7 +211,7 @@ struct PostPreview: View {
             PostPreview(
                 authorName: "Sarah Chen",
                 spaceName: "Engineering",
-                timeAgo: "4d",
+                createdAt: Date().addingTimeInterval(-345600), // 4 days ago
                 avatarInitials: "SC",
                 postTitle: "Weekly Engineering Update",
                 postDescription: "This week we focused on performance optimizations and bug fixes. The new caching system is showing promising results with 40% faster load times.",
@@ -200,7 +233,7 @@ struct PostPreview: View {
             PostPreview(
                 authorName: "Dr. Elizabeth Thompson",
                 spaceName: "Research and Development",
-                timeAgo: "1w",
+                createdAt: Date().addingTimeInterval(-604800), // 1 week ago
                 avatarInitials: "ET",
                 postTitle: "Advanced Machine Learning Techniques for Natural Language Processing",
                 postDescription: "Our research team has been exploring cutting-edge transformer architectures and their applications in understanding context and generating human-like responses. The results are quite promising and we're excited to share our findings with the community.",
@@ -223,7 +256,7 @@ struct PostPreview: View {
             PostPreview(
                 authorName: "Mike Rodriguez",
                 spaceName: "Product Team",
-                timeAgo: "3d",
+                createdAt: Date().addingTimeInterval(-259200), // 3 days ago
                 avatarInitials: "MR",
                 postTitle: "Team Collaboration Update",
                 postDescription: "Great progress on our latest feature! The team has been working closely together and we're seeing excellent results.",

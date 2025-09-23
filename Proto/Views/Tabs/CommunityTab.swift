@@ -49,7 +49,7 @@ struct CommunityTab: View {
                                     PostPreview(
                                         authorName: "Dr. Sarah Chen",
                                         spaceName: "AI Transformation",
-                                        timeAgo: "2h",
+                                        createdAt: Date().addingTimeInterval(-7200), // 2 hours ago
                                         avatarInitials: "SC",
                                         postTitle: "Revolutionary AI Tools for Executive Coaching",
                                         postDescription: "Just discovered how ChatGPT can help executives develop better self-awareness through structured reflection prompts. The results are remarkable!",
@@ -75,7 +75,7 @@ struct CommunityTab: View {
                                 PostPreview(
                                     authorName: "Marcus Thompson",
                                     spaceName: "Leadership Excellence",
-                                    timeAgo: "4d",
+                                    createdAt: Date().addingTimeInterval(-345600), // 4 days ago
                                     avatarInitials: "MT",
                                     postTitle: "How AI is Transforming Leadership Development",
                                     postDescription: "Exploring how AI-powered assessments can identify leadership gaps and create personalized development plans for C-suite executives.",
@@ -101,7 +101,7 @@ struct CommunityTab: View {
                                 PostPreview(
                                     authorName: "Dr. Elizabeth Rodriguez-Williams",
                                         spaceName: "Executive Coaching Mastery",
-                                        timeAgo: "1w",
+                                        createdAt: Date().addingTimeInterval(-604800), // 1 week ago
                                         avatarInitials: "ER",
                                         postTitle: "The Future of Executive Coaching: Integrating AI and Human Insight",
                                         postDescription: "A comprehensive analysis of how artificial intelligence is reshaping the executive coaching landscape while preserving the essential human elements that make coaching truly transformative.",
@@ -126,7 +126,7 @@ struct CommunityTab: View {
                                     PostPreview(
                                         authorName: "Prof. James Mitchell",
                                         spaceName: "Ethics & AI",
-                                        timeAgo: "3d",
+                                        createdAt: Date().addingTimeInterval(-259200), // 3 days ago
                                         avatarInitials: "JM",
                                         postTitle: "Navigating AI Ethics in Executive Coaching",
                                         postDescription: "Critical considerations for maintaining confidentiality and trust when incorporating AI tools into executive coaching practices.",
@@ -151,7 +151,7 @@ struct CommunityTab: View {
                                     PostPreview(
                                         authorName: "Lisa Park",
                                         spaceName: "Success Stories",
-                                        timeAgo: "30m",
+                                        createdAt: Date().addingTimeInterval(-1800), // 30 minutes ago
                                         avatarImageName: "Avatar",
                                         postTitle: "Client Success: 40% Improvement in Decision-Making Speed",
                                         postDescription: "Sharing how we used AI-powered scenario planning to help a Fortune 500 CEO dramatically improve their strategic decision-making process.",
