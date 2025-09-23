@@ -105,20 +105,22 @@ struct RelativeDate: View {
             // Past dates in messages variant
             if seconds < 60 {
                 return "Just now"
-            } else if minutes < 60 {
-                return "\(minutes)m"
-            } else if hours < 24 {
-                return "\(hours)h"
+            } else if days < 1 {
+                // Show absolute time for same day (after 60 seconds)
+                let timeFormatter = DateFormatter()
+                timeFormatter.dateFormat = "h:mma"
+                timeFormatter.amSymbol = "am"
+                timeFormatter.pmSymbol = "pm"
+                return timeFormatter.string(from: date).lowercased()
             } else if days == 1 {
                 // Yesterday with time
                 let timeFormatter = DateFormatter()
-                timeFormatter.dateFormat = "HH:mm"
-                return "Yesterday, \(timeFormatter.string(from: date))"
-            } else if days <= 6 {
-                return "\(days)d"
-            } else if weeks <= 3 {
-                return "\(weeks)w"
+                timeFormatter.dateFormat = "h:mma"
+                timeFormatter.amSymbol = "am"
+                timeFormatter.pmSymbol = "pm"
+                return "Yesterday, \(timeFormatter.string(from: date).lowercased())"
             } else {
+                // More than 2 days - show date only
                 return formatDateString(includeYear: !isCurrentYear)
             }
             
@@ -160,13 +162,13 @@ struct RelativeDate: View {
                 .font(.headline)
             
             Group {
-                RelativeDate(date: Date().addingTimeInterval(-30), variant: .messages)
-                RelativeDate(date: Date().addingTimeInterval(-90), variant: .messages)
-                RelativeDate(date: Date().addingTimeInterval(-3600), variant: .messages)
-                RelativeDate(date: Date().addingTimeInterval(-86400), variant: .messages)
-                RelativeDate(date: Date().addingTimeInterval(-172800), variant: .messages)
-                RelativeDate(date: Date().addingTimeInterval(-1209600), variant: .messages)
-                RelativeDate(date: Date().addingTimeInterval(-15552000), variant: .messages)
+                RelativeDate(date: Date().addingTimeInterval(-30), variant: .messages) // Just now
+                RelativeDate(date: Date().addingTimeInterval(-90), variant: .messages) // 1:30am (example)
+                RelativeDate(date: Date().addingTimeInterval(-3600), variant: .messages) // 2:45pm (example)
+                RelativeDate(date: Date().addingTimeInterval(-86400), variant: .messages) // Yesterday, 3:02pm
+                RelativeDate(date: Date().addingTimeInterval(-172800), variant: .messages) // Mar 26
+                RelativeDate(date: Date().addingTimeInterval(-1209600), variant: .messages) // Mar 20
+                RelativeDate(date: Date().addingTimeInterval(-15552000), variant: .messages) // Jan 15
             }
         }
         
