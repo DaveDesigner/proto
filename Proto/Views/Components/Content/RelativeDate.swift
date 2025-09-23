@@ -18,16 +18,18 @@ enum RelativeDateVariant {
 struct RelativeDate: View {
     let date: Date
     let variant: RelativeDateVariant
+    let foregroundColor: Color?
     
-    init(date: Date, variant: RelativeDateVariant = .abbreviated) {
+    init(date: Date, variant: RelativeDateVariant = .abbreviated, foregroundColor: Color? = nil) {
         self.date = date
         self.variant = variant
+        self.foregroundColor = foregroundColor
     }
     
     var body: some View {
         Text(formattedDate)
             .font(.system(size: 13, weight: .regular))
-            .foregroundColor(.secondary)
+            .foregroundColor(foregroundColor ?? .secondary)
     }
     
     // MARK: - Date Formatting Logic

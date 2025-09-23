@@ -42,12 +42,13 @@ struct PostMetadata: View {
             )
             
             // Metadata section with intelligent width behavior using grouped HStacks
-            HStack(spacing: 4) {
+            HStack(spacing: 0) {
                 // First group: Author name and space name (can truncate space name)
                 HStack(spacing: 0) {
                     Text(authorName)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color.tertiary)
+                        .lineLimit(1)
                     
                     Text(" in ")
                         .font(.system(size: 13, weight: .regular))
@@ -57,8 +58,9 @@ struct PostMetadata: View {
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color.tertiary)
                         .lineLimit(1)
-                        .truncationMode(.tail)
+                        
                 }
+                .truncationMode(.tail)
                 .layoutPriority(1) // Lower priority - can be compressed
                 
                 // Second group: Time and date (protected from truncation)
@@ -67,7 +69,8 @@ struct PostMetadata: View {
                         .font(.system(size: 13, weight: .regular))
                         .foregroundStyle(Color.tertiary)
                     
-                    RelativeDate(date: createdAt, variant: .abbreviated)
+                    RelativeDate(date: createdAt, variant: .abbreviated, foregroundColor: Color.tertiary)
+
                 }
                 .layoutPriority(2) // Higher priority - protected from truncation
             }

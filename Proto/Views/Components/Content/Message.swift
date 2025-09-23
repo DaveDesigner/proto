@@ -118,7 +118,7 @@ struct Message: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                 
-                RelativeDate(date: data.createdAt ?? Date(), variant: .messages)
+                RelativeDate(date: data.createdAt ?? Date(), variant: .messages, foregroundColor: Color.tertiary)
             }
             
             Spacer(minLength: 0)
