@@ -14,6 +14,65 @@ struct MessagesTab: View {
     
     private let messageSegments = ["Inbox", "Agents"]
     
+    // Sample data for demonstration
+    private let sampleMessages: [MessageData] = [
+        MessageData(
+            id: "1",
+            senderName: "Mike Walero",
+            timestamp: "3:11 pm",
+            messages: ["Hey team, Whats up?"],
+            hasReplies: false,
+            replyCount: 0,
+            replyAvatars: [],
+            hasNewMessage: true,
+            isOnline: true,
+            isGroupChat: false,
+            groupAvatars: nil
+        ),
+        MessageData(
+            id: "2",
+            senderName: "Sarah Chen",
+            timestamp: "2:45 pm",
+            messages: [
+                "Thanks for the update!",
+                "Looking forward to the next iteration"
+            ],
+            hasReplies: true,
+            replyCount: 3,
+            replyAvatars: ["Avatar", "Avatar", "Avatar"],
+            hasNewMessage: false,
+            isOnline: false,
+            isGroupChat: false,
+            groupAvatars: nil
+        ),
+        MessageData(
+            id: "3",
+            senderName: "Design Team",
+            timestamp: "1:30 pm",
+            messages: ["Let's discuss the new features for next sprint"],
+            hasReplies: false,
+            replyCount: 0,
+            replyAvatars: [],
+            hasNewMessage: true,
+            isOnline: false,
+            isGroupChat: true,
+            groupAvatars: ["Avatar", "Avatar"]
+        ),
+        MessageData(
+            id: "4",
+            senderName: "Alex Johnson",
+            timestamp: "12:15 pm",
+            messages: ["The prototype looks great!"],
+            hasReplies: true,
+            replyCount: 1,
+            replyAvatars: ["Avatar"],
+            hasNewMessage: false,
+            isOnline: true,
+            isGroupChat: false,
+            groupAvatars: nil
+        )
+    ]
+    
     private var messagesBlendMode: BlendMode {
         colorScheme == .dark ? .screen : .multiply
     }
@@ -38,26 +97,22 @@ struct MessagesTab: View {
                     Group {
                         switch messageSegments[selectedSegment] {
                         case "Inbox":
-                            // Messages image scaled to fill width and fully scrollable
-                            if let _ = UIImage(named: "Messages") {
-                                Image("Messages")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxWidth: .infinity)
-                                    .clipped()
-                                    .blendMode(messagesBlendMode)
-                            } else {
-                                // Fallback if image not found
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(.ultraThinMaterial)
-                                    .frame(height: 400)
-                                    .overlay(
-                                        Text("Inbox Messages")
-                                            .font(.headline)
-                                    )
-                                    .padding(.horizontal)
+                            // Messages list
+                            LazyVStack(spacing: 0) {
+                                ForEach(sampleMessages, id: \.id) { messageData in
+                                    Message(data: messageData) {
+                                        // Handle message tap
+                                        print("Tapped message: \(messageData.senderName)")
+                                    }
+                                    
+                                    if messageData.id != sampleMessages.last?.id {
+                                        Divider()
+                                            .padding(.leading, 72) // Align with message content
+                                    }
+                                }
                             }
                         case "Agents":
+                            // Agents content placeholder
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
                                 .frame(height: 300)
