@@ -12,11 +12,13 @@ struct Avatar: View {
     let initials: String?
     let imageName: String?
     let size: CGFloat
+    let isOnline: Bool
     
-    init(initials: String? = nil, imageName: String? = nil, size: CGFloat = 24) {
+    init(initials: String? = nil, imageName: String? = nil, size: CGFloat = 24, isOnline: Bool = false) {
         self.initials = initials
         self.imageName = imageName
         self.size = size
+        self.isOnline = isOnline
     }
     
     // Computed property to extract first two initials from a full name
@@ -102,46 +104,63 @@ struct Avatar: View {
                             .foregroundColor(.secondary)
                     )
             }
+            
+            // Online status indicator
+            if isOnline {
+                Circle()
+                    .fill(Color.green)
+                    .frame(width: onlineIndicatorSize, height: onlineIndicatorSize)
+                    .offset(x: onlineIndicatorOffset, y: onlineIndicatorOffset)
+            }
         }
+    }
+    
+    // MARK: - Online Status Properties
+    private var onlineIndicatorSize: CGFloat {
+        size * 0.2 // 20% of avatar size
+    }
+    
+    private var onlineIndicatorOffset: CGFloat {
+        size * 0.35 // Position indicator at bottom-right
     }
 }
 
 // MARK: - Preview
 #Preview {
     VStack(spacing: 16) {
-        // Test single names
+        // Test single names with online status
         HStack(spacing: 12) {
-            Avatar(initials: "Alex", size: 24)
-            Avatar(initials: "Maria", size: 24)
-            Avatar(initials: "David", size: 24)
+            Avatar(initials: "Alex", size: 24, isOnline: true)
+            Avatar(initials: "Maria", size: 24, isOnline: false)
+            Avatar(initials: "David", size: 24, isOnline: true)
         }
         
-        // Test two names (first + last)
+        // Test two names (first + last) with online status
         HStack(spacing: 12) {
-            Avatar(initials: "Sally Flower", size: 32)
-            Avatar(initials: "David Chen", size: 32)
-            Avatar(initials: "Alex Johnson", size: 32)
+            Avatar(initials: "Sally Flower", size: 32, isOnline: true)
+            Avatar(initials: "David Chen", size: 32, isOnline: false)
+            Avatar(initials: "Alex Johnson", size: 32, isOnline: true)
         }
         
-        // Test multiple names (first + middle + last)
+        // Test multiple names (first + middle + last) with online status
         HStack(spacing: 12) {
-            Avatar(initials: "Christopher Alexander Johnson", size: 40)
-            Avatar(initials: "Dr. Elizabeth Margaret Thompson-Williams", size: 40)
-            Avatar(initials: "Maria Elena Rodriguez", size: 40)
+            Avatar(initials: "Christopher Alexander Johnson", size: 40, isOnline: true)
+            Avatar(initials: "Dr. Elizabeth Margaret Thompson-Williams", size: 40, isOnline: false)
+            Avatar(initials: "Maria Elena Rodriguez", size: 40, isOnline: true)
         }
         
-        // Test already processed initials
+        // Test already processed initials with online status
         HStack(spacing: 12) {
-            Avatar(initials: "SF", size: 24)
-            Avatar(initials: "DC", size: 24)
-            Avatar(initials: "AJ", size: 24)
+            Avatar(initials: "SF", size: 24, isOnline: true)
+            Avatar(initials: "DC", size: 24, isOnline: false)
+            Avatar(initials: "AJ", size: 24, isOnline: true)
         }
         
-        // Test image avatars
+        // Test image avatars with online status
         HStack(spacing: 12) {
-            Avatar(imageName: "Avatar", size: 24)
-            Avatar(imageName: "Avatar", size: 32)
-            Avatar(imageName: "Avatar", size: 40)
+            Avatar(imageName: "Avatar", size: 24, isOnline: true)
+            Avatar(imageName: "Avatar", size: 32, isOnline: false)
+            Avatar(imageName: "Avatar", size: 40, isOnline: true)
         }
     }
     .padding()

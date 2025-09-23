@@ -151,9 +151,9 @@ struct MessagesTab: View {
         // Last month
         MessageData(
             id: "9",
-            senderName: "Maria, Carlos, Sophie",
+            senderName: "Maria, Carlos, Sophie, David, Sarah, Jennifer, Michael, Alex",
             timestamp: "11:15 am",
-            messages: ["Our peer coaching triad has been incredibly valuable. Sophie's insights on cross-cultural leadership were eye-opening."],
+            messages: ["Our peer coaching group has been incredibly valuable. Everyone's insights on cross-cultural leadership were eye-opening."],
             hasReplies: false,
             replyCount: 0,
             replyAvatars: [],
@@ -162,7 +162,7 @@ struct MessagesTab: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
-            groupAvatarImageIndices: [12, 13, 14],
+            groupAvatarImageIndices: [12, 13, 14, 15, 16, 17, 18, 19],
             createdAt: Date().addingTimeInterval(-2419200) // 4 weeks ago
         ),
         MessageData(

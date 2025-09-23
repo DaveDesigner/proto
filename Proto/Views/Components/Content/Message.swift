@@ -7,100 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Unsplash Avatar Component
-struct UnsplashAvatar: View {
-    let imageIndex: Int?
-    let initials: String
-    let size: CGFloat
-    
-    @StateObject private var unsplashService = UnsplashService.shared
-    
-    var body: some View {
-        Group {
-            if let imageIndex = imageIndex, 
-               let photo = unsplashService.getPhoto(at: imageIndex) {
-                // Use Unsplash image
-                AsyncImage(url: URL(string: photo.urls.small)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: size, height: size)
-                        .clipShape(Circle())
-                } placeholder: {
-                    // Fallback to initials while loading
-                    Circle()
-                        .fill(avatarColor)
-                        .frame(width: size, height: size)
-                        .overlay(
-                            Text(processedInitials)
-                                .font(.system(size: fontSize, weight: .medium))
-                                .foregroundColor(.white)
-                        )
-                }
-            } else {
-                // Use initials
-                Circle()
-                    .fill(avatarColor)
-                    .frame(width: size, height: size)
-                    .overlay(
-                        Text(processedInitials)
-                            .font(.system(size: fontSize, weight: .medium))
-                            .foregroundColor(.white)
-                    )
-            }
-        }
-    }
-    
-    // Computed property to extract first two initials from a full name
-    private var processedInitials: String {
-        // If it's already 2 characters or less, return as is
-        if initials.count <= 2 {
-            return initials.uppercased()
-        }
-        
-        // Split by spaces and filter out empty strings
-        let nameParts = initials.components(separatedBy: .whitespaces)
-            .filter { !$0.isEmpty }
-        
-        // If we have at least 2 parts, take first letter of first and last
-        if nameParts.count >= 2 {
-            let firstInitial = String(nameParts.first?.prefix(1) ?? "")
-            let lastInitial = String(nameParts.last?.prefix(1) ?? "")
-            return (firstInitial + lastInitial).uppercased()
-        }
-        
-        // If we only have one part, take first two characters
-        if nameParts.count == 1 {
-            let name = nameParts[0]
-            if name.count >= 2 {
-                return String(name.prefix(2)).uppercased()
-            } else {
-                return name.uppercased()
-            }
-        }
-        
-        // Fallback: take first two characters of the original string
-        return String(initials.prefix(2)).uppercased()
-    }
-    
-    private let colors = [
-        Color(red: 0.447, green: 0.188, blue: 0.737), // Purple
-        Color(red: 0.702, green: 0.192, blue: 0.745), // Pink
-        Color(red: 0.745, green: 0.173, blue: 0.502), // Magenta
-        Color(red: 0.141, green: 0.400, blue: 0.576), // Blue
-        Color(red: 0.114, green: 0.373, blue: 0.412), // Teal
-        Color(red: 0.227, green: 0.412, blue: 0.109)  // Green
-    ]
-    
-    private var avatarColor: Color {
-        let hash = processedInitials.hashValue
-        return colors[abs(hash) % colors.count]
-    }
-    
-    private var fontSize: CGFloat {
-        size * 0.46 // 11pt for 24pt size as per Figma
-    }
-}
 
 // MARK: - Message Model
 struct MessageData {
@@ -162,39 +68,31 @@ struct Message: View {
     private var avatarSection: some View {
         ZStack {
             if data.isGroupChat, let groupImageIndices = data.groupAvatarImageIndices, groupImageIndices.count >= 2 {
-                // Group chat with two avatars using Unsplash
+                // Group chat with two avatars
                 HStack(spacing: -4) {
-                    UnsplashAvatar(
-                        imageIndex: groupImageIndices[0],
+                    Avatar(
                         initials: data.senderName,
-                        size: 24
+                        imageName: nil, // Will use initials for group chats
+                        size: 24,
+                        isOnline: false // Group chats don't show online status
                     )
                     .zIndex(2)
-                    UnsplashAvatar(
-                        imageIndex: groupImageIndices[1],
+                    Avatar(
                         initials: data.senderName,
-                        size: 24
+                        imageName: nil, // Will use initials for group chats
+                        size: 24,
+                        isOnline: false // Group chats don't show online status
                     )
                     .zIndex(1)
                 }
                 .frame(width: 40, height: 40)
             } else {
-                // Single avatar with Unsplash or initials
-                UnsplashAvatar(
-                    imageIndex: data.avatarImageIndex,
+                // Single avatar with image or initials
+                Avatar(
                     initials: data.senderName,
-                    size: 40
-                )
-                .overlay(
-                    // Online status indicator
-                    Group {
-                        if data.isOnline {
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 8, height: 8)
-                                .offset(x: 14, y: 14)
-                        }
-                    }
+                    imageName: data.avatarImageIndex != nil ? "Avatar" : nil, // Use Avatar image if available
+                    size: 40,
+                    isOnline: data.isOnline
                 )
             }
         }
@@ -330,13 +228,14 @@ struct Message: View {
     // MARK: - Replies Section
     private var repliesSection: some View {
         HStack(spacing: 8) {
-            // Facepile for reply avatars using Unsplash
+            // Facepile for reply avatars
             HStack(spacing: -4) {
                 ForEach(Array(data.replyAvatars.prefix(3).enumerated()), id: \.offset) { index, _ in
-                    UnsplashAvatar(
-                        imageIndex: index + 10, // Offset to get different images
+                    Avatar(
                         initials: "R\(index + 1)", // Reply initials
-                        size: 24
+                        imageName: nil, // Use initials for replies
+                        size: 24,
+                        isOnline: false // Replies don't show online status
                     )
                     .zIndex(Double(3 - index))
                 }
