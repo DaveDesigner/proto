@@ -44,15 +44,17 @@ struct Avatar: View {
     let variant: AvatarVariant
     let isOnline: Bool
     let imageIndex: Int? // For Unsplash integration
+    let secondImageIndex: Int? // For group avatars - second image
     
     @StateObject private var unsplashService = UnsplashService.shared
     
-    init(initials: String? = nil, imageName: String? = nil, variant: AvatarVariant = .default(), isOnline: Bool = false, imageIndex: Int? = nil) {
+    init(initials: String? = nil, imageName: String? = nil, variant: AvatarVariant = .default(), isOnline: Bool = false, imageIndex: Int? = nil, secondImageIndex: Int? = nil) {
         self.initials = initials
         self.imageName = imageName
         self.variant = variant
         self.isOnline = isOnline
         self.imageIndex = imageIndex
+        self.secondImageIndex = secondImageIndex
     }
     
     // Convenience initializers for backward compatibility
@@ -62,6 +64,7 @@ struct Avatar: View {
         self.variant = .default(size: size)
         self.isOnline = isOnline
         self.imageIndex = nil
+        self.secondImageIndex = nil
     }
     
     // Computed property to extract first two initials from a full name
@@ -137,6 +140,7 @@ struct Avatar: View {
         }
     }
     
+    
     var body: some View {
         Group {
             switch variant {
@@ -162,15 +166,23 @@ struct Avatar: View {
     
     private var groupAvatarView: some View {
         ZStack {
-            // First avatar (background)
-            avatarImage
+            // First avatar (background) - top left
+            firstGroupAvatarImage
                 .frame(width: variant.size * 0.7, height: variant.size * 0.7)
                 .offset(x: -variant.size * 0.15, y: -variant.size * 0.15)
             
-            // Second avatar (foreground)
-            avatarImage
-                .frame(width: variant.size * 0.7, height: variant.size * 0.7)
-                .offset(x: variant.size * 0.15, y: variant.size * 0.15)
+            // Second avatar (foreground) - bottom right with stroke
+            ZStack {
+                // White stroke background - extends beyond avatar boundary
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: variant.size * 0.7 + 4, height: variant.size * 0.7 + 4)
+                
+                // Second avatar image
+                secondGroupAvatarImage
+                    .frame(width: variant.size * 0.7, height: variant.size * 0.7)
+            }
+            .offset(x: variant.size * 0.15, y: variant.size * 0.15)
         }
         .frame(width: variant.size, height: variant.size)
     }
@@ -204,11 +216,19 @@ struct Avatar: View {
             avatarImage
                 .frame(width: variant.size, height: variant.size)
             
-            // Online status indicator
-            Circle()
-                .fill(Color(red: 0, green: 0.54, blue: 0.18)) // #008a2f
-                .frame(width: 8, height: 8)
-                .offset(x: variant.size * 0.35, y: variant.size * 0.35)
+            // Online status indicator with stroke outline
+            ZStack {
+                // White stroke background (12px total)
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 12, height: 12)
+                
+                // Green indicator (8px)
+                Circle()
+                    .fill(Color(red: 0, green: 0.54, blue: 0.18)) // #008a2f
+                    .frame(width: 8, height: 8)
+            }
+            .offset(x: variant.size * 0.35, y: variant.size * 0.35)
         }
     }
     
@@ -217,11 +237,19 @@ struct Avatar: View {
             avatarImage
                 .frame(width: variant.size, height: variant.size)
             
-            // Idle status indicator
-            Circle()
-                .fill(Color(red: 0.96, green: 0.65, blue: 0.03)) // #f5a607
-                .frame(width: 8, height: 8)
-                .offset(x: variant.size * 0.35, y: variant.size * 0.35)
+            // Idle status indicator with stroke outline
+            ZStack {
+                // White stroke background (12px total)
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 12, height: 12)
+                
+                // Yellow indicator (8px)
+                Circle()
+                    .fill(Color(red: 0.96, green: 0.65, blue: 0.03)) // #f5a607
+                    .frame(width: 8, height: 8)
+            }
+            .offset(x: variant.size * 0.35, y: variant.size * 0.35)
         }
     }
     
@@ -290,6 +318,115 @@ struct Avatar: View {
                 // Use initials
                 Circle()
                     .fill(avatarColor)
+                    .overlay(
+                        Text(processedInitials)
+                            .font(.system(size: fontSize, weight: .medium))
+                            .foregroundColor(.white)
+                    )
+            } else {
+                // Fallback avatar
+                Circle()
+                    .fill(.secondary.opacity(0.3))
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .font(.system(size: fontSize, weight: .medium))
+                            .foregroundColor(.secondary)
+                    )
+            }
+        }
+    }
+    
+    // MARK: - Group Avatar Images
+    
+    private var firstGroupAvatarImage: some View {
+        Group {
+            if let imageName = imageName {
+                // Use provided image name
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .clipShape(Circle())
+            } else if let imageIndex = imageIndex, 
+                      let photo = unsplashService.getPhoto(at: imageIndex) {
+                // Use Unsplash image
+                AsyncImage(url: URL(string: photo.urls.small)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .clipShape(Circle())
+                } placeholder: {
+                    // Fallback to initials while loading
+                    Circle()
+                        .fill(avatarColor)
+                        .overlay(
+                            Group {
+                                if let processedInitials = processedInitials {
+                                    Text(processedInitials)
+                                        .font(.system(size: fontSize, weight: .medium))
+                                        .foregroundColor(.white)
+                                } else {
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: fontSize, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        )
+                }
+            } else if let processedInitials = processedInitials {
+                // Use initials
+                Circle()
+                    .fill(avatarColor)
+                    .overlay(
+                        Text(processedInitials)
+                            .font(.system(size: fontSize, weight: .medium))
+                            .foregroundColor(.white)
+                    )
+            } else {
+                // Fallback avatar
+                Circle()
+                    .fill(.secondary.opacity(0.3))
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .font(.system(size: fontSize, weight: .medium))
+                            .foregroundColor(.secondary)
+                    )
+            }
+        }
+    }
+    
+    private var secondGroupAvatarImage: some View {
+        Group {
+            if let secondImageIndex = secondImageIndex, 
+                      let photo = unsplashService.getPhoto(at: secondImageIndex) {
+                // Use second Unsplash image
+                AsyncImage(url: URL(string: photo.urls.small)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .clipShape(Circle())
+                } placeholder: {
+                    // Fallback to initials while loading
+                    Circle()
+                        .fill(avatarColor)
+                        .overlay(
+                            Group {
+                                if let processedInitials = processedInitials {
+                                    Text(processedInitials)
+                                        .font(.system(size: fontSize, weight: .medium))
+                                        .foregroundColor(.white)
+                                } else {
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: fontSize, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        )
+                }
+            } else if let processedInitials = processedInitials {
+                // Use initials with different color for second avatar
+                let secondAvatarColor = Color(red: 0.702, green: 0.192, blue: 0.745) // Pink
+                Circle()
+                    .fill(secondAvatarColor)
                     .overlay(
                         Text(processedInitials)
                             .font(.system(size: fontSize, weight: .medium))

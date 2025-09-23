@@ -57,7 +57,7 @@ struct Message: View {
                 
                 Spacer(minLength: 0)
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(Color(.systemBackground))
         }
@@ -72,7 +72,8 @@ struct Message: View {
                 Avatar(
                     initials: data.senderName,
                     variant: .group(),
-                    imageIndex: groupImageIndices[0] // Use first image index for group
+                    imageIndex: groupImageIndices[0], // Use first image index for first avatar
+                    secondImageIndex: groupImageIndices[1] // Use second image index for second avatar
                 )
             } else {
                 // Single avatar with Unsplash or initials

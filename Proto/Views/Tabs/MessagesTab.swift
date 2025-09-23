@@ -46,7 +46,7 @@ struct MessagesTab: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
-            groupAvatarImageIndices: [1, 2],
+            groupAvatarImageIndices: [1, 2], // Different images for the two avatars
             createdAt: Date().addingTimeInterval(-7200) // 2 hours ago
         ),
         MessageData(
@@ -78,7 +78,7 @@ struct MessagesTab: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
-            groupAvatarImageIndices: [4, 5, 6],
+            groupAvatarImageIndices: [3, 4], // Different images for the two avatars
             createdAt: Date().addingTimeInterval(-172800) // 2 days ago
         ),
         MessageData(
@@ -93,7 +93,7 @@ struct MessagesTab: View {
             isOnline: false,
             isGroupChat: false,
             groupAvatars: nil,
-            avatarImageIndex: 7,
+            avatarImageIndex: nil, // Use initials instead of Unsplash (5th entry)
             groupAvatarImageIndices: nil,
             createdAt: Date().addingTimeInterval(-259200) // 3 days ago
         ),
@@ -112,7 +112,7 @@ struct MessagesTab: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
-            groupAvatarImageIndices: nil, // Use initials instead of Unsplash for group
+            groupAvatarImageIndices: [5, 6], // Different images for the two avatars
             createdAt: Date().addingTimeInterval(-604800) // 1 week ago
         ),
         MessageData(
@@ -162,7 +162,7 @@ struct MessagesTab: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
-            groupAvatarImageIndices: nil, // Use initials instead of Unsplash for group
+            groupAvatarImageIndices: nil, // Use initials instead of Unsplash (9th entry)
             createdAt: Date().addingTimeInterval(-2419200) // 4 weeks ago
         ),
         MessageData(
@@ -212,7 +212,7 @@ struct MessagesTab: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
-            groupAvatarImageIndices: nil, // Use initials instead of Unsplash for group
+            groupAvatarImageIndices: nil, // Use initials instead of Unsplash (12th entry)
             createdAt: Date().addingTimeInterval(-7776000) // 9 weeks ago
         ),
         MessageData(
@@ -268,8 +268,8 @@ struct MessagesTab: View {
                         },
                         tintColor: selectedTintColor
                     )
-                    .padding(.horizontal)
-                    //.padding(.top, 8)
+                    .standardHorizontalPadding()
+                    .padding(.top, 8)
                     
                     // Content based on selected segment
                     Group {
@@ -282,11 +282,6 @@ struct MessagesTab: View {
                                         // Handle message tap
                                         print("Tapped message: \(messageData.senderName)")
                                     }
-                                    
-                                    if index < sampleMessages.count - 1 {
-                                        Divider()
-                                            .padding(.leading, 72) // Align with message content
-                                    }
                                 }
                             }
                         case "Agents":
@@ -298,12 +293,12 @@ struct MessagesTab: View {
                                     Text("Agents Content")
                                         .font(.headline)
                                 )
-                                .padding(.horizontal)
+                                .standardHorizontalPadding()
                         default:
                             EmptyView()
                         }
                     }
-                    .padding(.vertical, 16)
+                    .padding(.vertical, 8)
                 }
             }
             .navigationBarTitle("Messages")
