@@ -49,29 +49,29 @@ struct PostMetadata: View {
                     Text(authorName)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color.tertiary)
-                        .layoutPriority(3)
+                        .layoutPriority(2)
                     
                     // "in" connector - regular weight
                     Text(" in ")
                         .font(.system(size: 13, weight: .regular))
                         .foregroundStyle(Color.tertiary)
-                        .layoutPriority(1)
+                        .layoutPriority(2)
                     
                     // Space name - lowest priority (can truncate), medium weight
                     Text(spaceName)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color.tertiary)
-                        .layoutPriority(1)
+                        .layoutPriority(2)
                     
                     // Time - medium priority (preferred to be visible), regular weight
                     HStack(spacing: 0) {
                         Text(" • ")
                             .font(.system(size: 13, weight: .regular))
                             .foregroundStyle(Color.tertiary)
-                            .layoutPriority(2)
+                            .layoutPriority(1)
                         
                         RelativeDate(date: createdAt, variant: .abbreviated)
-                            .layoutPriority(2) // Protect the date from truncation
+                            .layoutPriority(1) // Protect the date from truncation
                     }
                 }
                 .lineLimit(1)
