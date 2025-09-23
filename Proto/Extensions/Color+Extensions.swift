@@ -21,6 +21,20 @@ extension Color {
     /// Use for tertiary text, metadata, and subtle UI elements
     static let tertiary = Color("ColourTertiary")
     
+    /// Quaternary color from design system
+    /// Light mode: #90929d (quaternary text)
+    /// Dark mode: #676b74 (quaternary text)
+    /// Use for quaternary text, labels, and subtle UI elements
+    static let quaternary = Color("ColourQuarternary")
+    
+    // MARK: - Notification Badge Colors
+    // Note: notificationRed, notificationOrange, notificationTeal, and notificationYellow
+    // are automatically generated from the asset catalog
+    
+    /// Purple color for AI and reply notification badges
+    /// #9676f8 - Messaging/Ai primary from Figma
+    static let notificationPurple = Color(red: 0.59, green: 0.46, blue: 0.97)
+    
     // MARK: - Additional Design System Colors
     // Add more colors from your Figma spec as needed
     

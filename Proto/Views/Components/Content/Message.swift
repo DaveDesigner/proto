@@ -58,7 +58,8 @@ struct Message: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.top, 0)
+            .padding(.bottom, 12)
             .background(Color(.systemBackground))
         }
         .buttonStyle(PlainButtonStyle())
@@ -90,7 +91,7 @@ struct Message: View {
     
     // MARK: - Content Section
     private var contentSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 2) {
             // Name row with timestamp and new message indicator
             nameRow
             

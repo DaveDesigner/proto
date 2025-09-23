@@ -49,6 +49,7 @@ struct PostMetadata: View {
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color.tertiary)
                         .lineLimit(1)
+                        .layoutPriority(2)
                     
                     Text(" in ")
                         .font(.system(size: 13, weight: .regular))

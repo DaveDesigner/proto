@@ -12,8 +12,178 @@ struct NotificationsTab: View {
     @State private var selectedSegment = 0
     @Binding var selectedTintColor: Color
     @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var unsplashService = UnsplashService.shared
     
     private let notificationSegments = ["Inbox", "Mentions", "Threads", "Following", "Archive"]
+    
+    // Centralized spacing rules
+    private let notificationSpacing: CGFloat = 24
+    
+    // Example notification data
+    private var inboxNotifications: [NotificationData] {
+        [
+            NotificationData(
+                type: .like,
+                userName: "Caryn Juen",
+                userInitials: "CJ",
+                action: "has liked your comment in post",
+                content: "After Circle App iOS update",
+                timestamp: "50 mins ago",
+                isNew: true,
+                hasActions: false,
+                actionTitle: nil,
+                actionSubtitle: nil,
+                imageIndex: 0,
+                secondImageIndex: nil,
+                isGroupAvatar: false,
+                isAI: false
+            ),
+            NotificationData(
+                type: .mention,
+                userName: "Caryn Juen",
+                userInitials: "CJ",
+                action: "wants to connect with you",
+                content: nil,
+                timestamp: "Yesterday",
+                isNew: true,
+                hasActions: true,
+                actionTitle: "Connect",
+                actionSubtitle: nil,
+                imageIndex: 1,
+                secondImageIndex: nil,
+                isGroupAvatar: false,
+                isAI: false
+            ),
+            NotificationData(
+                type: .ai,
+                userName: "Caryn Juen",
+                userInitials: "CP",
+                action: "paused conversation",
+                content: nil,
+                timestamp: "Mar 26",
+                isNew: true,
+                hasActions: false,
+                actionTitle: nil,
+                actionSubtitle: "with Calvin Parks",
+                imageIndex: 2,
+                secondImageIndex: 3,
+                isGroupAvatar: true,
+                isAI: true
+            ),
+            NotificationData(
+                type: .comment,
+                userName: "Sarah Wilson",
+                userInitials: "SW",
+                action: "commented on your post",
+                content: "New Design System Updates",
+                timestamp: "2 hours ago",
+                isNew: false,
+                hasActions: false,
+                actionTitle: nil,
+                actionSubtitle: nil,
+                imageIndex: 4,
+                secondImageIndex: nil,
+                isGroupAvatar: false,
+                isAI: false
+            ),
+            NotificationData(
+                type: .event,
+                userName: "Team Calendar",
+                userInitials: "TC",
+                action: "starts in 30 minutes",
+                content: "Team meeting",
+                timestamp: "3 hours ago",
+                isNew: false,
+                hasActions: false,
+                actionTitle: nil,
+                actionSubtitle: nil,
+                imageIndex: 5,
+                secondImageIndex: nil,
+                isGroupAvatar: false,
+                isAI: false
+            ),
+            NotificationData(
+                type: .live,
+                userName: "Alex Chen",
+                userInitials: "AC",
+                action: "is going live:",
+                content: "Product Demo",
+                timestamp: "5 hours ago",
+                isNew: false,
+                hasActions: false,
+                actionTitle: nil,
+                actionSubtitle: nil,
+                imageIndex: 6,
+                secondImageIndex: nil,
+                isGroupAvatar: false,
+                isAI: false
+            ),
+            NotificationData(
+                type: .poll,
+                userName: "Design Team",
+                userInitials: "DT",
+                action: "created a poll:",
+                content: "Which color scheme do you prefer?",
+                timestamp: "1 day ago",
+                isNew: false,
+                hasActions: false,
+                actionTitle: nil,
+                actionSubtitle: nil,
+                imageIndex: 7,
+                secondImageIndex: 8,
+                isGroupAvatar: true,
+                isAI: false
+            ),
+            NotificationData(
+                type: .post,
+                userName: "Maria Garcia",
+                userInitials: "MG",
+                action: "shared a new post:",
+                content: "Weekly Updates",
+                timestamp: "2 days ago",
+                isNew: false,
+                hasActions: false,
+                actionTitle: nil,
+                actionSubtitle: nil,
+                imageIndex: 9,
+                secondImageIndex: nil,
+                isGroupAvatar: false,
+                isAI: false
+            ),
+            NotificationData(
+                type: .reply,
+                userName: "David Kim",
+                userInitials: "DK",
+                action: "replied to your comment in",
+                content: "iOS Development Discussion",
+                timestamp: "3 days ago",
+                isNew: false,
+                hasActions: false,
+                actionTitle: nil,
+                actionSubtitle: nil,
+                imageIndex: 10,
+                secondImageIndex: nil,
+                isGroupAvatar: false,
+                isAI: false
+            ),
+            NotificationData(
+                type: .alert,
+                userName: "System",
+                userInitials: "SY",
+                action: "Your account security settings have been updated",
+                content: nil,
+                timestamp: "1 week ago",
+                isNew: false,
+                hasActions: false,
+                actionTitle: nil,
+                actionSubtitle: nil,
+                imageIndex: nil,
+                secondImageIndex: nil,
+                isGroupAvatar: false,
+                isAI: false
+            )
+        ]
+    }
     
     private var notificationsBlendMode: BlendMode {
         colorScheme == .dark ? .screen : .multiply
@@ -32,73 +202,58 @@ struct NotificationsTab: View {
                         },
                         tintColor: selectedTintColor
                     )
-                    .padding(.horizontal)
+                    .standardHorizontalPadding()
                     .padding(.top, 8)
                     
                     // Content based on selected segment
                     Group {
                         switch notificationSegments[selectedSegment] {
                         case "Inbox":
-                            // Notifications image scaled to fill width and fully scrollable
-                            if let _ = UIImage(named: "Notifications") {
-                                Image("Notifications")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxWidth: .infinity)
-                                    .clipped()
-                                    .blendMode(notificationsBlendMode)
-                            } else {
-                                // Fallback if image not found
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(.ultraThinMaterial)
-                                    .frame(height: 400)
-                                    .overlay(
-                                        Text("Inbox Notifications")
-                                            .font(.headline)
-                                    )
-                                    .padding(.horizontal)
+                            // Notifications list
+                            LazyVStack(spacing: notificationSpacing) {
+                                ForEach(inboxNotifications) { notification in
+                                    Notification(data: notification)
+                                }
                             }
+                            .standardHorizontalPadding()
+                            .background(Color(.systemBackground))
                         case "Mentions":
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(.ultraThinMaterial)
-                                .frame(height: 300)
-                                .overlay(
-                                    Text("Mentions Content")
-                                        .font(.headline)
-                                )
-                                .padding(.horizontal)
+                            LazyVStack(spacing: notificationSpacing) {
+                                ForEach(inboxNotifications.filter { $0.type == .mention }) { notification in
+                                    Notification(data: notification)
+                                }
+                            }
+                            .standardHorizontalPadding()
+                            .background(Color(.systemBackground))
                         case "Threads":
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(.ultraThinMaterial)
-                                .frame(height: 300)
-                                .overlay(
-                                    Text("Threads Content")
-                                        .font(.headline)
-                                )
-                                .padding(.horizontal)
+                            LazyVStack(spacing: notificationSpacing) {
+                                ForEach(inboxNotifications.filter { $0.type == .reply || $0.type == .comment }) { notification in
+                                    Notification(data: notification)
+                                }
+                            }
+                            .standardHorizontalPadding()
+                            .background(Color(.systemBackground))
                         case "Following":
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(.ultraThinMaterial)
-                                .frame(height: 300)
-                                .overlay(
-                                    Text("Following Content")
-                                        .font(.headline)
-                                )
-                                .padding(.horizontal)
+                            LazyVStack(spacing: notificationSpacing) {
+                                ForEach(inboxNotifications.filter { $0.type == .post || $0.type == .live }) { notification in
+                                    Notification(data: notification)
+                                }
+                            }
+                            .standardHorizontalPadding()
+                            .background(Color(.systemBackground))
                         case "Archive":
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(.ultraThinMaterial)
-                                .frame(height: 300)
-                                .overlay(
-                                    Text("Archive Content")
-                                        .font(.headline)
-                                )
-                                .padding(.horizontal)
+                            LazyVStack(spacing: notificationSpacing) {
+                                ForEach(inboxNotifications.filter { !$0.isNew }) { notification in
+                                    Notification(data: notification)
+                                }
+                            }
+                            .standardHorizontalPadding()
+                            .background(Color(.systemBackground))
                         default:
                             EmptyView()
                         }
                     }
-                    .padding(.vertical, 16)
+                    .padding(.vertical, 8)
                 }
             }
             .navigationBarTitle("Notifications")

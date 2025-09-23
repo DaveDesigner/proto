@@ -25,7 +25,7 @@ struct CommunityTab: View {
         NavigationStack {
             GeometryReader { geometry in
                 ScrollView {
-                    VStack(spacing: 8) {
+                    VStack(spacing: 16) {
                     // Segment control for content switching
                     SegmentControl(
                         segments: communitySegments,
@@ -35,7 +35,7 @@ struct CommunityTab: View {
                         },
                         tintColor: selectedTintColor
                     )
-                    .padding(.horizontal, 16)
+                    .standardHorizontalPadding()
                     .padding(.top, 8)
                     
                     // Content based on selected segment
@@ -171,7 +171,7 @@ struct CommunityTab: View {
                                     )
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 16)
+                            .standardHorizontalPadding()
                         case "Video":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
@@ -180,7 +180,7 @@ struct CommunityTab: View {
                                     Text("Video Content")
                                         .font(.headline)
                                 )
-                                .padding(.horizontal)
+                                .standardHorizontalPadding()
                         case "Courses":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
@@ -189,7 +189,7 @@ struct CommunityTab: View {
                                     Text("Courses Content")
                                         .font(.headline)
                                 )
-                                .padding(.horizontal)
+                                .standardHorizontalPadding()
                         case "Events":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
@@ -198,7 +198,7 @@ struct CommunityTab: View {
                                     Text("Events Content")
                                         .font(.headline)
                                 )
-                                .padding(.horizontal)
+                                .standardHorizontalPadding()
                         case "Members":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
@@ -207,7 +207,7 @@ struct CommunityTab: View {
                                     Text("Members Content")
                                         .font(.headline)
                                 )
-                                .padding(.horizontal)
+                                .standardHorizontalPadding()
                         case "Leaderboard":
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
@@ -216,7 +216,7 @@ struct CommunityTab: View {
                                     Text("Leaderboard Content")
                                         .font(.headline)
                                 )
-                                .padding(.horizontal)
+                                .standardHorizontalPadding()
                         default:
                             EmptyView()
                         }

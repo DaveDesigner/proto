@@ -276,7 +276,7 @@ struct MessagesTab: View {
                         switch messageSegments[selectedSegment] {
                         case "Inbox":
                             // Professional coaching community messages - preview only
-                            LazyVStack(spacing: 0) {
+                            LazyVStack(spacing: 12) {
                                 ForEach(Array(sampleMessages.enumerated()), id: \.element.id) { index, messageData in
                                     Message(data: messageData, variant: .preview) {
                                         // Handle message tap

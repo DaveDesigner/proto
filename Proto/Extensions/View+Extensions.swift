@@ -7,6 +7,14 @@
 
 import SwiftUI
 
+// MARK: - Standard Padding
+extension View {
+    /// Applies the standard horizontal padding (16pt) used throughout the app
+    public func standardHorizontalPadding() -> some View {
+        self.padding(.horizontal, 16)
+    }
+}
+
 // MARK: - Shared Background Visibility
 extension ToolbarContent {
     @ToolbarContentBuilder
