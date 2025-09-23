@@ -118,10 +118,7 @@ struct Message: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                 
-                Text(formattedTimestamp)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
+                RelativeDate(date: data.createdAt ?? Date(), variant: .messages)
             }
             
             Spacer(minLength: 0)
@@ -166,15 +163,7 @@ struct Message: View {
             .truncationMode(.tail)
     }
     
-    // MARK: - Relative Date Formatting
-    private var formattedTimestamp: String {
-        if let createdAt = data.createdAt {
-            return formatRelativeDate(createdAt)
-        } else {
-            return data.timestamp
-        }
-    }
-    
+    // MARK: - Preview Text
     private var previewText: String {
         // For preview, show only the first message, truncated
         let message = data.messages.first ?? ""
@@ -185,32 +174,6 @@ struct Message: View {
         }
         
         return message
-    }
-    
-    private func formatRelativeDate(_ date: Date) -> String {
-        let now = Date()
-        let calendar = Calendar.current
-        let timeInterval = now.timeIntervalSince(date)
-        
-        // If within the last 2 days, show relative time with time
-        if timeInterval < 2 * 24 * 3600 {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .none
-            formatter.timeStyle = .short
-            
-            if calendar.isDateInToday(date) {
-                return "Today \(formatter.string(from: date))"
-            } else if calendar.isDateInYesterday(date) {
-                return "Yesterday \(formatter.string(from: date))"
-            } else {
-                return formatter.string(from: date)
-            }
-        } else {
-            // For older messages, show relative date without time
-            let formatter = RelativeDateTimeFormatter()
-            formatter.unitsStyle = .abbreviated
-            return formatter.localizedString(for: date, relativeTo: now)
-        }
     }
     
     // MARK: - Replies Section
