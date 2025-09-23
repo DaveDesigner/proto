@@ -34,7 +34,7 @@ struct ContentView: View {
                 Label {
                     Text("Messages")
                 } icon: {
-                    Image("Messages24")
+                    Image("MessagesFilled24")
                 }
             }
             
