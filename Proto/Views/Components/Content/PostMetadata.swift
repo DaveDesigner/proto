@@ -41,41 +41,35 @@ struct PostMetadata: View {
                 size: 24
             )
             
-            // Metadata section with intelligent width behavior using concatenated strings
+            // Metadata section with intelligent width behavior using grouped HStacks
             HStack(spacing: 4) {
-                // Concatenated text with different priorities and font weights
+                // First group: Author name and space name (can truncate space name)
                 HStack(spacing: 0) {
-                    // Author name - highest priority (always visible), medium weight
                     Text(authorName)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color.tertiary)
-                        .layoutPriority(2)
                     
-                    // "in" connector - regular weight
                     Text(" in ")
                         .font(.system(size: 13, weight: .regular))
                         .foregroundStyle(Color.tertiary)
-                        .layoutPriority(2)
                     
-                    // Space name - lowest priority (can truncate), medium weight
                     Text(spaceName)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color.tertiary)
-                        .layoutPriority(2)
-                    
-                    // Time - medium priority (preferred to be visible), regular weight
-                    HStack(spacing: 0) {
-                        Text(" • ")
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundStyle(Color.tertiary)
-                            .layoutPriority(1)
-                        
-                        RelativeDate(date: createdAt, variant: .abbreviated)
-                            .layoutPriority(1) // Protect the date from truncation
-                    }
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
-                .lineLimit(1)
-                .truncationMode(.tail)
+                .layoutPriority(1) // Lower priority - can be compressed
+                
+                // Second group: Time and date (protected from truncation)
+                HStack(spacing: 0) {
+                    Text(" • ")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(Color.tertiary)
+                    
+                    RelativeDate(date: createdAt, variant: .abbreviated)
+                }
+                .layoutPriority(2) // Higher priority - protected from truncation
             }
         }
     }
