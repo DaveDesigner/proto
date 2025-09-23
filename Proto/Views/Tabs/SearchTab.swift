@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchTab: View {
     @Binding var selectedTintColor: Color
+    @State private var searchText = ""
     
     var body: some View {
         NavigationStack {
@@ -36,6 +37,7 @@ struct SearchTab: View {
                 }
                 .sharedBackgroundHidden()
             }
+            .searchable(text: $searchText)
             .searchToolbarBehavior(.automatic)
         }
     }
