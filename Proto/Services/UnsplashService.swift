@@ -237,6 +237,9 @@ struct UnsplashImageView: View {
     let enableLightbox: Bool
     let content: (Image) -> AnyView
     
+    @State private var loadedImage: Image?
+    @Namespace private var animationNamespace
+    
     init(
         photo: UnsplashPhoto,
         width: Int? = nil,
@@ -263,9 +266,21 @@ struct UnsplashImageView: View {
                 .overlay(
                     content(image)
                 )
-                .lightbox(
-                    imageURL: enableLightbox ? URL(string: photo.urls.full) : nil // Use full resolution for lightbox
+                .matchedGeometryEffect(
+                    id: "unsplash-\(photo.id)",
+                    in: animationNamespace
                 )
+                .onTapGesture {
+                    if enableLightbox {
+                        // Store the loaded image for seamless transition
+                        loadedImage = image
+                        LightboxManager.shared.present(
+                            imageURL: URL(string: photo.urls.full),
+                            sourceImage: image,
+                            animationID: "unsplash-\(photo.id)"
+                        )
+                    }
+                }
         } placeholder: {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.gray.opacity(0.3))

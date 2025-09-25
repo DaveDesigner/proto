@@ -17,6 +17,7 @@ struct ImageComponent: View {
     
     @State private var imageName: String = ""
     @State private var isLoading: Bool = true
+    @Namespace private var animationNamespace
     
     init(
         width: Int = 400,
@@ -46,9 +47,19 @@ struct ImageComponent: View {
                     .overlay(
                         content?(Image(imageName))
                     )
-                    .lightbox(
-                        imageName: enableLightbox ? imageName : nil
+                    .matchedGeometryEffect(
+                        id: "image-\(imageName)-\(imageIndex)",
+                        in: animationNamespace
                     )
+                    .onTapGesture {
+                        if enableLightbox {
+                            LightboxManager.shared.present(
+                                imageName: imageName,
+                                sourceImage: Image(imageName),
+                                animationID: "image-\(imageName)-\(imageIndex)"
+                            )
+                        }
+                    }
             } else if isLoading {
                 loadingView
             } else {

@@ -12,10 +12,14 @@ class LightboxManager: ObservableObject {
     @Published var isPresented: Bool = false
     @Published var imageName: String?
     @Published var imageURL: URL?
+    @Published var sourceImage: Image?
+    @Published var animationID: String?
     
-    func present(imageName: String? = nil, imageURL: URL? = nil) {
+    func present(imageName: String? = nil, imageURL: URL? = nil, sourceImage: Image? = nil, animationID: String? = nil) {
         self.imageName = imageName
         self.imageURL = imageURL
+        self.sourceImage = sourceImage
+        self.animationID = animationID
         self.isPresented = true
     }
     
@@ -23,12 +27,15 @@ class LightboxManager: ObservableObject {
         self.isPresented = false
         self.imageName = nil
         self.imageURL = nil
+        self.sourceImage = nil
+        self.animationID = nil
     }
 }
 
 // MARK: - Global Lightbox Overlay
 struct GlobalLightboxOverlay: View {
     @StateObject private var lightboxManager = LightboxManager.shared
+    @Namespace private var animationNamespace
     
     var body: some View {
         ZStack {
@@ -36,6 +43,9 @@ struct GlobalLightboxOverlay: View {
                 LightboxView(
                     imageName: lightboxManager.imageName,
                     imageURL: lightboxManager.imageURL,
+                    sourceImage: lightboxManager.sourceImage,
+                    animationID: lightboxManager.animationID,
+                    animationNamespace: animationNamespace,
                     isPresented: $lightboxManager.isPresented,
                     onDismiss: {
                         lightboxManager.dismiss()
@@ -56,6 +66,9 @@ extension LightboxManager {
 struct LightboxView: View {
     let imageName: String?
     let imageURL: URL?
+    let sourceImage: Image?
+    let animationID: String?
+    let animationNamespace: Namespace.ID
     let isPresented: Binding<Bool>
     let onDismiss: (() -> Void)?
     
@@ -66,11 +79,17 @@ struct LightboxView: View {
     init(
         imageName: String? = nil,
         imageURL: URL? = nil,
+        sourceImage: Image? = nil,
+        animationID: String? = nil,
+        animationNamespace: Namespace.ID,
         isPresented: Binding<Bool>,
         onDismiss: (() -> Void)? = nil
     ) {
         self.imageName = imageName
         self.imageURL = imageURL
+        self.sourceImage = sourceImage
+        self.animationID = animationID
+        self.animationNamespace = animationNamespace
         self.isPresented = isPresented
         self.onDismiss = onDismiss
     }
@@ -88,7 +107,12 @@ struct LightboxView: View {
             // Image content
             if isPresented.wrappedValue {
                 Group {
-                    if let imageName = imageName {
+                    // Prioritize source image for seamless transition
+                    if let sourceImage = sourceImage {
+                        sourceImage
+                            .resizable()
+                            .scaledToFit()
+                    } else if let imageName = imageName {
                         Image(imageName)
                             .resizable()
                             .scaledToFit()
@@ -98,9 +122,17 @@ struct LightboxView: View {
                                 .resizable()
                                 .scaledToFit()
                         } placeholder: {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                .scaleEffect(1.5)
+                            // Use source image as placeholder if available
+                            if let sourceImage = sourceImage {
+                                sourceImage
+                                    .resizable()
+                                    .scaledToFit()
+                                    .opacity(0.7)
+                            } else {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(1.5)
+                            }
                         }
                     } else {
                         RoundedRectangle(cornerRadius: 12)
@@ -113,6 +145,10 @@ struct LightboxView: View {
                 }
                 .scaleEffect(scale)
                 .offset(dragOffset)
+                .matchedGeometryEffect(
+                    id: animationID ?? "lightbox-image",
+                    in: animationNamespace
+                )
                     .gesture(
                         SimultaneousGesture(
                             // Drag gesture for panning
@@ -199,10 +235,30 @@ struct LightboxView: View {
 extension View {
     func lightbox(
         imageName: String? = nil,
-        imageURL: URL? = nil
+        imageURL: URL? = nil,
+        animationID: String? = nil
     ) -> some View {
         self.onTapGesture {
-            LightboxManager.shared.present(imageName: imageName, imageURL: imageURL)
+            LightboxManager.shared.present(
+                imageName: imageName,
+                imageURL: imageURL,
+                animationID: animationID
+            )
+        }
+    }
+}
+
+// MARK: - AsyncImage Lightbox Extension
+extension AsyncImage {
+    func lightbox(
+        imageURL: URL? = nil,
+        animationID: String? = nil
+    ) -> some View {
+        self.onTapGesture {
+            LightboxManager.shared.present(
+                imageURL: imageURL,
+                animationID: animationID
+            )
         }
     }
 }
