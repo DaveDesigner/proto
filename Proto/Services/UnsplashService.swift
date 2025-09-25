@@ -266,25 +266,16 @@ struct UnsplashImageView: View {
                 .overlay(
                     content(image)
                 )
-                .matchedGeometryEffect(
+                .matchedTransitionSource(
                     id: "unsplash-\(photo.id)",
                     in: animationNamespace
                 )
-                .onTapGesture {
-                    if enableLightbox {
-                        // Store the loaded image for seamless transition
-                        loadedImage = image
-                        
-                        // Trigger the lightbox with animation
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                            LightboxManager.shared.present(
-                                imageURL: URL(string: photo.urls.full),
-                                sourceImage: image,
-                                animationID: "unsplash-\(photo.id)"
-                            )
-                        }
-                    }
-                }
+                .lightboxNavigation(
+                    imageURL: URL(string: photo.urls.full),
+                    sourceImage: image,
+                    sourceID: "unsplash-\(photo.id)",
+                    namespace: animationNamespace
+                )
         } placeholder: {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.gray.opacity(0.3))

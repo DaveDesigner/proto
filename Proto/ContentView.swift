@@ -44,7 +44,6 @@ struct ContentView: View {
         }
         .tabBarMinimizeBehavior(.onScrollDown)
         .tint(selectedTintColor)
-        .overlay(GlobalLightboxOverlay())
     }
 }
 

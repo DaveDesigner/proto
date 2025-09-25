@@ -47,22 +47,16 @@ struct ImageComponent: View {
                     .overlay(
                         content?(Image(imageName))
                     )
-                    .matchedGeometryEffect(
+                    .matchedTransitionSource(
                         id: "image-\(imageName)-\(imageIndex)",
                         in: animationNamespace
                     )
-                    .onTapGesture {
-                        if enableLightbox {
-                            // Trigger the lightbox with animation
-                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                                LightboxManager.shared.present(
-                                    imageName: imageName,
-                                    sourceImage: Image(imageName),
-                                    animationID: "image-\(imageName)-\(imageIndex)"
-                                )
-                            }
-                        }
-                    }
+                    .lightboxNavigation(
+                        imageName: imageName,
+                        sourceImage: Image(imageName),
+                        sourceID: "image-\(imageName)-\(imageIndex)",
+                        namespace: animationNamespace
+                    )
             } else if isLoading {
                 loadingView
             } else {
