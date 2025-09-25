@@ -7,109 +7,94 @@
 
 import SwiftUI
 
-// MARK: - Global Lightbox Manager
-class LightboxManager: ObservableObject {
-    @Published var isPresented: Bool = false
-    @Published var imageName: String?
-    @Published var imageURL: URL?
-    @Published var sourceImage: Image?
-    @Published var animationID: String?
-    
-    func present(imageName: String? = nil, imageURL: URL? = nil, sourceImage: Image? = nil, animationID: String? = nil) {
-        self.imageName = imageName
-        self.imageURL = imageURL
-        self.sourceImage = sourceImage
-        self.animationID = animationID
-        self.isPresented = true
-    }
-    
-    func dismiss() {
-        self.isPresented = false
-        self.imageName = nil
-        self.imageURL = nil
-        self.sourceImage = nil
-        self.animationID = nil
-    }
-}
 
-// MARK: - Global Lightbox Overlay
-struct GlobalLightboxOverlay: View {
-    @StateObject private var lightboxManager = LightboxManager.shared
-    @Namespace private var animationNamespace
-    
-    var body: some View {
-        ZStack {
-            if lightboxManager.isPresented {
-                LightboxView(
-                    imageName: lightboxManager.imageName,
-                    imageURL: lightboxManager.imageURL,
-                    sourceImage: lightboxManager.sourceImage,
-                    animationID: lightboxManager.animationID,
-                    animationNamespace: animationNamespace,
-                    isPresented: $lightboxManager.isPresented,
-                    onDismiss: {
-                        lightboxManager.dismiss()
-                    }
-                )
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .scale(scale: 0.8)),
-                    removal: .opacity.combined(with: .scale(scale: 1.1))
-                ))
-                .zIndex(9999) // Highest z-index
-            }
-        }
-    }
-}
-
-// MARK: - Lightbox Manager Extension
-extension LightboxManager {
-    static let shared = LightboxManager()
-}
-
-struct LightboxView: View {
+// MARK: - Lightbox Navigation Link
+struct LightboxNavigationLink<Label: View>: View {
     let imageName: String?
     let imageURL: URL?
     let sourceImage: Image?
-    let animationID: String?
-    let animationNamespace: Namespace.ID
-    let isPresented: Binding<Bool>
-    let onDismiss: (() -> Void)?
+    let sourceID: String
+    let namespace: Namespace.ID
+    let label: () -> Label
     
-    @State private var dragOffset: CGSize = .zero
-    @State private var scale: CGFloat = 1.0
-    @State private var opacity: Double = 0.0
-    @State private var isAnimating: Bool = false
+    @Environment(\.dismiss) private var dismiss
     
     init(
         imageName: String? = nil,
         imageURL: URL? = nil,
         sourceImage: Image? = nil,
-        animationID: String? = nil,
-        animationNamespace: Namespace.ID,
-        isPresented: Binding<Bool>,
-        onDismiss: (() -> Void)? = nil
+        sourceID: String,
+        namespace: Namespace.ID,
+        @ViewBuilder label: @escaping () -> Label
     ) {
         self.imageName = imageName
         self.imageURL = imageURL
         self.sourceImage = sourceImage
-        self.animationID = animationID
-        self.animationNamespace = animationNamespace
-        self.isPresented = isPresented
-        self.onDismiss = onDismiss
+        self.sourceID = sourceID
+        self.namespace = namespace
+        self.label = label
     }
     
     var body: some View {
-        ZStack {
-            // Background overlay
-            Color.black
-                .opacity(opacity)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    dismissLightbox()
-                }
-            
-            // Image content
-            if isPresented.wrappedValue {
+        NavigationLink {
+            LightboxView(
+                imageName: imageName,
+                imageURL: imageURL,
+                sourceImage: sourceImage,
+                sourceID: sourceID,
+                namespace: namespace
+            )
+            .navigationTransition(.zoom(sourceID: sourceID, in: namespace))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbar(.hidden, for: .tabBar)
+        } label: {
+            label()
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+
+struct LightboxView: View {
+    let imageName: String?
+    let imageURL: URL?
+    let sourceImage: Image?
+    let sourceID: String?
+    let namespace: Namespace.ID
+    
+    @State private var opacity: Double = 0.0
+    @State private var isAnimating: Bool = false
+    @State private var isDarkMode: Bool = true
+    @State private var zoomScale: CGFloat = 1.0
+    @State private var lastZoomScale: CGFloat = 1.0
+    @State private var panOffset: CGSize = .zero
+    @State private var lastPanOffset: CGSize = .zero
+    @State private var isZoomed: Bool = false
+    
+    init(
+        imageName: String? = nil,
+        imageURL: URL? = nil,
+        sourceImage: Image? = nil,
+        sourceID: String? = nil,
+        namespace: Namespace.ID
+    ) {
+        self.imageName = imageName
+        self.imageURL = imageURL
+        self.sourceImage = sourceImage
+        self.sourceID = sourceID
+        self.namespace = namespace
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Background overlay
+                (isDarkMode ? Color.black : Color.white)
+                    .opacity(opacity)
+                    .ignoresSafeArea()
+                
+                // Image content - centered in full screen, ignoring safe area
                 Group {
                     // Prioritize source image for seamless transition
                     if let sourceImage = sourceImage {
@@ -134,7 +119,7 @@ struct LightboxView: View {
                                     .opacity(0.7)
                             } else {
                                 ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .progressViewStyle(CircularProgressViewStyle(tint: isDarkMode ? .white : .black))
                                     .scaleEffect(1.5)
                             }
                         }
@@ -143,137 +128,139 @@ struct LightboxView: View {
                             .fill(Color.gray.opacity(0.3))
                             .overlay(
                                 Text("No image")
-                                    .foregroundColor(.white)
+                                    .foregroundColor(isDarkMode ? .white : .black)
                             )
                     }
                 }
-                .scaleEffect(scale)
-                .offset(dragOffset)
-                .matchedGeometryEffect(
-                    id: animationID ?? "lightbox-image",
-                    in: animationNamespace,
-                    isSource: false
-                )
-                .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0), value: scale)
-                .animation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0), value: dragOffset)
-                    .gesture(
-                        SimultaneousGesture(
-                            // Drag gesture for panning
-                            DragGesture()
-                                .onChanged { value in
-                                    dragOffset = value.translation
-                                }
-                                .onEnded { value in
-                                    // If dragged far enough, dismiss
-                                    if abs(value.translation.height) > 100 {
-                                        dismissLightbox()
-                                    } else {
-                                        // Snap back to center
-                                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                                            dragOffset = .zero
-                                        }
-                                    }
-                                },
-                            
-                            // Magnification gesture for zooming
-                            MagnificationGesture()
-                                .onChanged { value in
-                                    scale = max(0.5, min(value, 3.0))
-                                }
-                                .onEnded { _ in
-                                    if scale < 0.8 {
-                                        dismissLightbox()
-                                    } else if scale > 2.5 {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                            scale = 2.5
-                                        }
-                                    } else if scale < 1.0 {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                            scale = 1.0
-                                        }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+                .scaleEffect(zoomScale)
+                .offset(panOffset)
+                .gesture(
+                    SimultaneousGesture(
+                        // Double tap to zoom
+                        TapGesture(count: 2)
+                            .onEnded {
+                                handleDoubleTap()
+                            },
+                        // Single tap to toggle dark mode (only when not zoomed)
+                        TapGesture(count: 1)
+                            .onEnded {
+                                if !isZoomed {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        isDarkMode.toggle()
                                     }
                                 }
-                        )
-                    )
-                    .onAppear {
-                        isAnimating = true
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                            opacity = 1.0
-                        }
-                        
-                        // Add a slight delay to ensure the matchedGeometryEffect completes
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
-                                isAnimating = false
                             }
+                    )
+                )
+                .gesture(
+                    // Pan gesture only when zoomed
+                    isZoomed ? DragGesture()
+                        .onChanged { value in
+                            // When zoomed, handle panning within the image
+                            let newOffset = CGSize(
+                                width: lastPanOffset.width + value.translation.width,
+                                height: lastPanOffset.height + value.translation.height
+                            )
+                            panOffset = constrainPanOffset(newOffset, in: geometry)
+                        }
+                        .onEnded { _ in
+                            lastPanOffset = panOffset
+                        } : nil
+                )
+                .onAppear {
+                    isAnimating = true
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        opacity = 1.0
+                    }
+                    
+                    // Add a slight delay to ensure the matchedGeometryEffect completes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
+                            isAnimating = false
                         }
                     }
-            }
-            
-            // Close button
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        dismissLightbox()
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .background(Color.black.opacity(0.5))
-                            .clipShape(Circle())
-                    }
-                    .padding(.top, 50)
-                    .padding(.trailing, 20)
                 }
-                Spacer()
+            }
+        }
+        .toolbarBackground(.hidden, for: .navigationBar)
+    }
+    
+    // MARK: - Zoom and Pan Logic
+    
+    private func handleDoubleTap() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            if isZoomed {
+                // Reset to original size
+                zoomScale = 1.0
+                panOffset = .zero
+                lastZoomScale = 1.0
+                lastPanOffset = .zero
+                isZoomed = false
+            } else {
+                // Zoom to fill screen
+                zoomScale = calculateZoomToFill()
+                lastZoomScale = zoomScale
+                panOffset = .zero
+                lastPanOffset = .zero
+                isZoomed = true
             }
         }
     }
     
-    private func dismissLightbox() {
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-            opacity = 0.0
-            scale = 0.9
-            dragOffset = .zero
-        }
+    private func calculateZoomToFill() -> CGFloat {
+        // Calculate zoom to fill screen while maintaining aspect ratio
+        // We want to zoom so that the image fills the entire screen height or width
+        // This ensures the image touches the top/bottom edges for landscape images
+        // or left/right edges for portrait images
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            isPresented.wrappedValue = false
-            onDismiss?()
-        }
+        // Since we're using scaledToFit, we need to calculate the zoom factor
+        // that will make the image fill the screen dimension that's currently smaller
+        // A factor of 3.0 typically works well for most images to fill screen edges
+        return 3.0
     }
+    
+    private func constrainPanOffset(_ offset: CGSize, in geometry: GeometryProxy) -> CGSize {
+        let screenWidth = geometry.size.width
+        let screenHeight = geometry.size.height
+        
+        // Calculate the scaled image dimensions
+        let scaledWidth = screenWidth * zoomScale
+        let scaledHeight = screenHeight * zoomScale
+        
+        // Calculate maximum allowed offset to keep image edges visible
+        let maxOffsetX = max(0, (scaledWidth - screenWidth) / 2)
+        let maxOffsetY = max(0, (scaledHeight - screenHeight) / 2)
+        
+        // Constrain the offset
+        let constrainedX = min(maxOffsetX, max(-maxOffsetX, offset.width))
+        let constrainedY = min(maxOffsetY, max(-maxOffsetY, offset.height))
+        
+        return CGSize(width: constrainedX, height: constrainedY)
+    }
+    
 }
 
 
 // MARK: - View Extension
 extension View {
-    func lightbox(
+    /// iOS 18 zoom transition lightbox using NavigationLink
+    func lightboxNavigation(
         imageName: String? = nil,
         imageURL: URL? = nil,
-        animationID: String? = nil
+        sourceImage: Image? = nil,
+        sourceID: String,
+        namespace: Namespace.ID
     ) -> some View {
-        self.onTapGesture {
-            LightboxManager.shared.present(
-                imageName: imageName,
-                imageURL: imageURL,
-                animationID: animationID
-            )
-        }
-    }
-}
-
-// MARK: - AsyncImage Lightbox Extension
-extension AsyncImage {
-    func lightbox(
-        imageURL: URL? = nil,
-        animationID: String? = nil
-    ) -> some View {
-        self.onTapGesture {
-            LightboxManager.shared.present(
-                imageURL: imageURL,
-                animationID: animationID
-            )
+        LightboxNavigationLink(
+            imageName: imageName,
+            imageURL: imageURL,
+            sourceImage: sourceImage,
+            sourceID: sourceID,
+            namespace: namespace
+        ) {
+            self
         }
     }
 }
@@ -281,26 +268,36 @@ extension AsyncImage {
 // MARK: - Preview
 #Preview {
     struct LightboxPreview: View {
+        @Namespace private var animationNamespace
+        
         var body: some View {
-            VStack(spacing: 20) {
-                Text("Tap the image to open lightbox")
-                    .font(.headline)
-                
-                Image("Post")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 200, height: 150)
-                    .clipped()
-                    .cornerRadius(12)
-                    .lightbox(imageName: "Post")
-                
-                Button("Show Lightbox") {
-                    LightboxManager.shared.present(imageName: "Post")
+            NavigationStack {
+                VStack(spacing: 20) {
+                    Text("Tap the image to see iOS 18 zoom transition")
+                        .font(.headline)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("This uses NavigationLink with zoom transition")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    
+                    Image("Post")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 200, height: 150)
+                        .clipped()
+                        .cornerRadius(12)
+                        .matchedTransitionSource(id: "preview-image", in: animationNamespace)
+                        .lightboxNavigation(
+                            imageName: "Post",
+                            sourceImage: Image("Post"),
+                            sourceID: "preview-image",
+                            namespace: animationNamespace
+                        )
                 }
-                .buttonStyle(.borderedProminent)
+                .padding()
             }
-            .padding()
-            .overlay(GlobalLightboxOverlay())
         }
     }
     
