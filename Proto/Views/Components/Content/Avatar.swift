@@ -71,48 +71,101 @@ struct Avatar: View {
     private var processedInitials: String? {
         guard let initials = initials else { return nil }
         
+        // Clean the input - remove extra whitespace and normalize
+        let cleanedName = initials.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+        
         // If it's already 2 characters or less, return as is
-        if initials.count <= 2 {
-            return initials.uppercased()
+        if cleanedName.count <= 2 {
+            return cleanedName.uppercased()
         }
         
-        // Split by spaces and filter out empty strings
-        let nameParts = initials.components(separatedBy: .whitespaces)
-            .filter { !$0.isEmpty }
+        // Split by spaces, hyphens, and other common separators
+        let separators = CharacterSet(charactersIn: " -_.,")
+        let nameParts = cleanedName.components(separatedBy: separators)
+            .filter { !$0.isEmpty && $0.count > 0 }
         
         // If we have at least 2 parts, take first letter of first and last
         if nameParts.count >= 2 {
-            let firstInitial = String(nameParts.first?.prefix(1) ?? "")
-            let lastInitial = String(nameParts.last?.prefix(1) ?? "")
-            return (firstInitial + lastInitial).uppercased()
+            let firstPart = nameParts.first ?? ""
+            let lastPart = nameParts.last ?? ""
+            
+            // Extract first letter from each part, handling emojis and special characters
+            let firstInitial = extractFirstLetter(from: firstPart)
+            let lastInitial = extractFirstLetter(from: lastPart)
+            
+            if !firstInitial.isEmpty && !lastInitial.isEmpty {
+                return (firstInitial + lastInitial).uppercased()
+            } else if !firstInitial.isEmpty {
+                return firstInitial.uppercased()
+            }
         }
         
         // If we only have one part, take first two characters
         if nameParts.count == 1 {
             let name = nameParts[0]
-            if name.count >= 2 {
-                return String(name.prefix(2)).uppercased()
-            } else {
-                return name.uppercased()
+            let firstLetter = extractFirstLetter(from: name)
+            if firstLetter.count >= 2 {
+                return String(firstLetter.prefix(2)).uppercased()
+            } else if !firstLetter.isEmpty {
+                return firstLetter.uppercased()
             }
         }
         
         // Fallback: take first two characters of the original string
-        return String(initials.prefix(2)).uppercased()
+        let fallbackInitials = String(cleanedName.prefix(2))
+        return fallbackInitials.uppercased()
     }
     
+    // Helper function to extract the first letter from a string, handling emojis and special characters
+    private func extractFirstLetter(from string: String) -> String {
+        // Remove leading whitespace
+        let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Handle empty strings
+        guard !trimmed.isEmpty else { return "" }
+        
+        // For strings that start with emojis or special characters, take the first character
+        if trimmed.first?.isLetter == false {
+            return String(trimmed.prefix(1))
+        }
+        
+        // For regular text, find the first letter
+        for char in trimmed {
+            if char.isLetter {
+                return String(char)
+            }
+        }
+        
+        // If no letter found, return the first character
+        return String(trimmed.prefix(1))
+    }
+    
+    // Improved color palette with better accessibility and contrast
     private let colors = [
-        Color(red: 0.447, green: 0.188, blue: 0.737), // Purple
-        Color(red: 0.702, green: 0.192, blue: 0.745), // Pink
-        Color(red: 0.745, green: 0.173, blue: 0.502), // Magenta
-        Color(red: 0.141, green: 0.400, blue: 0.576), // Blue
-        Color(red: 0.114, green: 0.373, blue: 0.412), // Teal
-        Color(red: 0.227, green: 0.412, blue: 0.109)  // Green
+        Color(red: 0.345, green: 0.145, blue: 0.565), // Deep Purple - better contrast
+        Color(red: 0.545, green: 0.149, blue: 0.580), // Rich Pink - better contrast
+        Color(red: 0.580, green: 0.133, blue: 0.392), // Deep Magenta - better contrast
+        Color(red: 0.110, green: 0.310, blue: 0.447), // Deep Blue - better contrast
+        Color(red: 0.086, green: 0.290, blue: 0.322), // Deep Teal - better contrast
+        Color(red: 0.176, green: 0.322, blue: 0.086), // Deep Green - better contrast
+        Color(red: 0.565, green: 0.145, blue: 0.145), // Deep Red - new addition
+        Color(red: 0.565, green: 0.345, blue: 0.145), // Deep Orange - new addition
+        Color(red: 0.145, green: 0.565, blue: 0.345), // Deep Mint - new addition
+        Color(red: 0.345, green: 0.145, blue: 0.565)  // Deep Indigo - new addition
     ]
     
     private var avatarColor: Color {
         guard let processedInitials = processedInitials else { return .secondary.opacity(0.3) }
         let hash = processedInitials.hashValue
+        return colors[abs(hash) % colors.count]
+    }
+    
+    // Generate a different color for the second avatar in group chats
+    private func generateSecondAvatarColor(from initials: String) -> Color {
+        // Use a different hash calculation to get a different color
+        let modifiedInitials = initials + "_second"
+        let hash = modifiedInitials.hashValue
         return colors[abs(hash) % colors.count]
     }
     
@@ -194,7 +247,7 @@ struct Avatar: View {
             
             if let processedInitials = processedInitials {
                 Text(processedInitials)
-                    .font(.system(size: fontSize, weight: .regular))
+                    .font(.system(size: fontSize, weight: .medium))
                     .foregroundColor(.white)
             }
         }
@@ -424,7 +477,8 @@ struct Avatar: View {
                 }
             } else if let processedInitials = processedInitials {
                 // Use initials with different color for second avatar
-                let secondAvatarColor = Color(red: 0.702, green: 0.192, blue: 0.745) // Pink
+                // Generate a different color for the second avatar based on initials + offset
+                let secondAvatarColor = generateSecondAvatarColor(from: processedInitials)
                 Circle()
                     .fill(secondAvatarColor)
                     .overlay(

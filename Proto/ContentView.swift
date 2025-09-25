@@ -41,6 +41,12 @@ struct ContentView: View {
             Tab(role: .search) {
                 SearchTab(selectedTintColor: $selectedTintColor)
             }
+            
+            Tab {
+                LightboxDemo()
+            } label: {
+                Label("Lightbox", systemImage: "photo.on.rectangle.angled")
+            }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
         .tint(selectedTintColor)

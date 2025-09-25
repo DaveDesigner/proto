@@ -71,7 +71,7 @@ struct Message: View {
             if data.isGroupChat, let groupImageIndices = data.groupAvatarImageIndices, groupImageIndices.count >= 2 {
                 // Group chat with two avatars using Unsplash
                 Avatar(
-                    initials: data.senderName,
+                    initials: groupChatInitials,
                     variant: .group(),
                     imageIndex: groupImageIndices[0], // Use first image index for first avatar
                     secondImageIndex: groupImageIndices[1] // Use second image index for second avatar
@@ -142,6 +142,50 @@ struct Message: View {
         } else {
             return data.senderName
         }
+    }
+    
+    // MARK: - Group Chat Initials Logic
+    private var groupChatInitials: String {
+        guard data.isGroupChat else { return data.senderName }
+        
+        // Extract initials from group chat names
+        let names = data.senderName.components(separatedBy: ", ")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        
+        if names.count >= 2 {
+            // For group chats, use first letter of first two names
+            let firstInitial = extractFirstLetter(from: names[0])
+            let secondInitial = extractFirstLetter(from: names[1])
+            return (firstInitial + secondInitial).uppercased()
+        } else if names.count == 1 {
+            // Single name in group chat
+            let firstLetter = extractFirstLetter(from: names[0])
+            return firstLetter.uppercased()
+        }
+        
+        return data.senderName
+    }
+    
+    // Helper function to extract the first letter from a name
+    private func extractFirstLetter(from name: String) -> String {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "" }
+        
+        // Handle names that start with non-letter characters
+        if trimmed.first?.isLetter == false {
+            return String(trimmed.prefix(1))
+        }
+        
+        // Find the first letter
+        for char in trimmed {
+            if char.isLetter {
+                return String(char)
+            }
+        }
+        
+        // Fallback to first character
+        return String(trimmed.prefix(1))
     }
     
     // MARK: - Message Content

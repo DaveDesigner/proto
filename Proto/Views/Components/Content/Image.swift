@@ -13,22 +13,26 @@ struct ImageComponent: View {
     let imageIndex: Int
     let cornerRadius: CGFloat
     let content: ((Image) -> AnyView)?
+    let enableLightbox: Bool
     
     @State private var imageName: String = ""
     @State private var isLoading: Bool = true
+    @State private var showLightbox: Bool = false
     
     init(
         width: Int = 400,
         height: Int = 300,
         imageIndex: Int = 0,
         cornerRadius: CGFloat = 16,
-        content: ((Image) -> AnyView)? = nil
+        content: ((Image) -> AnyView)? = nil,
+        enableLightbox: Bool = true
     ) {
         self.width = width
         self.height = height
         self.imageIndex = imageIndex
         self.cornerRadius = cornerRadius
         self.content = content
+        self.enableLightbox = enableLightbox
     }
     
     var body: some View {
@@ -42,6 +46,15 @@ struct ImageComponent: View {
                     .cornerRadius(cornerRadius)
                     .overlay(
                         content?(Image(imageName))
+                    )
+                    .onTapGesture {
+                        if enableLightbox {
+                            showLightbox = true
+                        }
+                    }
+                    .lightbox(
+                        isPresented: $showLightbox,
+                        imageName: imageName
                     )
             } else if isLoading {
                 loadingView
@@ -109,32 +122,35 @@ struct ImageComponent: View {
 // MARK: - Convenience Initializers
 extension ImageComponent {
     /// Create an image component for post previews
-    static func postImage(imageIndex: Int = 0) -> ImageComponent {
+    static func postImage(imageIndex: Int = 0, enableLightbox: Bool = true) -> ImageComponent {
         ImageComponent(
             width: 400,
             height: 250,
             imageIndex: imageIndex,
-            cornerRadius: 12
+            cornerRadius: 12,
+            enableLightbox: enableLightbox
         )
     }
     
     /// Create an image component for feed images
-    static func feedImage(imageIndex: Int = 0) -> ImageComponent {
+    static func feedImage(imageIndex: Int = 0, enableLightbox: Bool = true) -> ImageComponent {
         ImageComponent(
             width: 400,
             height: 300,
             imageIndex: imageIndex,
-            cornerRadius: 16
+            cornerRadius: 16,
+            enableLightbox: enableLightbox
         )
     }
     
     /// Create a square image component for avatars or thumbnails
-    static func squareImage(size: Int = 100, imageIndex: Int = 0) -> ImageComponent {
+    static func squareImage(size: Int = 100, imageIndex: Int = 0, enableLightbox: Bool = false) -> ImageComponent {
         ImageComponent(
             width: size,
             height: size,
             imageIndex: imageIndex,
-            cornerRadius: CGFloat(size / 2)
+            cornerRadius: CGFloat(size / 2),
+            enableLightbox: enableLightbox
         )
     }
 }
@@ -143,37 +159,42 @@ extension ImageComponent {
 #Preview {
     ScrollView {
         VStack(spacing: 20) {
-            Text("Image Component Examples")
+            Text("Image Component with Lightbox")
                 .font(.title2)
                 .fontWeight(.bold)
                 .padding()
             
+            Text("Tap any image to open in lightbox mode")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.horizontal)
+            
             VStack(alignment: .leading, spacing: 12) {
-                Text("Sequential Images")
+                Text("Post Images (Lightbox Enabled)")
                     .font(.headline)
                 ImageComponent.postImage(imageIndex: 0)
             }
             
             VStack(alignment: .leading, spacing: 12) {
-                Text("Next Image")
+                Text("Feed Images (Lightbox Enabled)")
                     .font(.headline)
-                ImageComponent.postImage(imageIndex: 1)
+                ImageComponent.feedImage(imageIndex: 1)
             }
             
             VStack(alignment: .leading, spacing: 12) {
-                Text("Third Image")
+                Text("Another Post Image")
                     .font(.headline)
                 ImageComponent.postImage(imageIndex: 2)
             }
             
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Square Images")
+                    Text("Square Images (Lightbox Disabled)")
                         .font(.headline)
                     HStack {
-                        ImageComponent.squareImage(size: 60, imageIndex: 3)
-                        ImageComponent.squareImage(size: 60, imageIndex: 4)
-                        ImageComponent.squareImage(size: 60, imageIndex: 5)
+                        ImageComponent.squareImage(size: 60, imageIndex: 3, enableLightbox: false)
+                        ImageComponent.squareImage(size: 60, imageIndex: 4, enableLightbox: false)
+                        ImageComponent.squareImage(size: 60, imageIndex: 5, enableLightbox: false)
                     }
                 }
             }
