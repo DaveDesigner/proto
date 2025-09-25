@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct LightboxView: View {
-    let imageName: String
+    let imageName: String?
+    let imageURL: URL?
     let isPresented: Binding<Bool>
     let onDismiss: (() -> Void)?
     
@@ -17,11 +18,13 @@ struct LightboxView: View {
     @State private var opacity: Double = 0.0
     
     init(
-        imageName: String,
+        imageName: String? = nil,
+        imageURL: URL? = nil,
         isPresented: Binding<Bool>,
         onDismiss: (() -> Void)? = nil
     ) {
         self.imageName = imageName
+        self.imageURL = imageURL
         self.isPresented = isPresented
         self.onDismiss = onDismiss
     }
@@ -38,11 +41,32 @@ struct LightboxView: View {
             
             // Image content
             if isPresented.wrappedValue {
-                Image(imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .scaleEffect(scale)
-                    .offset(dragOffset)
+                Group {
+                    if let imageName = imageName {
+                        Image(imageName)
+                            .resizable()
+                            .scaledToFit()
+                    } else if let imageURL = imageURL {
+                        AsyncImage(url: imageURL) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        } placeholder: {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(1.5)
+                        }
+                    } else {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Text("No image")
+                                    .foregroundColor(.white)
+                            )
+                    }
+                }
+                .scaleEffect(scale)
+                .offset(dragOffset)
                     .gesture(
                         SimultaneousGesture(
                             // Drag gesture for panning
@@ -127,7 +151,8 @@ struct LightboxView: View {
 // MARK: - Lightbox Modifier
 struct LightboxModifier: ViewModifier {
     @Binding var isPresented: Bool
-    let imageName: String
+    let imageName: String?
+    let imageURL: URL?
     let onDismiss: (() -> Void)?
     
     func body(content: Content) -> some View {
@@ -137,6 +162,7 @@ struct LightboxModifier: ViewModifier {
             if isPresented {
                 LightboxView(
                     imageName: imageName,
+                    imageURL: imageURL,
                     isPresented: $isPresented,
                     onDismiss: onDismiss
                 )
@@ -151,13 +177,15 @@ struct LightboxModifier: ViewModifier {
 extension View {
     func lightbox(
         isPresented: Binding<Bool>,
-        imageName: String,
+        imageName: String? = nil,
+        imageURL: URL? = nil,
         onDismiss: (() -> Void)? = nil
     ) -> some View {
         self.modifier(
             LightboxModifier(
                 isPresented: isPresented,
                 imageName: imageName,
+                imageURL: imageURL,
                 onDismiss: onDismiss
             )
         )

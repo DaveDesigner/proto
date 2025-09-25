@@ -145,34 +145,20 @@ class UnsplashService: ObservableObject {
         return photo
     }
     
-    /// Create a dynamic image view using Unsplash photos
-    func createAsyncImage(width: Int? = 400, height: Int? = 300, imageIndex: Int = 0, @ViewBuilder content: @escaping (Image) -> some View) -> some View {
+    /// Create a dynamic image view using Unsplash photos with lightbox support
+    func createAsyncImage(width: Int? = 400, height: Int? = 300, imageIndex: Int = 0, enableLightbox: Bool = true, @ViewBuilder content: @escaping (Image) -> some View) -> some View {
         if let photo = getPhoto(at: imageIndex) {
             print("🖼️ Creating AsyncImage for photo: \(photo.id) at index \(imageIndex)")
             print("🖼️ Image URL: \(photo.urls.regular)")
             
             return AnyView(
-                AsyncImage(url: URL(string: photo.urls.regular)) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
-                        .frame(height: height != nil ? CGFloat(height!) : nil)
-                        .clipped()
-                        .cornerRadius(16)
-                        .overlay(
-                            content(image)
-                        )
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
-                        .frame(height: height != nil ? CGFloat(height!) : nil)
-                        .overlay(
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                        )
-                }
+                UnsplashImageView(
+                    photo: photo,
+                    width: width,
+                    height: height,
+                    enableLightbox: enableLightbox,
+                    content: content
+                )
             )
         } else {
             print("❌ No photo found for index \(imageIndex)")
@@ -190,15 +176,15 @@ class UnsplashService: ObservableObject {
     }
     
     /// Create a post image using the convenience method
-    func createPostImage(imageIndex: Int = 0) -> some View {
-        createAsyncImage(width: nil, height: nil, imageIndex: imageIndex) { image in
+    func createPostImage(imageIndex: Int = 0, enableLightbox: Bool = true) -> some View {
+        createAsyncImage(width: nil, height: nil, imageIndex: imageIndex, enableLightbox: enableLightbox) { image in
             EmptyView()
         }
     }
     
     /// Create a feed image using the convenience method
-    func createFeedImage(imageIndex: Int = 0) -> some View {
-        createAsyncImage(width: 400, height: 300, imageIndex: imageIndex) { image in
+    func createFeedImage(imageIndex: Int = 0, enableLightbox: Bool = true) -> some View {
+        createAsyncImage(width: 400, height: 300, imageIndex: imageIndex, enableLightbox: enableLightbox) { image in
             EmptyView()
         }
     }
@@ -240,5 +226,63 @@ struct UnsplashDebugView: View {
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(12)
+    }
+}
+
+// MARK: - Unsplash Image View with Lightbox Support
+struct UnsplashImageView: View {
+    let photo: UnsplashPhoto
+    let width: Int?
+    let height: Int?
+    let enableLightbox: Bool
+    let content: (Image) -> AnyView
+    
+    @State private var showLightbox = false
+    
+    init(
+        photo: UnsplashPhoto,
+        width: Int? = nil,
+        height: Int? = nil,
+        enableLightbox: Bool = true,
+        @ViewBuilder content: @escaping (Image) -> some View
+    ) {
+        self.photo = photo
+        self.width = width
+        self.height = height
+        self.enableLightbox = enableLightbox
+        self.content = { AnyView(content($0)) }
+    }
+    
+    var body: some View {
+        AsyncImage(url: URL(string: photo.urls.regular)) { image in
+            image
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
+                .frame(height: height != nil ? CGFloat(height!) : nil)
+                .clipped()
+                .cornerRadius(16)
+                .overlay(
+                    content(image)
+                )
+                .onTapGesture {
+                    if enableLightbox {
+                        showLightbox = true
+                    }
+                }
+                .lightbox(
+                    isPresented: $showLightbox,
+                    imageURL: URL(string: photo.urls.full) // Use full resolution for lightbox
+                )
+        } placeholder: {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.gray.opacity(0.3))
+                .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
+                .frame(height: height != nil ? CGFloat(height!) : nil)
+                .overlay(
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                )
+        }
     }
 }
