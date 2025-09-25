@@ -274,11 +274,15 @@ struct UnsplashImageView: View {
                     if enableLightbox {
                         // Store the loaded image for seamless transition
                         loadedImage = image
-                        LightboxManager.shared.present(
-                            imageURL: URL(string: photo.urls.full),
-                            sourceImage: image,
-                            animationID: "unsplash-\(photo.id)"
-                        )
+                        
+                        // Trigger the lightbox with animation
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                            LightboxManager.shared.present(
+                                imageURL: URL(string: photo.urls.full),
+                                sourceImage: image,
+                                animationID: "unsplash-\(photo.id)"
+                            )
+                        }
                     }
                 }
         } placeholder: {

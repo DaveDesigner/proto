@@ -51,7 +51,10 @@ struct GlobalLightboxOverlay: View {
                         lightboxManager.dismiss()
                     }
                 )
-                .transition(.opacity)
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .scale(scale: 0.8)),
+                    removal: .opacity.combined(with: .scale(scale: 1.1))
+                ))
                 .zIndex(9999) // Highest z-index
             }
         }
@@ -75,6 +78,7 @@ struct LightboxView: View {
     @State private var dragOffset: CGSize = .zero
     @State private var scale: CGFloat = 1.0
     @State private var opacity: Double = 0.0
+    @State private var isAnimating: Bool = false
     
     init(
         imageName: String? = nil,
@@ -147,8 +151,11 @@ struct LightboxView: View {
                 .offset(dragOffset)
                 .matchedGeometryEffect(
                     id: animationID ?? "lightbox-image",
-                    in: animationNamespace
+                    in: animationNamespace,
+                    isSource: false
                 )
+                .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0), value: scale)
+                .animation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0), value: dragOffset)
                     .gesture(
                         SimultaneousGesture(
                             // Drag gesture for panning
@@ -189,8 +196,16 @@ struct LightboxView: View {
                         )
                     )
                     .onAppear {
-                        withAnimation(.easeInOut(duration: 0.3)) {
+                        isAnimating = true
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                             opacity = 1.0
+                        }
+                        
+                        // Add a slight delay to ensure the matchedGeometryEffect completes
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
+                                isAnimating = false
+                            }
                         }
                     }
             }
@@ -217,13 +232,13 @@ struct LightboxView: View {
     }
     
     private func dismissLightbox() {
-        withAnimation(.easeInOut(duration: 0.3)) {
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
             opacity = 0.0
-            scale = 0.8
+            scale = 0.9
             dragOffset = .zero
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             isPresented.wrappedValue = false
             onDismiss?()
         }

@@ -53,11 +53,14 @@ struct ImageComponent: View {
                     )
                     .onTapGesture {
                         if enableLightbox {
-                            LightboxManager.shared.present(
-                                imageName: imageName,
-                                sourceImage: Image(imageName),
-                                animationID: "image-\(imageName)-\(imageIndex)"
-                            )
+                            // Trigger the lightbox with animation
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                LightboxManager.shared.present(
+                                    imageName: imageName,
+                                    sourceImage: Image(imageName),
+                                    animationID: "image-\(imageName)-\(imageIndex)"
+                                )
+                            }
                         }
                     }
             } else if isLoading {
