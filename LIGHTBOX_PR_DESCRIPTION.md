@@ -3,6 +3,16 @@
 ## Overview
 This PR introduces a modern lightbox functionality using iOS 18's native navigation transitions, providing seamless image expansion with intuitive gesture controls and proper screen edge filling.
 
+## 📚 Apple Guidelines & Best Practices
+
+This implementation follows Apple's Human Interface Guidelines and WWDC recommendations:
+
+- **[Navigation and Search](https://developer.apple.com/design/human-interface-guidelines/navigation)**: Uses native iOS 18 navigation transitions for seamless user experience
+- **[Gestures](https://developer.apple.com/design/human-interface-guidelines/gestures)**: Implements standard iOS gesture patterns including double-tap to zoom and drag-to-dismiss
+- **[Images](https://developer.apple.com/design/human-interface-guidelines/images)**: Follows best practices for image display and interaction
+- **[WWDC 2024: Meet NavigationStack for iOS](https://developer.apple.com/videos/play/wwdc2024/10019/)**: Leverages new navigation transition APIs for smooth animations
+- **[WWDC 2024: What's new in SwiftUI](https://developer.apple.com/videos/play/wwdc2024/10148/)**: Utilizes latest SwiftUI navigation and gesture improvements
+
 ## ✨ Features
 
 ### Core Lightbox Functionality
