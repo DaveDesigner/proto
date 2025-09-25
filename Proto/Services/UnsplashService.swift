@@ -237,8 +237,6 @@ struct UnsplashImageView: View {
     let enableLightbox: Bool
     let content: (Image) -> AnyView
     
-    @State private var showLightbox = false
-    
     init(
         photo: UnsplashPhoto,
         width: Int? = nil,
@@ -265,14 +263,8 @@ struct UnsplashImageView: View {
                 .overlay(
                     content(image)
                 )
-                .onTapGesture {
-                    if enableLightbox {
-                        showLightbox = true
-                    }
-                }
                 .lightbox(
-                    isPresented: $showLightbox,
-                    imageURL: URL(string: photo.urls.full) // Use full resolution for lightbox
+                    imageURL: enableLightbox ? URL(string: photo.urls.full) : nil // Use full resolution for lightbox
                 )
         } placeholder: {
             RoundedRectangle(cornerRadius: 16)

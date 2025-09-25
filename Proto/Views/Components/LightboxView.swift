@@ -7,6 +7,52 @@
 
 import SwiftUI
 
+// MARK: - Global Lightbox Manager
+class LightboxManager: ObservableObject {
+    @Published var isPresented: Bool = false
+    @Published var imageName: String?
+    @Published var imageURL: URL?
+    
+    func present(imageName: String? = nil, imageURL: URL? = nil) {
+        self.imageName = imageName
+        self.imageURL = imageURL
+        self.isPresented = true
+    }
+    
+    func dismiss() {
+        self.isPresented = false
+        self.imageName = nil
+        self.imageURL = nil
+    }
+}
+
+// MARK: - Global Lightbox Overlay
+struct GlobalLightboxOverlay: View {
+    @StateObject private var lightboxManager = LightboxManager.shared
+    
+    var body: some View {
+        ZStack {
+            if lightboxManager.isPresented {
+                LightboxView(
+                    imageName: lightboxManager.imageName,
+                    imageURL: lightboxManager.imageURL,
+                    isPresented: $lightboxManager.isPresented,
+                    onDismiss: {
+                        lightboxManager.dismiss()
+                    }
+                )
+                .transition(.opacity)
+                .zIndex(9999) // Highest z-index
+            }
+        }
+    }
+}
+
+// MARK: - Lightbox Manager Extension
+extension LightboxManager {
+    static let shared = LightboxManager()
+}
+
 struct LightboxView: View {
     let imageName: String?
     let imageURL: URL?
@@ -148,55 +194,22 @@ struct LightboxView: View {
     }
 }
 
-// MARK: - Lightbox Modifier
-struct LightboxModifier: ViewModifier {
-    @Binding var isPresented: Bool
-    let imageName: String?
-    let imageURL: URL?
-    let onDismiss: (() -> Void)?
-    
-    func body(content: Content) -> some View {
-        ZStack {
-            content
-            
-            if isPresented {
-                LightboxView(
-                    imageName: imageName,
-                    imageURL: imageURL,
-                    isPresented: $isPresented,
-                    onDismiss: onDismiss
-                )
-                .transition(.opacity)
-                .zIndex(1000)
-            }
-        }
-    }
-}
 
 // MARK: - View Extension
 extension View {
     func lightbox(
-        isPresented: Binding<Bool>,
         imageName: String? = nil,
-        imageURL: URL? = nil,
-        onDismiss: (() -> Void)? = nil
+        imageURL: URL? = nil
     ) -> some View {
-        self.modifier(
-            LightboxModifier(
-                isPresented: isPresented,
-                imageName: imageName,
-                imageURL: imageURL,
-                onDismiss: onDismiss
-            )
-        )
+        self.onTapGesture {
+            LightboxManager.shared.present(imageName: imageName, imageURL: imageURL)
+        }
     }
 }
 
 // MARK: - Preview
 #Preview {
     struct LightboxPreview: View {
-        @State private var showLightbox = false
-        
         var body: some View {
             VStack(spacing: 20) {
                 Text("Tap the image to open lightbox")
@@ -208,20 +221,15 @@ extension View {
                     .frame(width: 200, height: 150)
                     .clipped()
                     .cornerRadius(12)
-                    .onTapGesture {
-                        showLightbox = true
-                    }
-                    .lightbox(
-                        isPresented: $showLightbox,
-                        imageName: "Post"
-                    )
+                    .lightbox(imageName: "Post")
                 
                 Button("Show Lightbox") {
-                    showLightbox = true
+                    LightboxManager.shared.present(imageName: "Post")
                 }
                 .buttonStyle(.borderedProminent)
             }
             .padding()
+            .overlay(GlobalLightboxOverlay())
         }
     }
     

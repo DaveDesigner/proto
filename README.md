@@ -1,5 +1,6 @@
 ## Next steps
 - `In progress` style(icons): replace sf symbols with icons in primary nav, & post preview [PR #9](https://github.com/DaveDesigner/proto/pull/9)
+- feat: image lightbox to open and swipe down to close
 - feat: admin mode shift, navigation paradigm
 - feat: member profile
 - feat: add connection status actions to profile

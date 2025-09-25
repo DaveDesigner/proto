@@ -17,7 +17,6 @@ struct ImageComponent: View {
     
     @State private var imageName: String = ""
     @State private var isLoading: Bool = true
-    @State private var showLightbox: Bool = false
     
     init(
         width: Int = 400,
@@ -47,14 +46,8 @@ struct ImageComponent: View {
                     .overlay(
                         content?(Image(imageName))
                     )
-                    .onTapGesture {
-                        if enableLightbox {
-                            showLightbox = true
-                        }
-                    }
                     .lightbox(
-                        isPresented: $showLightbox,
-                        imageName: imageName
+                        imageName: enableLightbox ? imageName : nil
                     )
             } else if isLoading {
                 loadingView
