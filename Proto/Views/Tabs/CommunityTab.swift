@@ -25,7 +25,7 @@ struct CommunityTab: View {
         NavigationStack {
             GeometryReader { geometry in
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 8) {
                     // Segment control for content switching
                     SegmentControl(
                         segments: communitySegments,

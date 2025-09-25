@@ -7,6 +7,21 @@
 
 import SwiftUI
 
+// MARK: - Image Scaling Modifier
+struct ImageScalingModifier: ViewModifier {
+    let isFillMode: Bool
+    
+    func body(content: Content) -> some View {
+        if isFillMode {
+            content
+                .scaledToFill()
+                .clipped()
+        } else {
+            content
+                .scaledToFit()
+        }
+    }
+}
 
 // MARK: - Lightbox Navigation Link
 struct LightboxNavigationLink<Label: View>: View {
@@ -66,11 +81,14 @@ struct LightboxView: View {
     @State private var opacity: Double = 0.0
     @State private var isAnimating: Bool = false
     @State private var isDarkMode: Bool = true
-    @State private var zoomScale: CGFloat = 1.0
-    @State private var lastZoomScale: CGFloat = 1.0
     @State private var panOffset: CGSize = .zero
     @State private var lastPanOffset: CGSize = .zero
-    @State private var isZoomed: Bool = false
+    @State private var isFillMode: Bool = false
+    @State private var showToolbar: Bool = false
+    @State private var imageSize: CGSize = .zero
+    @State private var dismissOffset: CGSize = .zero
+    @State private var isDismissing: Bool = false
+    @Environment(\.dismiss) private var dismiss
     
     init(
         imageName: String? = nil,
@@ -94,150 +112,328 @@ struct LightboxView: View {
                     .opacity(opacity)
                     .ignoresSafeArea()
                 
-                // Image content - centered in full screen, ignoring safe area
-                Group {
-                    // Prioritize source image for seamless transition
-                    if let sourceImage = sourceImage {
-                        sourceImage
-                            .resizable()
-                            .scaledToFit()
-                    } else if let imageName = imageName {
-                        Image(imageName)
-                            .resizable()
-                            .scaledToFit()
-                    } else if let imageURL = imageURL {
-                        AsyncImage(url: imageURL) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                        } placeholder: {
-                            // Use source image as placeholder if available
-                            if let sourceImage = sourceImage {
-                                sourceImage
-                                    .resizable()
-                                    .scaledToFit()
-                                    .opacity(0.7)
-                            } else {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: isDarkMode ? .white : .black))
-                                    .scaleEffect(1.5)
-                            }
-                        }
-                    } else {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.gray.opacity(0.3))
-                            .overlay(
-                                Text("No image")
-                                    .foregroundColor(isDarkMode ? .white : .black)
-                            )
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
-                .scaleEffect(zoomScale)
-                .offset(panOffset)
-                .gesture(
-                    SimultaneousGesture(
-                        // Double tap to zoom
-                        TapGesture(count: 2)
-                            .onEnded {
-                                handleDoubleTap()
-                            },
-                        // Single tap to toggle dark mode (only when not zoomed)
-                        TapGesture(count: 1)
-                            .onEnded {
-                                if !isZoomed {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        isDarkMode.toggle()
-                                    }
+                
+                // TEST: Simplified image content - removed complex conditional logic
+                // This should reduce view hierarchy complexity during transitions
+                imageContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+                    .offset(panOffset)
+            }
+            .offset(dismissOffset)
+            .gesture(
+                SimultaneousGesture(
+                    // Double tap to toggle between fit and fill modes
+                    TapGesture(count: 2)
+                        .onEnded {
+                            handleDoubleTap()
+                            showToolbarIfNeeded()
+                        },
+                    // Single tap to toggle dark mode (only when not in fill mode) or show toolbar
+                    TapGesture(count: 1)
+                        .onEnded {
+                            if !isFillMode {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    isDarkMode.toggle()
                                 }
                             }
-                    )
-                )
-                .gesture(
-                    // Pan gesture only when zoomed
-                    isZoomed ? DragGesture()
-                        .onChanged { value in
-                            // When zoomed, handle panning within the image
-                            let newOffset = CGSize(
-                                width: lastPanOffset.width + value.translation.width,
-                                height: lastPanOffset.height + value.translation.height
-                            )
-                            panOffset = constrainPanOffset(newOffset, in: geometry)
+                            showToolbarIfNeeded()
                         }
-                        .onEnded { _ in
-                            lastPanOffset = panOffset
-                        } : nil
                 )
-                .onAppear {
-                    isAnimating = true
-                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                        opacity = 1.0
+            )
+            .gesture(
+                // Pan gesture only when in fill mode
+                isFillMode ? DragGesture()
+                    .onChanged { value in
+                        handleDragGesture(value, in: geometry)
+                        showToolbarIfNeeded()
                     }
-                    
-                    // Add a slight delay to ensure the matchedGeometryEffect completes
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
-                            isAnimating = false
-                        }
+                    .onEnded { value in
+                        handleDragEnd(value, in: geometry)
+                    } : nil
+            )
+            .onAppear {
+                isAnimating = true
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    opacity = 1.0
+                }
+                
+                // Add a slight delay to ensure the matchedGeometryEffect completes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
+                        isAnimating = false
                     }
                 }
             }
         }
         .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbar(showToolbar ? .visible : .hidden, for: .navigationBar)
     }
     
-    // MARK: - Zoom and Pan Logic
+    // TEST: Extracted image content to computed property to simplify view hierarchy
+    @ViewBuilder
+    private var imageContent: some View {
+        if let sourceImage = sourceImage {
+            sourceImage
+                .resizable()
+                .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                .onAppear {
+                    // For source images, we can't easily get the size, so we'll use a default
+                    // In a real app, you might want to pass the image size as a parameter
+                    // Using a typical photo aspect ratio (4:3) as default
+                    imageSize = CGSize(width: 1200, height: 900)
+                }
+        } else if let imageName = imageName {
+            Image(imageName)
+                .resizable()
+                .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                .onAppear {
+                    // For named images, we can't easily get the size, so we'll use a default
+                    // Using a typical photo aspect ratio (4:3) as default
+                    imageSize = CGSize(width: 1200, height: 900)
+                }
+        } else if let imageURL = imageURL {
+            AsyncImage(url: imageURL) { image in
+                image
+                    .resizable()
+                    .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                    .onAppear {
+                        // For async images, we can't easily get the size, so we'll use a default
+                        // Using a typical photo aspect ratio (4:3) as default
+                        imageSize = CGSize(width: 1200, height: 900)
+                    }
+            } placeholder: {
+                // Use source image as placeholder if available
+                if let sourceImage = sourceImage {
+                    sourceImage
+                        .resizable()
+                        .scaledToFit()
+                        .opacity(0.7)
+                } else {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: isDarkMode ? .white : .black))
+                        .scaleEffect(1.5)
+                }
+            }
+        } else {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.3))
+                .overlay(
+                    Text("No image")
+                        .foregroundColor(isDarkMode ? .white : .black)
+                )
+        }
+    }
+    
+    // MARK: - Scaling and Pan Logic
     
     private func handleDoubleTap() {
         withAnimation(.easeInOut(duration: 0.3)) {
-            if isZoomed {
-                // Reset to original size
-                zoomScale = 1.0
+            if isFillMode {
+                // Switch back to scaledToFit
                 panOffset = .zero
-                lastZoomScale = 1.0
                 lastPanOffset = .zero
-                isZoomed = false
+                dismissOffset = .zero
+                isDismissing = false
+                isFillMode = false
             } else {
-                // Zoom to fill screen
-                zoomScale = calculateZoomToFill()
-                lastZoomScale = zoomScale
-                panOffset = .zero
-                lastPanOffset = .zero
-                isZoomed = true
+                // Switch to scaledToFill - center the image horizontally
+                // When switching to fill mode, we want to center the image
+                // This assumes the image will be wider than the screen in fill mode
+                panOffset = CGSize(width: 0, height: 0) // Center horizontally, keep vertical centered
+                lastPanOffset = panOffset
+                dismissOffset = .zero
+                isDismissing = false
+                isFillMode = true
             }
         }
     }
     
-    private func calculateZoomToFill() -> CGFloat {
-        // Calculate zoom to fill screen while maintaining aspect ratio
-        // We want to zoom so that the image fills the entire screen height or width
-        // This ensures the image touches the top/bottom edges for landscape images
-        // or left/right edges for portrait images
-        
-        // Since we're using scaledToFit, we need to calculate the zoom factor
-        // that will make the image fill the screen dimension that's currently smaller
-        // A factor of 3.0 typically works well for most images to fill screen edges
-        return 3.0
+    private func showToolbarIfNeeded() {
+        if !showToolbar {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showToolbar = true
+            }
+        }
     }
     
     private func constrainPanOffset(_ offset: CGSize, in geometry: GeometryProxy) -> CGSize {
-        let screenWidth = geometry.size.width
-        let screenHeight = geometry.size.height
+        // Calculate which dimension the image overflows when in scale to fill mode
+        let screenAspectRatio = geometry.size.width / geometry.size.height
+        let imageAspectRatio = imageSize.width / imageSize.height
         
-        // Calculate the scaled image dimensions
-        let scaledWidth = screenWidth * zoomScale
-        let scaledHeight = screenHeight * zoomScale
+        var constrainedX = offset.width
+        var constrainedY = offset.height
         
-        // Calculate maximum allowed offset to keep image edges visible
-        let maxOffsetX = max(0, (scaledWidth - screenWidth) / 2)
-        let maxOffsetY = max(0, (scaledHeight - screenHeight) / 2)
-        
-        // Constrain the offset
-        let constrainedX = min(maxOffsetX, max(-maxOffsetX, offset.width))
-        let constrainedY = min(maxOffsetY, max(-maxOffsetY, offset.height))
+        // Determine which axis should allow dragging based on aspect ratio
+        if imageAspectRatio > screenAspectRatio {
+            // Image is wider than screen - allow horizontal dragging only
+            // Calculate the maximum horizontal pan distance
+            let scaledImageWidth = geometry.size.height * imageAspectRatio
+            let horizontalOverflow = (scaledImageWidth - geometry.size.width) / 2
+            let maxPanDistance = horizontalOverflow
+            
+            constrainedX = min(maxPanDistance, max(-maxPanDistance, offset.width))
+            constrainedY = 0 // Lock vertical movement
+        } else {
+            // Image is taller than screen - allow vertical dragging only
+            // Calculate the maximum vertical pan distance
+            let scaledImageHeight = geometry.size.width / imageAspectRatio
+            let verticalOverflow = (scaledImageHeight - geometry.size.height) / 2
+            let maxPanDistance = verticalOverflow
+            
+            constrainedX = 0 // Lock horizontal movement
+            constrainedY = min(maxPanDistance, max(-maxPanDistance, offset.height))
+        }
         
         return CGSize(width: constrainedX, height: constrainedY)
+    }
+    
+    // MARK: - Drag and Dismiss Logic
+    
+    private func handleDragGesture(_ value: DragGesture.Value, in geometry: GeometryProxy) {
+        let screenAspectRatio = geometry.size.width / geometry.size.height
+        let imageAspectRatio = imageSize.width / imageSize.height
+        
+        let translation = value.translation
+        let dismissThreshold: CGFloat = 50 // Lower threshold for more responsive dismiss
+        
+        if imageAspectRatio > screenAspectRatio {
+            // Image is wider - horizontal panning, vertical dismissing
+            let newPanX = lastPanOffset.width + translation.width
+            let newDismissY = translation.height
+            
+            // Constrain horizontal panning
+            let scaledImageWidth = geometry.size.height * imageAspectRatio
+            let horizontalOverflow = (scaledImageWidth - geometry.size.width) / 2
+            let constrainedPanX = min(horizontalOverflow, max(-horizontalOverflow, newPanX))
+            
+            // Check if we've hit the horizontal boundary and should start dismissing
+            let hitLeftBoundary = newPanX <= -horizontalOverflow && translation.width < 0
+            let hitRightBoundary = newPanX >= horizontalOverflow && translation.width > 0
+            
+            if hitLeftBoundary || hitRightBoundary {
+                // Start dismissing when hitting horizontal boundaries
+                isDismissing = true
+                // Apply the excess movement as dismiss offset
+                let excessMovement = newPanX - constrainedPanX
+                panOffset = CGSize(width: constrainedPanX, height: 0)
+                dismissOffset = CGSize(width: excessMovement, height: newDismissY)
+            } else if abs(newDismissY) > dismissThreshold {
+                // Start dismissing based on vertical movement threshold
+                isDismissing = true
+                panOffset = CGSize(width: constrainedPanX, height: 0)
+                dismissOffset = CGSize(width: 0, height: newDismissY)
+            } else {
+                // Normal panning within boundaries
+                panOffset = CGSize(width: constrainedPanX, height: 0)
+                dismissOffset = CGSize(width: 0, height: newDismissY)
+            }
+        } else {
+            // Image is taller - vertical panning, horizontal dismissing
+            let newPanY = lastPanOffset.height + translation.height
+            let newDismissX = translation.width
+            
+            // Constrain vertical panning
+            let scaledImageHeight = geometry.size.width / imageAspectRatio
+            let verticalOverflow = (scaledImageHeight - geometry.size.height) / 2
+            let constrainedPanY = min(verticalOverflow, max(-verticalOverflow, newPanY))
+            
+            // Check if we've hit the vertical boundary and should start dismissing
+            let hitTopBoundary = newPanY <= -verticalOverflow && translation.height < 0
+            let hitBottomBoundary = newPanY >= verticalOverflow && translation.height > 0
+            
+            if hitTopBoundary || hitBottomBoundary {
+                // Start dismissing when hitting vertical boundaries
+                isDismissing = true
+                // Apply the excess movement as dismiss offset
+                let excessMovement = newPanY - constrainedPanY
+                panOffset = CGSize(width: 0, height: constrainedPanY)
+                dismissOffset = CGSize(width: newDismissX, height: excessMovement)
+            } else if abs(newDismissX) > dismissThreshold {
+                // Start dismissing based on horizontal movement threshold
+                isDismissing = true
+                panOffset = CGSize(width: 0, height: constrainedPanY)
+                dismissOffset = CGSize(width: newDismissX, height: 0)
+            } else {
+                // Normal panning within boundaries
+                panOffset = CGSize(width: 0, height: constrainedPanY)
+                dismissOffset = CGSize(width: newDismissX, height: 0)
+            }
+        }
+    }
+    
+    private func handleDragEnd(_ value: DragGesture.Value, in geometry: GeometryProxy) {
+        let screenAspectRatio = geometry.size.width / geometry.size.height
+        let imageAspectRatio = imageSize.width / imageSize.height
+        
+        let translation = value.translation
+        let dismissThreshold: CGFloat = 50
+        let dismissVelocity: CGFloat = 500 // Velocity threshold for dismiss
+        
+        if imageAspectRatio > screenAspectRatio {
+            // Image is wider - check dismiss conditions
+            let dismissY = dismissOffset.height
+            let dismissX = dismissOffset.width
+            let velocityY = value.velocity.height
+            let velocityX = value.velocity.width
+            
+            // Check if we should dismiss based on movement or velocity
+            let shouldDismiss = isDismissing && (
+                abs(dismissY) > dismissThreshold || 
+                abs(dismissX) > dismissThreshold ||
+                abs(velocityY) > dismissVelocity ||
+                abs(velocityX) > dismissVelocity
+            )
+            
+            if shouldDismiss {
+                // Dismiss the view
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    opacity = 0.0
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    dismiss()
+                }
+            } else {
+                // Reset dismiss state
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    dismissOffset = .zero
+                    isDismissing = false
+                }
+                lastPanOffset = panOffset
+            }
+        } else {
+            // Image is taller - check dismiss conditions
+            let dismissX = dismissOffset.width
+            let dismissY = dismissOffset.height
+            let velocityX = value.velocity.width
+            let velocityY = value.velocity.height
+            
+            // Check if we should dismiss based on movement or velocity
+            let shouldDismiss = isDismissing && (
+                abs(dismissX) > dismissThreshold || 
+                abs(dismissY) > dismissThreshold ||
+                abs(velocityX) > dismissVelocity ||
+                abs(velocityY) > dismissVelocity
+            )
+            
+            if shouldDismiss {
+                // Dismiss the view
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    opacity = 0.0
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    dismiss()
+                }
+            } else {
+                // Reset dismiss state
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    dismissOffset = .zero
+                    isDismissing = false
+                }
+                lastPanOffset = panOffset
+            }
+        }
     }
     
 }
