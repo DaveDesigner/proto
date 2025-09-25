@@ -10,8 +10,9 @@ This implementation follows Apple's Human Interface Guidelines and WWDC recommen
 - **[Navigation and Search](https://developer.apple.com/design/human-interface-guidelines/navigation)**: Uses native iOS 18 navigation transitions for seamless user experience
 - **[Gestures](https://developer.apple.com/design/human-interface-guidelines/gestures)**: Implements standard iOS gesture patterns including double-tap to zoom and drag-to-dismiss
 - **[Images](https://developer.apple.com/design/human-interface-guidelines/images)**: Follows best practices for image display and interaction
-- **[WWDC 2024: Meet NavigationStack for iOS](https://developer.apple.com/videos/play/wwdc2024/10019/)**: Leverages new navigation transition APIs for smooth animations
-- **[WWDC 2024: What's new in SwiftUI](https://developer.apple.com/videos/play/wwdc2024/10148/)**: Utilizes latest SwiftUI navigation and gesture improvements
+- **[WWDC 2024: Enhance your UI animations and transitions](https://developer.apple.com/videos/play/wwdc2024/10145)**: Leverages new zoom transition APIs and continuous gesture interactions
+- **[NavigationTransition Documentation](https://developer.apple.com/documentation/swiftui/navigationtransition)**: Official API reference for iOS 18 navigation transitions
+- **[matchedTransitionSource Documentation](https://developer.apple.com/documentation/swiftui/view/matchedtransitionsource%28id%3Ain%3Aconfiguration%3A%29)**: SwiftUI API for connecting source and destination views in transitions
 
 ## ✨ Features
 
