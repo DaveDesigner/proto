@@ -216,31 +216,66 @@ struct LightboxView: View {
             sourceImage
                 .resizable()
                 .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize, containerSize: containerSize))
-                .onAppear {
-                    // For source images, we can't easily get the size, so we'll use a default
-                    // In a real app, you might want to pass the image size as a parameter
-                    // Using a typical photo aspect ratio (4:3) as default
-                    imageSize = CGSize(width: 1200, height: 900)
-                }
+                .background(
+                    GeometryReader { geometry in
+                        Color.clear
+                            .onAppear {
+                                // Get the actual rendered size of the image
+                                let renderedSize = geometry.size
+                                if renderedSize.width > 0 && renderedSize.height > 0 {
+                                    imageSize = renderedSize
+                                }
+                            }
+                            .onChange(of: geometry.size) { newSize in
+                                if newSize.width > 0 && newSize.height > 0 {
+                                    imageSize = newSize
+                                }
+                            }
+                    }
+                )
         } else if let imageName = imageName {
             Image(imageName)
                 .resizable()
                 .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize, containerSize: containerSize))
-                .onAppear {
-                    // For named images, we can't easily get the size, so we'll use a default
-                    // Using a typical photo aspect ratio (4:3) as default
-                    imageSize = CGSize(width: 1200, height: 900)
-                }
+                .background(
+                    GeometryReader { geometry in
+                        Color.clear
+                            .onAppear {
+                                // Get the actual rendered size of the image
+                                let renderedSize = geometry.size
+                                if renderedSize.width > 0 && renderedSize.height > 0 {
+                                    imageSize = renderedSize
+                                }
+                            }
+                            .onChange(of: geometry.size) { newSize in
+                                if newSize.width > 0 && newSize.height > 0 {
+                                    imageSize = newSize
+                                }
+                            }
+                    }
+                )
         } else if let imageURL = imageURL {
             AsyncImage(url: imageURL) { image in
                 image
                     .resizable()
                     .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize, containerSize: containerSize))
-                    .onAppear {
-                        // For async images, we can't easily get the size, so we'll use a default
-                        // Using a typical photo aspect ratio (4:3) as default
-                        imageSize = CGSize(width: 1200, height: 900)
-                    }
+                    .background(
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onAppear {
+                                    // Get the actual rendered size of the image
+                                    let renderedSize = geometry.size
+                                    if renderedSize.width > 0 && renderedSize.height > 0 {
+                                        imageSize = renderedSize
+                                    }
+                                }
+                                .onChange(of: geometry.size) { newSize in
+                                    if newSize.width > 0 && newSize.height > 0 {
+                                        imageSize = newSize
+                                    }
+                                }
+                        }
+                    )
             } placeholder: {
                 // Use source image as placeholder if available
                 if let sourceImage = sourceImage {
