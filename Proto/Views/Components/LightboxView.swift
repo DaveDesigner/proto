@@ -12,21 +12,26 @@ import SwiftUI
 struct ImageScalingModifier: ViewModifier {
     let isFillMode: Bool
     let imageSize: CGSize
+    let containerSize: CGSize
     
     func body(content: Content) -> some View {
         let aspectRatio = imageSize.width / imageSize.height
+        let containerAspectRatio = containerSize.width / containerSize.height
         
-        if isFillMode {
-            // Fill mode: crop as needed to fill the available space
-            content
-                .aspectRatio(aspectRatio, contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
+        content
+            .aspectRatio(aspectRatio, contentMode: .fit)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .scaleEffect(isFillMode ? calculateFillScale(imageAspectRatio: aspectRatio, containerAspectRatio: containerAspectRatio) : 1.0)
+            .clipped()
+    }
+    
+    private func calculateFillScale(imageAspectRatio: CGFloat, containerAspectRatio: CGFloat) -> CGFloat {
+        if imageAspectRatio > containerAspectRatio {
+            // Image is wider than container - scale to fill height
+            return containerAspectRatio / imageAspectRatio
         } else {
-            // Fit mode: show entire image without cropping
-            content
-                .aspectRatio(aspectRatio, contentMode: .fit)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Image is taller than container - scale to fill width
+            return imageAspectRatio / containerAspectRatio
         }
     }
 }
@@ -94,6 +99,7 @@ struct LightboxView: View {
     @State private var isFillMode: Bool = false
     @State private var showToolbar: Bool = false
     @State private var imageSize: CGSize = .zero
+    @State private var containerSize: CGSize = .zero
     @State private var dismissOffset: CGSize = .zero
     @State private var isDismissing: Bool = false
     @Environment(\.dismiss) private var dismiss
@@ -129,6 +135,12 @@ struct LightboxView: View {
                     .offset(panOffset)
             }
             .offset(dismissOffset)
+            .onAppear {
+                containerSize = geometry.size
+            }
+            .onChange(of: geometry.size) { newSize in
+                containerSize = newSize
+            }
             .gesture(
                 SimultaneousGesture(
                     // Double tap to toggle between fit and fill modes
@@ -184,7 +196,7 @@ struct LightboxView: View {
         if let sourceImage = sourceImage {
             sourceImage
                 .resizable()
-                .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize))
+                .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize, containerSize: containerSize))
                 .onAppear {
                     // For source images, we can't easily get the size, so we'll use a default
                     // In a real app, you might want to pass the image size as a parameter
@@ -194,7 +206,7 @@ struct LightboxView: View {
         } else if let imageName = imageName {
             Image(imageName)
                 .resizable()
-                .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize))
+                .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize, containerSize: containerSize))
                 .onAppear {
                     // For named images, we can't easily get the size, so we'll use a default
                     // Using a typical photo aspect ratio (4:3) as default
@@ -204,7 +216,7 @@ struct LightboxView: View {
             AsyncImage(url: imageURL) { image in
                 image
                     .resizable()
-                    .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize))
+                    .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize, containerSize: containerSize))
                     .onAppear {
                         // For async images, we can't easily get the size, so we'll use a default
                         // Using a typical photo aspect ratio (4:3) as default
