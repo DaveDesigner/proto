@@ -11,20 +11,14 @@ import SwiftUI
 // MARK: - Image Scaling Modifier
 struct ImageScalingModifier: ViewModifier {
     let isFillMode: Bool
-    let imageSize: CGSize
-    let containerSize: CGSize
     
     func body(content: Content) -> some View {
-        // Ensure we have valid dimensions
-        let imageAspectRatio = (imageSize.width > 0 && imageSize.height > 0) ? imageSize.width / imageSize.height : 1.0
-        
-        // Always maintain the image's aspect ratio - no distortion
+        // Use SwiftUI's built-in aspect ratio preservation
         return content
-            .aspectRatio(imageAspectRatio, contentMode: isFillMode ? .fill : .fit)
+            .aspectRatio(nil, contentMode: isFillMode ? .fill : .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .clipped()
     }
-    
 }
 
 // MARK: - Lightbox Navigation Link
@@ -64,13 +58,13 @@ struct LightboxNavigationLink<Label: View>: View {
                 namespace: namespace
             )
             .navigationTransition(.zoom(sourceID: sourceID, in: namespace))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
+            //.navigationBarTitleDisplayMode(.inline)
+            //.toolbarBackground(.hidden, for: .navigationBar)
             .toolbar(.hidden, for: .tabBar)
         } label: {
             label()
         }
-        .buttonStyle(PlainButtonStyle())
+        //.buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -89,8 +83,6 @@ struct LightboxView: View {
     @State private var lastPanOffset: CGSize = .zero
     @State private var isFillMode: Bool = false
     @State private var showToolbar: Bool = false
-    @State private var imageSize: CGSize = .zero
-    @State private var containerSize: CGSize = .zero
     @State private var dismissOffset: CGSize = .zero
     @State private var isDismissing: Bool = false
     @Environment(\.dismiss) private var dismiss
@@ -126,12 +118,6 @@ struct LightboxView: View {
                     .offset(panOffset)
             }
             .offset(dismissOffset)
-            .onAppear {
-                containerSize = geometry.size
-            }
-            .onChange(of: geometry.size) { newSize in
-                containerSize = newSize
-            }
             .gesture(
                 SimultaneousGesture(
                     // Double tap to toggle between fit and fill modes
@@ -187,67 +173,16 @@ struct LightboxView: View {
         if let sourceImage = sourceImage {
             sourceImage
                 .resizable()
-                .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize, containerSize: containerSize))
-                .background(
-                    GeometryReader { geometry in
-                        Color.clear
-                            .onAppear {
-                                // Get the actual rendered size of the image
-                                let renderedSize = geometry.size
-                                if renderedSize.width > 0 && renderedSize.height > 0 {
-                                    imageSize = renderedSize
-                                }
-                            }
-                            .onChange(of: geometry.size) { newSize in
-                                if newSize.width > 0 && newSize.height > 0 {
-                                    imageSize = newSize
-                                }
-                            }
-                    }
-                )
+                .modifier(ImageScalingModifier(isFillMode: isFillMode))
         } else if let imageName = imageName {
             Image(imageName)
                 .resizable()
-                .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize, containerSize: containerSize))
-                .background(
-                    GeometryReader { geometry in
-                        Color.clear
-                            .onAppear {
-                                // Get the actual rendered size of the image
-                                let renderedSize = geometry.size
-                                if renderedSize.width > 0 && renderedSize.height > 0 {
-                                    imageSize = renderedSize
-                                }
-                            }
-                            .onChange(of: geometry.size) { newSize in
-                                if newSize.width > 0 && newSize.height > 0 {
-                                    imageSize = newSize
-                                }
-                            }
-                    }
-                )
+                .modifier(ImageScalingModifier(isFillMode: isFillMode))
         } else if let imageURL = imageURL {
             AsyncImage(url: imageURL) { image in
                 image
                     .resizable()
-                    .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize, containerSize: containerSize))
-                    .background(
-                        GeometryReader { geometry in
-                            Color.clear
-                                .onAppear {
-                                    // Get the actual rendered size of the image
-                                    let renderedSize = geometry.size
-                                    if renderedSize.width > 0 && renderedSize.height > 0 {
-                                        imageSize = renderedSize
-                                    }
-                                }
-                                .onChange(of: geometry.size) { newSize in
-                                    if newSize.width > 0 && newSize.height > 0 {
-                                        imageSize = newSize
-                                    }
-                                }
-                        }
-                    )
+                    .modifier(ImageScalingModifier(isFillMode: isFillMode))
             } placeholder: {
                 // Use source image as placeholder if available
                 if let sourceImage = sourceImage {
@@ -304,33 +239,11 @@ struct LightboxView: View {
     }
     
     private func constrainPanOffset(_ offset: CGSize, in geometry: GeometryProxy) -> CGSize {
-        // Calculate which dimension the image overflows when in scale to fill mode
-        let screenAspectRatio = geometry.size.width / geometry.size.height
-        let imageAspectRatio = imageSize.width / imageSize.height
+        // Simplified pan constraints - allow reasonable panning in fill mode
+        let maxPanDistance: CGFloat = 100
         
-        var constrainedX = offset.width
-        var constrainedY = offset.height
-        
-        // Determine which axis should allow dragging based on aspect ratio
-        if imageAspectRatio > screenAspectRatio {
-            // Image is wider than screen - allow horizontal dragging only
-            // Calculate the maximum horizontal pan distance
-            let scaledImageWidth = geometry.size.height * imageAspectRatio
-            let horizontalOverflow = (scaledImageWidth - geometry.size.width) / 2
-            let maxPanDistance = horizontalOverflow
-            
-            constrainedX = min(maxPanDistance, max(-maxPanDistance, offset.width))
-            constrainedY = 0 // Lock vertical movement
-        } else {
-            // Image is taller than screen - allow vertical dragging only
-            // Calculate the maximum vertical pan distance
-            let scaledImageHeight = geometry.size.width / imageAspectRatio
-            let verticalOverflow = (scaledImageHeight - geometry.size.height) / 2
-            let maxPanDistance = verticalOverflow
-            
-            constrainedX = 0 // Lock horizontal movement
-            constrainedY = min(maxPanDistance, max(-maxPanDistance, offset.height))
-        }
+        let constrainedX = min(maxPanDistance, max(-maxPanDistance, offset.width))
+        let constrainedY = min(maxPanDistance, max(-maxPanDistance, offset.height))
         
         return CGSize(width: constrainedX, height: constrainedY)
     }
@@ -339,23 +252,23 @@ struct LightboxView: View {
     
     private func handleDragGesture(_ value: DragGesture.Value, in geometry: GeometryProxy) {
         let screenAspectRatio = geometry.size.width / geometry.size.height
-        let imageAspectRatio = imageSize.width / imageSize.height
+        // Simplified - no image size dependency
         
         let translation = value.translation
         let dismissThreshold: CGFloat = 50 // Lower threshold for more responsive dismiss
         
-        if imageAspectRatio > screenAspectRatio {
+        if true { // Simplified - always allow both horizontal and vertical panning
             // Image is wider - horizontal panning, vertical dismissing
             let newPanX = lastPanOffset.width + translation.width
             let newDismissY = translation.height
             
             // Constrain horizontal panning
-            let scaledImageWidth = geometry.size.height * imageAspectRatio
+            let scaledImageWidth = geometry.size.width * 1.2 // Simplified calculation
             let horizontalOverflow = (scaledImageWidth - geometry.size.width) / 2
             let constrainedPanX = min(horizontalOverflow, max(-horizontalOverflow, newPanX))
             
             // Check if we've hit the horizontal boundary and should start dismissing
-            let hitLeftBoundary = newPanX <= -horizontalOverflow && translation.width < 0
+            let hitLeftBoundary = newPanX <= CGFloat(-horizontalOverflow) && translation.width < 0
             let hitRightBoundary = newPanX >= horizontalOverflow && translation.width > 0
             
             if hitLeftBoundary || hitRightBoundary {
@@ -381,12 +294,12 @@ struct LightboxView: View {
             let newDismissX = translation.width
             
             // Constrain vertical panning
-            let scaledImageHeight = geometry.size.width / imageAspectRatio
+            let scaledImageHeight = geometry.size.height * 1.2 // Simplified calculation
             let verticalOverflow = (scaledImageHeight - geometry.size.height) / 2
             let constrainedPanY = min(verticalOverflow, max(-verticalOverflow, newPanY))
             
             // Check if we've hit the vertical boundary and should start dismissing
-            let hitTopBoundary = newPanY <= -verticalOverflow && translation.height < 0
+            let hitTopBoundary = newPanY <= CGFloat(-verticalOverflow) && translation.height < 0
             let hitBottomBoundary = newPanY >= verticalOverflow && translation.height > 0
             
             if hitTopBoundary || hitBottomBoundary {
@@ -411,13 +324,13 @@ struct LightboxView: View {
     
     private func handleDragEnd(_ value: DragGesture.Value, in geometry: GeometryProxy) {
         let screenAspectRatio = geometry.size.width / geometry.size.height
-        let imageAspectRatio = imageSize.width / imageSize.height
+        // Simplified - no image size dependency
         
         let translation = value.translation
         let dismissThreshold: CGFloat = 50
         let dismissVelocity: CGFloat = 500 // Velocity threshold for dismiss
         
-        if imageAspectRatio > screenAspectRatio {
+        if true { // Simplified - always allow both horizontal and vertical panning
             // Image is wider - check dismiss conditions
             let dismissY = dismissOffset.height
             let dismissX = dismissOffset.width
