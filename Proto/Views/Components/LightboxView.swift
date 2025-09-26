@@ -15,18 +15,43 @@ struct ImageScalingModifier: ViewModifier {
     let containerSize: CGSize
     
     func body(content: Content) -> some View {
-        // Use a simpler approach that avoids complex layout calculations
+        // Use scaleEffect for smooth animation, but with safer calculations
+        let scale = calculateScale()
+        
+        content
+            .scaleEffect(scale)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
+    }
+    
+    private func calculateScale() -> CGFloat {
+        // Ensure we have valid dimensions
+        guard imageSize.width > 0 && imageSize.height > 0 && 
+              containerSize.width > 0 && containerSize.height > 0 else {
+            return 1.0
+        }
+        
+        let imageAspectRatio = imageSize.width / imageSize.height
+        let containerAspectRatio = containerSize.width / containerSize.height
+        
         if isFillMode {
-            // Fill mode: use scaledToFill with clipping
-            content
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
+            // Calculate scale to fill the container
+            if imageAspectRatio > containerAspectRatio {
+                // Image is wider - scale to fill height
+                return containerSize.height / imageSize.height
+            } else {
+                // Image is taller - scale to fill width
+                return containerSize.width / imageSize.width
+            }
         } else {
-            // Fit mode: use scaledToFit
-            content
-                .scaledToFit()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Fit mode - scale to fit within container
+            if imageAspectRatio > containerAspectRatio {
+                // Image is wider - scale to fit width
+                return containerSize.width / imageSize.width
+            } else {
+                // Image is taller - scale to fit height
+                return containerSize.height / imageSize.height
+            }
         }
     }
 }
