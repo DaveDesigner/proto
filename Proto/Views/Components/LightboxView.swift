@@ -15,43 +15,25 @@ struct ImageScalingModifier: ViewModifier {
     let containerSize: CGSize
     
     func body(content: Content) -> some View {
-        // Use scaleEffect for smooth animation, but with safer calculations
-        let scale = calculateScale()
+        // Ensure we have valid dimensions
+        let imageAspectRatio = (imageSize.width > 0 && imageSize.height > 0) ? imageSize.width / imageSize.height : 1.0
+        let containerAspectRatio = (containerSize.width > 0 && containerSize.height > 0) ? containerSize.width / containerSize.height : 1.0
         
-        content
-            .scaleEffect(scale)
+        // Always maintain the image's aspect ratio
+        return content
+            .aspectRatio(imageAspectRatio, contentMode: .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .scaleEffect(isFillMode ? calculateFillScale(imageAspectRatio: imageAspectRatio, containerAspectRatio: containerAspectRatio) : 1.0)
             .clipped()
     }
     
-    private func calculateScale() -> CGFloat {
-        // Ensure we have valid dimensions
-        guard imageSize.width > 0 && imageSize.height > 0 && 
-              containerSize.width > 0 && containerSize.height > 0 else {
-            return 1.0
-        }
-        
-        let imageAspectRatio = imageSize.width / imageSize.height
-        let containerAspectRatio = containerSize.width / containerSize.height
-        
-        if isFillMode {
-            // Calculate scale to fill the container
-            if imageAspectRatio > containerAspectRatio {
-                // Image is wider - scale to fill height
-                return containerSize.height / imageSize.height
-            } else {
-                // Image is taller - scale to fill width
-                return containerSize.width / imageSize.width
-            }
+    private func calculateFillScale(imageAspectRatio: CGFloat, containerAspectRatio: CGFloat) -> CGFloat {
+        if imageAspectRatio > containerAspectRatio {
+            // Image is wider than container - scale to fill height
+            return containerSize.height / (containerSize.width / imageAspectRatio)
         } else {
-            // Fit mode - scale to fit within container
-            if imageAspectRatio > containerAspectRatio {
-                // Image is wider - scale to fit width
-                return containerSize.width / imageSize.width
-            } else {
-                // Image is taller - scale to fit height
-                return containerSize.height / imageSize.height
-            }
+            // Image is taller than container - scale to fill width
+            return containerSize.width / (containerSize.height * imageAspectRatio)
         }
     }
 }
