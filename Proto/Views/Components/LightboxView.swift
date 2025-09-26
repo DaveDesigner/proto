@@ -26,29 +26,35 @@ struct ImageScalingModifier: ViewModifier {
     }
     
     private func calculateFillScale(imageAspectRatio: CGFloat, containerAspectRatio: CGFloat) -> CGFloat {
-        // Calculate the scale needed to fill the container completely
+        // Calculate the scale needed to fill the container completely using actual dimensions
         // We want the image to fill the entire container, so we need to scale it up
         // until one dimension (width or height) matches the container
         
+        // Calculate what the image size would be when fitted to the container
+        let fittedImageWidth: CGFloat
+        let fittedImageHeight: CGFloat
+        
         if imageAspectRatio > containerAspectRatio {
-            // Image is wider than container - scale to fill height
-            // When scaled to fill height, the width will overflow (which is what we want)
-            // Scale factor = containerHeight / imageHeight
-            // Since we're using aspect ratios: containerHeight/imageHeight = containerAspectRatio/imageAspectRatio
-            // But we need to invert this because we want to scale UP
-            let scale = imageAspectRatio / containerAspectRatio
-            print("Landscape image - aspect ratios: image=\(imageAspectRatio), container=\(containerAspectRatio), scale=\(scale)")
-            return scale
+            // Image is wider than container - fit to width, calculate height
+            fittedImageWidth = containerSize.width
+            fittedImageHeight = containerSize.width / imageAspectRatio
         } else {
-            // Image is taller than container - scale to fill width
-            // When scaled to fill width, the height will overflow (which is what we want)
-            // Scale factor = containerWidth / imageWidth
-            // Since we're using aspect ratios: containerWidth/imageWidth = imageAspectRatio/containerAspectRatio
-            // But we need to invert this because we want to scale UP
-            let scale = containerAspectRatio / imageAspectRatio
-            print("Portrait image - aspect ratios: image=\(imageAspectRatio), container=\(containerAspectRatio), scale=\(scale)")
-            return scale
+            // Image is taller than container - fit to height, calculate width
+            fittedImageHeight = containerSize.height
+            fittedImageWidth = containerSize.height * imageAspectRatio
         }
+        
+        // Now calculate the scale needed to fill the container
+        let scaleX = containerSize.width / fittedImageWidth
+        let scaleY = containerSize.height / fittedImageHeight
+        
+        // Use the larger scale to ensure we fill the container completely
+        let scale = max(scaleX, scaleY)
+        
+        print("Container: \(containerSize), Image aspect: \(imageAspectRatio), Container aspect: \(containerAspectRatio)")
+        print("Fitted size: \(fittedImageWidth)x\(fittedImageHeight), Scale: \(scale)")
+        
+        return scale
     }
 }
 
