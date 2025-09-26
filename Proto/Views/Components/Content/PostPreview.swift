@@ -22,7 +22,6 @@ struct PostPreview: View {
     let isLiked: Bool
     let onLikeTapped: (() -> Void)?
     let onCommentTapped: (() -> Void)?
-    let onPostTapped: (() -> Void)?
     
     @StateObject private var unsplashService = UnsplashService.shared
     
@@ -42,8 +41,7 @@ struct PostPreview: View {
         commentCount: Int = 0,
         isLiked: Bool = false,
         onLikeTapped: (() -> Void)? = nil,
-        onCommentTapped: (() -> Void)? = nil,
-        onPostTapped: (() -> Void)? = nil
+        onCommentTapped: (() -> Void)? = nil
     ) {
         self.authorName = authorName
         self.spaceName = spaceName
@@ -58,7 +56,6 @@ struct PostPreview: View {
         self.isLiked = isLiked
         self.onLikeTapped = onLikeTapped
         self.onCommentTapped = onCommentTapped
-        self.onPostTapped = onPostTapped
     }
     
     // Convenience initializer for backward compatibility
@@ -75,8 +72,7 @@ struct PostPreview: View {
         commentCount: Int = 0,
         isLiked: Bool = false,
         onLikeTapped: (() -> Void)? = nil,
-        onCommentTapped: (() -> Void)? = nil,
-        onPostTapped: (() -> Void)? = nil
+        onCommentTapped: (() -> Void)? = nil
     ) {
         self.authorName = authorName
         self.spaceName = spaceName
@@ -91,7 +87,6 @@ struct PostPreview: View {
         self.isLiked = isLiked
         self.onLikeTapped = onLikeTapped
         self.onCommentTapped = onCommentTapped
-        self.onPostTapped = onPostTapped
     }
     
     var body: some View {
@@ -154,9 +149,6 @@ struct PostPreview: View {
                 onCommentTapped: onCommentTapped
             )
         }
-        .onTapGesture {
-            onPostTapped?()
-        }
     }
     
     private func getSequentialImageIndex(from postImageName: String) -> Int {
@@ -202,9 +194,6 @@ struct PostPreview: View {
                 onCommentTapped: {
                     print("Comment tapped!")
                 },
-                onPostTapped: {
-                    print("Post tapped!")
-                }
             )
             
             // Post without image
@@ -224,9 +213,6 @@ struct PostPreview: View {
                 onCommentTapped: {
                     print("Comment tapped!")
                 },
-                onPostTapped: {
-                    print("Post tapped!")
-                }
             )
             
             // Post with research content
@@ -247,9 +233,6 @@ struct PostPreview: View {
                 onCommentTapped: {
                     print("Comment tapped!")
                 },
-                onPostTapped: {
-                    print("Post tapped!")
-                }
             )
             
             // Post with team update
@@ -270,9 +253,6 @@ struct PostPreview: View {
                 onCommentTapped: {
                     print("Comment tapped!")
                 },
-                onPostTapped: {
-                    print("Post tapped!")
-                }
             )
         }
         .padding()

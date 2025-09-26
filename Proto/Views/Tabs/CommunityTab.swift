@@ -62,9 +62,6 @@ struct CommunityTab: View {
                                         },
                                         onCommentTapped: {
                                             print("Comment tapped on AI tools post!")
-                                        },
-                                        onPostTapped: {
-                                            print("Post tapped on AI tools!")
                                         }
                                     )
                                 }
@@ -72,34 +69,34 @@ struct CommunityTab: View {
                                 Divider()
                                 
                                 // Post 2: Leadership Development with AI
-                                PostPreview(
-                                    authorName: "Marcus Thompson",
-                                    spaceName: "Leadership Excellence",
-                                    createdAt: Date().addingTimeInterval(-345600), // 4 days ago
-                                    avatarInitials: "MT",
-                                    postTitle: "How AI is Transforming Leadership Development",
-                                    postDescription: "Exploring how AI-powered assessments can identify leadership gaps and create personalized development plans for C-suite executives.",
-                                    postImageName: "image2", // Sequential image assignment
-                                    likeCount: 156,
-                                    commentCount: 23,
-                                    isLiked: true,
-                                    onLikeTapped: {
-                                        print("Like tapped on leadership post!")
-                                    },
-                                    onCommentTapped: {
-                                        print("Comment tapped on leadership post!")
-                                    },
-                                    onPostTapped: {
-                                        print("Post tapped on leadership!")
-                                    }
-                                )
+                                NavigationLink(destination: PostDetails()) {
+                                    PostPreview(
+                                        authorName: "Marcus Thompson",
+                                        spaceName: "Leadership Excellence",
+                                        createdAt: Date().addingTimeInterval(-345600), // 4 days ago
+                                        avatarInitials: "MT",
+                                        postTitle: "How AI is Transforming Leadership Development",
+                                        postDescription: "Exploring how AI-powered assessments can identify leadership gaps and create personalized development plans for C-suite executives.",
+                                        postImageName: "image2", // Sequential image assignment
+                                        likeCount: 156,
+                                        commentCount: 23,
+                                        isLiked: true,
+                                        onLikeTapped: {
+                                            print("Like tapped on leadership post!")
+                                        },
+                                        onCommentTapped: {
+                                            print("Comment tapped on leadership post!")
+                                        }
+                                    )
+                                }
 
                                 
                                 Divider()
                                 
                                 // Post 3: Executive Coaching Best Practices
-                                PostPreview(
-                                    authorName: "Dr. Elizabeth Rodriguez-Williams",
+                                NavigationLink(destination: PostDetails()) {
+                                    PostPreview(
+                                        authorName: "Dr. Elizabeth Rodriguez-Williams",
                                         spaceName: "Executive Coaching Mastery",
                                         createdAt: Date().addingTimeInterval(-604800), // 1 week ago
                                         avatarInitials: "ER",
@@ -114,61 +111,57 @@ struct CommunityTab: View {
                                         },
                                         onCommentTapped: {
                                             print("Comment tapped on coaching future post!")
-                                        },
-                                        onPostTapped: {
-                                            print("Post tapped on coaching future!")
                                         }
                                     )
+                                }
                                     
                                     Divider()
                                     
                                     // Post 4: AI Ethics in Coaching
-                                    PostPreview(
-                                        authorName: "Prof. James Mitchell",
-                                        spaceName: "Ethics & AI",
-                                        createdAt: Date().addingTimeInterval(-259200), // 3 days ago
-                                        avatarInitials: "JM",
-                                        postTitle: "Navigating AI Ethics in Executive Coaching",
-                                        postDescription: "Critical considerations for maintaining confidentiality and trust when incorporating AI tools into executive coaching practices.",
-                                        postImageName: "image4", // Sequential image assignment
-                                        likeCount: 15,
-                                        commentCount: 3,
-                                        isLiked: true,
-                                        onLikeTapped: {
-                                            print("Like tapped on AI ethics post!")
-                                        },
-                                        onCommentTapped: {
-                                            print("Comment tapped on AI ethics post!")
-                                        },
-                                        onPostTapped: {
-                                            print("Post tapped on AI ethics!")
-                                        }
-                                    )
+                                    NavigationLink(destination: PostDetails()) {
+                                        PostPreview(
+                                            authorName: "Prof. James Mitchell",
+                                            spaceName: "Ethics & AI",
+                                            createdAt: Date().addingTimeInterval(-259200), // 3 days ago
+                                            avatarInitials: "JM",
+                                            postTitle: "Navigating AI Ethics in Executive Coaching",
+                                            postDescription: "Critical considerations for maintaining confidentiality and trust when incorporating AI tools into executive coaching practices.",
+                                            postImageName: "image4", // Sequential image assignment
+                                            likeCount: 15,
+                                            commentCount: 3,
+                                            isLiked: true,
+                                            onLikeTapped: {
+                                                print("Like tapped on AI ethics post!")
+                                            },
+                                            onCommentTapped: {
+                                                print("Comment tapped on AI ethics post!")
+                                            }
+                                        )
+                                    }
                                     
                                     Divider()
                                     
                                     // Post 5: Success Story with AI Integration
-                                    PostPreview(
-                                        authorName: "Lisa Park",
-                                        spaceName: "Success Stories",
-                                        createdAt: Date().addingTimeInterval(-1800), // 30 minutes ago
-                                        avatarImageName: "Avatar",
-                                        postTitle: "Client Success: 40% Improvement in Decision-Making Speed",
-                                        postDescription: "Sharing how we used AI-powered scenario planning to help a Fortune 500 CEO dramatically improve their strategic decision-making process.",
-                                        postImageName: "image5", // Sequential image assignment
-                                        likeCount: 89,
-                                        commentCount: 12,
-                                        isLiked: false,
-                                        onLikeTapped: {
-                                            print("Like tapped on success story post!")
-                                        },
-                                        onCommentTapped: {
-                                            print("Comment tapped on success story post!")
-                                        },
-                                        onPostTapped: {
-                                            print("Post tapped on success story!")
-                                        }
-                                    )
+                                    NavigationLink(destination: PostDetails()) {
+                                        PostPreview(
+                                            authorName: "Lisa Park",
+                                            spaceName: "Success Stories",
+                                            createdAt: Date().addingTimeInterval(-1800), // 30 minutes ago
+                                            avatarImageName: "Avatar",
+                                            postTitle: "Client Success: 40% Improvement in Decision-Making Speed",
+                                            postDescription: "Sharing how we used AI-powered scenario planning to help a Fortune 500 CEO dramatically improve their strategic decision-making process.",
+                                            postImageName: "image5", // Sequential image assignment
+                                            likeCount: 89,
+                                            commentCount: 12,
+                                            isLiked: false,
+                                            onLikeTapped: {
+                                                print("Like tapped on success story post!")
+                                            },
+                                            onCommentTapped: {
+                                                print("Comment tapped on success story post!")
+                                            }
+                                        )
+                                    }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .standardHorizontalPadding()
