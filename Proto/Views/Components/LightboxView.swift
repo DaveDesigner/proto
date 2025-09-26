@@ -27,11 +27,18 @@ struct ImageScalingModifier: ViewModifier {
     
     private func calculateFillScale(imageAspectRatio: CGFloat, containerAspectRatio: CGFloat) -> CGFloat {
         if imageAspectRatio > containerAspectRatio {
-            // Image is wider than container - scale to fill height
-            return containerAspectRatio / imageAspectRatio
-        } else {
-            // Image is taller than container - scale to fill width
+            // Image is wider than container - scale up to fill height
+            // Scale factor = containerHeight / imageHeight
+            // Since we have aspect ratios: containerHeight/containerWidth / imageHeight/imageWidth
+            // = (containerHeight/imageHeight) * (imageWidth/containerWidth)
+            // = (containerHeight/imageHeight) * (imageAspectRatio/containerAspectRatio)
             return imageAspectRatio / containerAspectRatio
+        } else {
+            // Image is taller than container - scale up to fill width
+            // Scale factor = containerWidth / imageWidth  
+            // = (containerWidth/imageWidth) * (imageHeight/containerHeight)
+            // = (containerAspectRatio/imageAspectRatio)
+            return containerAspectRatio / imageAspectRatio
         }
     }
 }
