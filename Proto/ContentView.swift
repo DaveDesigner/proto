@@ -43,7 +43,7 @@ struct ContentView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
-        .tint(selectedTintColor)
+        // Removed .tint() to allow system to handle color adaptation automatically
     }
 }
 
