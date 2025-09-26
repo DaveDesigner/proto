@@ -53,10 +53,13 @@ struct ContentView: View {
             let appearance = UITabBarAppearance()
             appearance.configureWithOpaqueBackground()
             
-            // Set the same color for selected and unselected items
+            // Use system colors that will properly invert based on background
             let itemAppearance = UITabBarItemAppearance()
-            let itemColor = UIColor(Color.primary) // Use primary color for both states
             
+            // Use label color which automatically inverts for proper contrast
+            let itemColor = UIColor.label // This will be dark on light backgrounds, light on dark backgrounds
+            
+            // Set both normal and selected to use the same inverted color
             itemAppearance.normal.iconColor = itemColor
             itemAppearance.selected.iconColor = itemColor
             itemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: itemColor]
@@ -76,8 +79,8 @@ struct ContentView: View {
             }
         } else {
             // Fallback for earlier iOS versions
-            UITabBar.appearance().tintColor = UIColor(Color.primary)
-            UITabBar.appearance().unselectedItemTintColor = UIColor(Color.primary)
+            UITabBar.appearance().tintColor = UIColor.label
+            UITabBar.appearance().unselectedItemTintColor = UIColor.label
         }
     }
 }
