@@ -15,43 +15,19 @@ struct ImageScalingModifier: ViewModifier {
     let containerSize: CGSize
     
     func body(content: Content) -> some View {
-        let aspectRatio = imageSize.width / imageSize.height
-        let containerAspectRatio = containerSize.width / containerSize.height
-        
-        content
-            .aspectRatio(aspectRatio, contentMode: .fit)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .scaleEffect(isFillMode ? calculateFillScale(imageAspectRatio: aspectRatio, containerAspectRatio: containerAspectRatio) : 1.0)
-            .clipped()
-    }
-    
-    private func calculateFillScale(imageAspectRatio: CGFloat, containerAspectRatio: CGFloat) -> CGFloat {
-        // Calculate the scale needed to fill the container completely using actual dimensions
-        // We want the image to fill the entire container, so we need to scale it up
-        // until one dimension (width or height) matches the container
-        
-        // Calculate what the image size would be when fitted to the container
-        let fittedImageWidth: CGFloat
-        let fittedImageHeight: CGFloat
-        
-        if imageAspectRatio > containerAspectRatio {
-            // Image is wider than container - fit to width, calculate height
-            fittedImageWidth = containerSize.width
-            fittedImageHeight = containerSize.width / imageAspectRatio
+        // Use a simpler approach that avoids complex layout calculations
+        if isFillMode {
+            // Fill mode: use scaledToFill with clipping
+            content
+                .scaledToFill()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
         } else {
-            // Image is taller than container - fit to height, calculate width
-            fittedImageHeight = containerSize.height
-            fittedImageWidth = containerSize.height * imageAspectRatio
+            // Fit mode: use scaledToFit
+            content
+                .scaledToFit()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        
-        // Now calculate the scale needed to fill the container
-        let scaleX = containerSize.width / fittedImageWidth
-        let scaleY = containerSize.height / fittedImageHeight
-        
-        // Use the larger scale to ensure we fill the container completely
-        let scale = max(scaleX, scaleY)
-        
-        return scale
     }
 }
 
