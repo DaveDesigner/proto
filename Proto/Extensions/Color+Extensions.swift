@@ -42,4 +42,7 @@ extension Color {
     static let systemBackgroundPrimary = Color(uiColor: .systemBackground)
     static let systemBackgroundSecondary = Color(uiColor: .secondarySystemBackground)
     static let systemBackgroundTertiary = Color(uiColor: .tertiarySystemBackground)
+    
+    // MARK: - Simple Color System
+    // Using system colors directly - no complex adaptive logic needed
 }

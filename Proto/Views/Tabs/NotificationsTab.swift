@@ -212,7 +212,7 @@ struct NotificationsTab: View {
                             // Notifications list
                             LazyVStack(spacing: notificationSpacing) {
                                 ForEach(inboxNotifications) { notification in
-                                    Notification(data: notification)
+                                    Notification(data: notification, selectedTintColor: $selectedTintColor)
                                 }
                             }
                             .standardHorizontalPadding()
@@ -220,7 +220,7 @@ struct NotificationsTab: View {
                         case "Mentions":
                             LazyVStack(spacing: notificationSpacing) {
                                 ForEach(inboxNotifications.filter { $0.type == .mention }) { notification in
-                                    Notification(data: notification)
+                                    Notification(data: notification, selectedTintColor: $selectedTintColor)
                                 }
                             }
                             .standardHorizontalPadding()
@@ -228,7 +228,7 @@ struct NotificationsTab: View {
                         case "Threads":
                             LazyVStack(spacing: notificationSpacing) {
                                 ForEach(inboxNotifications.filter { $0.type == .reply || $0.type == .comment }) { notification in
-                                    Notification(data: notification)
+                                    Notification(data: notification, selectedTintColor: $selectedTintColor)
                                 }
                             }
                             .standardHorizontalPadding()
@@ -236,7 +236,7 @@ struct NotificationsTab: View {
                         case "Following":
                             LazyVStack(spacing: notificationSpacing) {
                                 ForEach(inboxNotifications.filter { $0.type == .post || $0.type == .live }) { notification in
-                                    Notification(data: notification)
+                                    Notification(data: notification, selectedTintColor: $selectedTintColor)
                                 }
                             }
                             .standardHorizontalPadding()
@@ -244,7 +244,7 @@ struct NotificationsTab: View {
                         case "Archive":
                             LazyVStack(spacing: notificationSpacing) {
                                 ForEach(inboxNotifications.filter { !$0.isNew }) { notification in
-                                    Notification(data: notification)
+                                    Notification(data: notification, selectedTintColor: $selectedTintColor)
                                 }
                             }
                             .standardHorizontalPadding()

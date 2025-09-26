@@ -109,7 +109,21 @@ struct NotificationBadge: View {
 // MARK: - Main Notification Component
 struct Notification: View {
     let data: NotificationData
+    @Binding var selectedTintColor: Color
     @StateObject private var unsplashService = UnsplashService.shared
+    @Environment(\.colorScheme) private var colorScheme
+    
+    // Computed properties for adaptive accent color and text contrast
+    private var adaptiveAccentColor: Color {
+        // Use primary color directly - it already adapts to light/dark mode
+        return Color.primary
+    }
+    
+    private var acceptButtonTextColor: Color {
+        // Primary color is dark in light mode, light in dark mode
+        // So we need light text in light mode, dark text in dark mode
+        return colorScheme == .light ? .white : .black
+    }
     
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
@@ -206,12 +220,12 @@ struct Notification: View {
                             Button(action: {}) {
                                 Text("Accept")
                                     .font(.footnote.weight(.semibold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(acceptButtonTextColor)
                                     .padding(.vertical, 8)
                                     .padding(.horizontal, 12)
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .glassEffect(.regular.tint(.accentColor).interactive())
+                            .glassEffect(.regular.tint(adaptiveAccentColor).interactive())
                         }
                     }
                 }
@@ -374,7 +388,7 @@ struct Notification: View {
                 secondImageIndex: nil,
                 isGroupAvatar: false,
                 isAI: false
-            ))
+            ), selectedTintColor: .constant(Color.blue))
             
             Divider()
             
@@ -394,7 +408,7 @@ struct Notification: View {
                 secondImageIndex: nil,
                 isGroupAvatar: false,
                 isAI: false
-            ))
+            ), selectedTintColor: .constant(Color.blue))
             
             Divider()
             
@@ -414,7 +428,7 @@ struct Notification: View {
                 secondImageIndex: 3,
                 isGroupAvatar: true,
                 isAI: true
-            ))
+            ), selectedTintColor: .constant(Color.blue))
         }
     }
 }

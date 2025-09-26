@@ -91,6 +91,7 @@ struct LightboxView: View {
     @State private var lastMagnification: CGFloat = 1.0
     @State private var isZooming: Bool = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var deviceColorScheme
     
     init(
         imageName: String? = nil,
@@ -138,11 +139,17 @@ struct LightboxView: View {
                     TapGesture(count: 1)
                         .onEnded {
                             if !isFillMode {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    isDarkMode.toggle()
+                                // Only toggle to light mode if device is in light mode
+                                if deviceColorScheme == .light {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        isDarkMode.toggle()
+                                    }
+                                    // Show toolbar only in light mode, hide in dark mode (no animation)
+                                    showToolbar = !isDarkMode
+                                } else {
+                                    // In dark mode device, just toggle toolbar visibility
+                                    showToolbar.toggle()
                                 }
-                                // Show toolbar only in light mode, hide in dark mode (no animation)
-                                showToolbar = !isDarkMode
                             } else {
                                 // When in fill mode, toggle toolbar visibility regardless of theme
                                 showToolbar.toggle()
@@ -268,8 +275,8 @@ struct LightboxView: View {
     
     
     private func showToolbarIfNeeded() {
-        // Only show toolbar if we're in light mode and toolbar isn't already showing
-        if !isDarkMode && !showToolbar {
+        // Show toolbar if we're in light mode (either device light mode or toggled to light) and toolbar isn't already showing
+        if (!isDarkMode || deviceColorScheme == .light) && !showToolbar {
             showToolbar = true
         }
     }

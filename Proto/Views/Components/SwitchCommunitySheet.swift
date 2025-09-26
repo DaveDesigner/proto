@@ -13,23 +13,33 @@ struct SwitchCommunitySheet: View {
     
     var body: some View {
         SheetTemplate(title: "Switch Community") {
-            VStack(spacing: 16) {
-                Spacer(minLength: 100)
+            VStack(spacing: 24) {
+                Spacer(minLength: 20)
                 
-                Text("Community switching functionality")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 20)
+                // Placeholder for Figma component
+                VStack(spacing: 16) {
+                    Text("Community Color Options")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
+                    Text("Figma component will go here")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                        .background(Color.secondary.opacity(0.1))
+                        .cornerRadius(8)
+                }
+                .padding(.horizontal, 20)
                 
-                Button("Switch to Community Color") {
-                    // Generate a new random color for the community
-                    selectedTintColor = Color(red: Double.random(in: 0...1), green: Double.random(in: 0...1), blue: Double.random(in: 0...1))
+                // Close button
+                Button("Done") {
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
-                .padding()
+                .padding(.horizontal, 20)
                 
-                Spacer(minLength: 100)
+                Spacer(minLength: 20)
             }
             .frame(maxWidth: .infinity, alignment: .top)
         }

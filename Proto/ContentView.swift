@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Main Content View
 
 struct ContentView: View {
-    @State private var selectedTintColor = Color.primary
+    @State private var selectedTintColor = Color.primary // Use primary color directly
     @State private var selectedTab = 0
     @Environment(\.colorScheme) private var colorScheme
     
@@ -43,7 +43,45 @@ struct ContentView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
-        .tint(selectedTintColor)
+        .onAppear {
+            configureTabBarAppearance()
+        }
+    }
+    
+    private func configureTabBarAppearance() {
+        if #available(iOS 13.0, *) {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            
+            // Use system colors that will properly invert based on background
+            let itemAppearance = UITabBarItemAppearance()
+            
+            // Use label color which automatically inverts for proper contrast
+            let itemColor = UIColor.label // This will be dark on light backgrounds, light on dark backgrounds
+            
+            // Set both normal and selected to use the same inverted color
+            itemAppearance.normal.iconColor = itemColor
+            itemAppearance.selected.iconColor = itemColor
+            itemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: itemColor]
+            itemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: itemColor]
+            
+            // Apply the item appearance to all layout styles
+            appearance.stackedLayoutAppearance = itemAppearance
+            appearance.inlineLayoutAppearance = itemAppearance
+            appearance.compactInlineLayoutAppearance = itemAppearance
+            
+            // Assign the customized appearance to the tab bar
+            UITabBar.appearance().standardAppearance = appearance
+            
+            // For iOS 15 and later, also set the scrollEdgeAppearance
+            if #available(iOS 15.0, *) {
+                UITabBar.appearance().scrollEdgeAppearance = appearance
+            }
+        } else {
+            // Fallback for earlier iOS versions
+            UITabBar.appearance().tintColor = UIColor.label
+            UITabBar.appearance().unselectedItemTintColor = UIColor.label
+        }
     }
 }
 
