@@ -144,9 +144,12 @@ struct LightboxView: View {
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         isDarkMode.toggle()
                                     }
+                                    // Show toolbar only in light mode, hide in dark mode (no animation)
+                                    showToolbar = !isDarkMode
+                                } else {
+                                    // In dark mode device, just toggle toolbar visibility
+                                    showToolbar.toggle()
                                 }
-                                // Always show toolbar when tapped, but respect device color scheme
-                                showToolbar = true
                             } else {
                                 // When in fill mode, toggle toolbar visibility regardless of theme
                                 showToolbar.toggle()
@@ -183,9 +186,6 @@ struct LightboxView: View {
                     } : nil
             )
             .onAppear {
-                // Initialize dark mode based on device color scheme
-                isDarkMode = deviceColorScheme == .dark
-                
                 isAnimating = true
                 withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                     opacity = 1.0
