@@ -17,25 +17,14 @@ struct ImageScalingModifier: ViewModifier {
     func body(content: Content) -> some View {
         // Ensure we have valid dimensions
         let imageAspectRatio = (imageSize.width > 0 && imageSize.height > 0) ? imageSize.width / imageSize.height : 1.0
-        let containerAspectRatio = (containerSize.width > 0 && containerSize.height > 0) ? containerSize.width / containerSize.height : 1.0
         
-        // Always maintain the image's aspect ratio
+        // Always maintain the image's aspect ratio - no distortion
         return content
-            .aspectRatio(imageAspectRatio, contentMode: .fit)
+            .aspectRatio(imageAspectRatio, contentMode: isFillMode ? .fill : .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .scaleEffect(isFillMode ? calculateFillScale(imageAspectRatio: imageAspectRatio, containerAspectRatio: containerAspectRatio) : 1.0)
             .clipped()
     }
     
-    private func calculateFillScale(imageAspectRatio: CGFloat, containerAspectRatio: CGFloat) -> CGFloat {
-        if imageAspectRatio > containerAspectRatio {
-            // Image is wider than container - scale to fill height
-            return containerSize.height / (containerSize.width / imageAspectRatio)
-        } else {
-            // Image is taller than container - scale to fill width
-            return containerSize.width / (containerSize.height * imageAspectRatio)
-        }
-    }
 }
 
 // MARK: - Lightbox Navigation Link
