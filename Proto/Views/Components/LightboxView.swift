@@ -51,9 +51,6 @@ struct ImageScalingModifier: ViewModifier {
         // Use the larger scale to ensure we fill the container completely
         let scale = max(scaleX, scaleY)
         
-        print("Container: \(containerSize), Image aspect: \(imageAspectRatio), Container aspect: \(containerAspectRatio)")
-        print("Fitted size: \(fittedImageWidth)x\(fittedImageHeight), Scale: \(scale)")
-        
         return scale
     }
 }
