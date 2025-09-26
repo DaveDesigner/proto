@@ -22,8 +22,8 @@ struct SegmentControl: View {
     }
     
     private func adaptiveTintColor() -> Color {
-        // Always apply adaptive community color system for consistency
-        return Color.adaptiveCommunity(tintColor)
+        // Use primary color directly - it already adapts to light/dark mode
+        return Color.primary
     }
     
     
@@ -42,23 +42,12 @@ struct SegmentControl: View {
     private func segmentButton(for index: Int) -> some View {
         let isSelected = selectedIndex == index
         
-        // Calculate text color for selected segments based on actual background color
+        // Simple text color logic - primary color inverts properly
         let textColor: Color = {
             if isSelected {
-                // Calculate brightness of the actual adaptive tint color being used
-                let uiColor = UIColor(adaptiveTintColor())
-                var red: CGFloat = 0
-                var green: CGFloat = 0
-                var blue: CGFloat = 0
-                var alpha: CGFloat = 0
-                
-                uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-                
-                // Calculate brightness using standard luminance formula
-                let brightness = (red * 0.299 + green * 0.587 + blue * 0.114)
-                
-                // Use black text for bright backgrounds, white text for dark backgrounds
-                return brightness > 0.5 ? .black : .white
+                // Primary color is dark in light mode, light in dark mode
+                // So we need light text in light mode, dark text in dark mode
+                return colorScheme == .light ? .white : .black
             } else {
                 return .secondary
             }

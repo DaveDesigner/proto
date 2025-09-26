@@ -33,9 +33,9 @@ struct SwitchCommunitySheet: View {
                             .frame(width: 120, height: 120)
                             .offset(x: 15, y: 0)
                         
-                        // Adaptive color ellipse (top layer)
+                        // Primary color ellipse (top layer)
                         Circle()
-                            .fill(Color.adaptiveCommunity(currentColor))
+                            .fill(Color.primary)
                             .frame(width: 120, height: 120)
                             .offset(x: -15, y: 0)
                     }
@@ -128,13 +128,13 @@ struct SwitchCommunitySheet: View {
             blueValue = Double(blue)
         }
         .onChange(of: redValue) { _, _ in
-            selectedTintColor = Color.adaptiveCommunity(currentColor)
+            selectedTintColor = Color.primary
         }
         .onChange(of: greenValue) { _, _ in
-            selectedTintColor = Color.adaptiveCommunity(currentColor)
+            selectedTintColor = Color.primary
         }
         .onChange(of: blueValue) { _, _ in
-            selectedTintColor = Color.adaptiveCommunity(currentColor)
+            selectedTintColor = Color.primary
         }
     }
     
