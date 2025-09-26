@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Main Content View
 
 struct ContentView: View {
-    @State private var selectedTintColor = Color.primary
+    @State private var selectedTintColor = Color.primary // Default primary accent color
     @State private var selectedTab = 0
     @Environment(\.colorScheme) private var colorScheme
     
@@ -43,7 +43,7 @@ struct ContentView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
-        .tint(selectedTintColor)
+        .tint(Color.adaptiveCommunity(selectedTintColor))
     }
 }
 

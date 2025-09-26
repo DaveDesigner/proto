@@ -109,7 +109,32 @@ struct NotificationBadge: View {
 // MARK: - Main Notification Component
 struct Notification: View {
     let data: NotificationData
+    @Binding var selectedTintColor: Color
     @StateObject private var unsplashService = UnsplashService.shared
+    @Environment(\.colorScheme) private var colorScheme
+    
+    // Computed properties for adaptive accent color and text contrast
+    private var adaptiveAccentColor: Color {
+        // Use adaptive community color system for consistency
+        return Color.adaptiveCommunity(selectedTintColor)
+    }
+    
+    private var acceptButtonTextColor: Color {
+        // Calculate brightness of the actual adaptive accent color being used
+        let uiColor = UIColor(adaptiveAccentColor)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        // Calculate brightness using standard luminance formula
+        let brightness = (red * 0.299 + green * 0.587 + blue * 0.114)
+        
+        // Use black text for bright backgrounds, white text for dark backgrounds
+        return brightness > 0.5 ? .black : .white
+    }
     
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
@@ -206,12 +231,12 @@ struct Notification: View {
                             Button(action: {}) {
                                 Text("Accept")
                                     .font(.footnote.weight(.semibold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(acceptButtonTextColor)
                                     .padding(.vertical, 8)
                                     .padding(.horizontal, 12)
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .glassEffect(.regular.tint(.accentColor).interactive())
+                            .glassEffect(.regular.tint(adaptiveAccentColor).interactive())
                         }
                     }
                 }
@@ -374,7 +399,7 @@ struct Notification: View {
                 secondImageIndex: nil,
                 isGroupAvatar: false,
                 isAI: false
-            ))
+            ), selectedTintColor: .constant(Color.blue))
             
             Divider()
             
@@ -394,7 +419,7 @@ struct Notification: View {
                 secondImageIndex: nil,
                 isGroupAvatar: false,
                 isAI: false
-            ))
+            ), selectedTintColor: .constant(Color.blue))
             
             Divider()
             
@@ -414,7 +439,7 @@ struct Notification: View {
                 secondImageIndex: 3,
                 isGroupAvatar: true,
                 isAI: true
-            ))
+            ), selectedTintColor: .constant(Color.blue))
         }
     }
 }

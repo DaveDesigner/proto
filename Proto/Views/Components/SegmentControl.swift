@@ -14,28 +14,18 @@ struct SegmentControl: View {
     let tintColor: Color
     @Environment(\.colorScheme) private var colorScheme
     
-    init(segments: [String], selectedIndex: Binding<Int>, onSelectionChanged: @escaping (Int) -> Void = { _ in }, tintColor: Color = .primary) {
+    init(segments: [String], selectedIndex: Binding<Int>, onSelectionChanged: @escaping (Int) -> Void = { _ in }, tintColor: Color = .blue) {
         self.segments = segments
         self._selectedIndex = selectedIndex
         self.onSelectionChanged = onSelectionChanged
         self.tintColor = tintColor
     }
     
-    private var isTintColorBright: Bool {
-        // Convert color to UIColor to get RGB components
-        let uiColor = UIColor(tintColor)
-        var red: CGFloat = 0
-        var green: CGFloat = 0
-        var blue: CGFloat = 0
-        var alpha: CGFloat = 0
-        
-        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        
-        // Calculate brightness using standard luminance formula
-        let brightness = (red * 0.299 + green * 0.587 + blue * 0.114)
-        
-        return brightness > 0.5
+    private func adaptiveTintColor() -> Color {
+        // Always apply adaptive community color system for consistency
+        return Color.adaptiveCommunity(tintColor)
     }
+    
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -52,6 +42,28 @@ struct SegmentControl: View {
     private func segmentButton(for index: Int) -> some View {
         let isSelected = selectedIndex == index
         
+        // Calculate text color for selected segments based on actual background color
+        let textColor: Color = {
+            if isSelected {
+                // Calculate brightness of the actual adaptive tint color being used
+                let uiColor = UIColor(adaptiveTintColor())
+                var red: CGFloat = 0
+                var green: CGFloat = 0
+                var blue: CGFloat = 0
+                var alpha: CGFloat = 0
+                
+                uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+                
+                // Calculate brightness using standard luminance formula
+                let brightness = (red * 0.299 + green * 0.587 + blue * 0.114)
+                
+                // Use black text for bright backgrounds, white text for dark backgrounds
+                return brightness > 0.5 ? .black : .white
+            } else {
+                return .secondary
+            }
+        }()
+        
         return Button(action: {
             withAnimation(.easeInOut(duration: 0.2)) {
                 selectedIndex = index
@@ -60,12 +72,13 @@ struct SegmentControl: View {
         }) {
             Text(segments[index])
                 .font(.subheadline.weight(.semibold))
-                .foregroundColor(isSelected ? (isTintColorBright ? .black : .white) : .secondary)
+                .foregroundColor(textColor)
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
         }
         .buttonStyle(PlainButtonStyle())
-        .glassEffect(isSelected ? .regular.tint(.accentColor).interactive() : .regular.interactive())
+        .glassEffect(isSelected ? .regular.tint(adaptiveTintColor()).interactive() : .regular.interactive())
+        .id("\(index)-\(adaptiveTintColor())")
     }
 }
 
