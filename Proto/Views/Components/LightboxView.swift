@@ -11,11 +11,13 @@ import SwiftUI
 // MARK: - Image Scaling Modifier
 struct ImageScalingModifier: ViewModifier {
     let isFillMode: Bool
+    let magnification: CGFloat
     
     func body(content: Content) -> some View {
-        // Use SwiftUI's built-in aspect ratio preservation
+        // Use SwiftUI's built-in aspect ratio preservation with magnification
         return content
             .aspectRatio(nil, contentMode: isFillMode ? .fill : .fit)
+            .scaleEffect(magnification)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .clipped()
     }
@@ -85,6 +87,9 @@ struct LightboxView: View {
     @State private var showToolbar: Bool = false
     @State private var dismissOffset: CGSize = .zero
     @State private var isDismissing: Bool = false
+    @State private var magnification: CGFloat = 1.0
+    @State private var lastMagnification: CGFloat = 1.0
+    @State private var isZooming: Bool = false
     @Environment(\.dismiss) private var dismiss
     
     init(
@@ -124,26 +129,50 @@ struct LightboxView: View {
                     TapGesture(count: 2)
                         .onEnded {
                             handleDoubleTap()
-                            showToolbarIfNeeded()
+                            // Show toolbar only if we're in light mode
+                            if !isDarkMode {
+                                showToolbarIfNeeded()
+                            }
                         },
-                    // Single tap to toggle dark mode (only when not in fill mode) or show toolbar
+                    // Single tap to toggle dark mode and show/hide toolbar accordingly
                     TapGesture(count: 1)
                         .onEnded {
                             if !isFillMode {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     isDarkMode.toggle()
                                 }
+                                // Show toolbar only in light mode, hide in dark mode (no animation)
+                                showToolbar = !isDarkMode
+                            } else {
+                                // When in fill mode, toggle toolbar visibility regardless of theme
+                                showToolbar.toggle()
                             }
-                            showToolbarIfNeeded()
                         }
                 )
             )
             .gesture(
-                // Pan gesture only when in fill mode
-                isFillMode ? DragGesture()
+                // Magnification gesture for pinch to zoom
+                MagnificationGesture()
+                    .onChanged { value in
+                        handleMagnificationGesture(value)
+                        // Show toolbar only if we're in light mode
+                        if !isDarkMode {
+                            showToolbarIfNeeded()
+                        }
+                    }
+                    .onEnded { value in
+                        handleMagnificationEnd(value)
+                    }
+            )
+            .gesture(
+                // Pan gesture when in fill mode or when zoomed
+                (isFillMode || magnification > 1.0) ? DragGesture()
                     .onChanged { value in
                         handleDragGesture(value, in: geometry)
-                        showToolbarIfNeeded()
+                        // Show toolbar only if we're in light mode
+                        if !isDarkMode {
+                            showToolbarIfNeeded()
+                        }
                     }
                     .onEnded { value in
                         handleDragEnd(value, in: geometry)
@@ -173,16 +202,16 @@ struct LightboxView: View {
         if let sourceImage = sourceImage {
             sourceImage
                 .resizable()
-                .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                .modifier(ImageScalingModifier(isFillMode: isFillMode, magnification: magnification))
         } else if let imageName = imageName {
             Image(imageName)
                 .resizable()
-                .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                .modifier(ImageScalingModifier(isFillMode: isFillMode, magnification: magnification))
         } else if let imageURL = imageURL {
             AsyncImage(url: imageURL) { image in
                 image
                     .resizable()
-                    .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                    .modifier(ImageScalingModifier(isFillMode: isFillMode, magnification: magnification))
             } placeholder: {
                 // Use source image as placeholder if available
                 if let sourceImage = sourceImage {
@@ -210,30 +239,62 @@ struct LightboxView: View {
     
     private func handleDoubleTap() {
         withAnimation(.easeInOut(duration: 0.3)) {
-            if isFillMode {
-                // Switch back to scaledToFit
+            // If we're in default state (fit mode, no zoom, no pan), zoom in
+            if !isFillMode && magnification == 1.0 && panOffset == .zero {
+                // Switch to fill mode (zoom in) - center the image
+                // When switching to fill mode, we need to center the image
+                // For now, we'll use a simple approach and let the pan gesture handle centering
+                panOffset = .zero
+                lastPanOffset = .zero
+                dismissOffset = .zero
+                isDismissing = false
+                isFillMode = true
+                magnification = 1.0
+                lastMagnification = 1.0
+                isZooming = false
+            } else {
+                // Return to default state: fit mode, no zoom, no pan
                 panOffset = .zero
                 lastPanOffset = .zero
                 dismissOffset = .zero
                 isDismissing = false
                 isFillMode = false
-            } else {
-                // Switch to scaledToFill - center the image horizontally
-                // When switching to fill mode, we want to center the image
-                // This assumes the image will be wider than the screen in fill mode
-                panOffset = CGSize(width: 0, height: 0) // Center horizontally, keep vertical centered
-                lastPanOffset = panOffset
-                dismissOffset = .zero
-                isDismissing = false
-                isFillMode = true
+                magnification = 1.0
+                lastMagnification = 1.0
+                isZooming = false
             }
         }
     }
     
+    
     private func showToolbarIfNeeded() {
-        if !showToolbar {
+        // Only show toolbar if we're in light mode and toolbar isn't already showing
+        if !isDarkMode && !showToolbar {
+            showToolbar = true
+        }
+    }
+    
+    // MARK: - Magnification Gesture Handlers
+    
+    private func handleMagnificationGesture(_ value: MagnificationGesture.Value) {
+        isZooming = true
+        magnification = lastMagnification * value
+        // Constrain magnification between 0.5x and 5.0x
+        magnification = min(max(magnification, 0.5), 5.0)
+    }
+    
+    private func handleMagnificationEnd(_ value: MagnificationGesture.Value) {
+        isZooming = false
+        lastMagnification = magnification
+        
+        // If zoomed out too much, reset to 1.0
+        if magnification < 1.0 {
             withAnimation(.easeInOut(duration: 0.3)) {
-                showToolbar = true
+                magnification = 1.0
+                lastMagnification = 1.0
+                // Reset pan offset when returning to normal zoom
+                panOffset = .zero
+                lastPanOffset = .zero
             }
         }
     }
@@ -251,20 +312,45 @@ struct LightboxView: View {
     // MARK: - Drag and Dismiss Logic
     
     private func handleDragGesture(_ value: DragGesture.Value, in geometry: GeometryProxy) {
-        let screenAspectRatio = geometry.size.width / geometry.size.height
-        // Simplified - no image size dependency
-        
         let translation = value.translation
         let dismissThreshold: CGFloat = 50 // Lower threshold for more responsive dismiss
         
-        if true { // Simplified - always allow both horizontal and vertical panning
-            // Image is wider - horizontal panning, vertical dismissing
+        // Calculate pan constraints based on magnification and fill mode
+        let effectiveMagnification = isFillMode ? max(magnification, 1.0) : magnification
+        let scaledImageWidth = geometry.size.width * effectiveMagnification
+        let scaledImageHeight = geometry.size.height * effectiveMagnification
+        
+        let horizontalOverflow = max(0, (scaledImageWidth - geometry.size.width) / 2)
+        let verticalOverflow = max(0, (scaledImageHeight - geometry.size.height) / 2)
+        
+        // When zoomed in, allow panning in both directions
+        if magnification > 1.0 {
+            let newPanX = lastPanOffset.width + translation.width
+            let newPanY = lastPanOffset.height + translation.height
+            
+            // Constrain panning within the zoomed image bounds
+            let constrainedPanX = min(horizontalOverflow, max(-horizontalOverflow, newPanX))
+            let constrainedPanY = min(verticalOverflow, max(-verticalOverflow, newPanY))
+            
+            // Check for dismiss gesture (swipe down or up when at edges)
+            let hitHorizontalBoundary = abs(newPanX) >= horizontalOverflow
+            let hitVerticalBoundary = abs(newPanY) >= verticalOverflow
+            
+            if (hitHorizontalBoundary || hitVerticalBoundary) && abs(translation.height) > dismissThreshold {
+                // Start dismissing when at boundaries and swiping vertically
+                isDismissing = true
+                panOffset = CGSize(width: constrainedPanX, height: constrainedPanY)
+                dismissOffset = CGSize(width: 0, height: translation.height)
+            } else {
+                // Normal panning within boundaries
+                panOffset = CGSize(width: constrainedPanX, height: constrainedPanY)
+                dismissOffset = CGSize(width: 0, height: 0)
+            }
+        } else if isFillMode {
+            // Original fill mode logic for horizontal panning
             let newPanX = lastPanOffset.width + translation.width
             let newDismissY = translation.height
             
-            // Constrain horizontal panning
-            let scaledImageWidth = geometry.size.width * 1.2 // Simplified calculation
-            let horizontalOverflow = (scaledImageWidth - geometry.size.width) / 2
             let constrainedPanX = min(horizontalOverflow, max(-horizontalOverflow, newPanX))
             
             // Check if we've hit the horizontal boundary and should start dismissing
@@ -274,7 +360,6 @@ struct LightboxView: View {
             if hitLeftBoundary || hitRightBoundary {
                 // Start dismissing when hitting horizontal boundaries
                 isDismissing = true
-                // Apply the excess movement as dismiss offset
                 let excessMovement = newPanX - constrainedPanX
                 panOffset = CGSize(width: constrainedPanX, height: 0)
                 dismissOffset = CGSize(width: excessMovement, height: newDismissY)
@@ -289,109 +374,48 @@ struct LightboxView: View {
                 dismissOffset = CGSize(width: 0, height: newDismissY)
             }
         } else {
-            // Image is taller - vertical panning, horizontal dismissing
-            let newPanY = lastPanOffset.height + translation.height
-            let newDismissX = translation.width
-            
-            // Constrain vertical panning
-            let scaledImageHeight = geometry.size.height * 1.2 // Simplified calculation
-            let verticalOverflow = (scaledImageHeight - geometry.size.height) / 2
-            let constrainedPanY = min(verticalOverflow, max(-verticalOverflow, newPanY))
-            
-            // Check if we've hit the vertical boundary and should start dismissing
-            let hitTopBoundary = newPanY <= CGFloat(-verticalOverflow) && translation.height < 0
-            let hitBottomBoundary = newPanY >= verticalOverflow && translation.height > 0
-            
-            if hitTopBoundary || hitBottomBoundary {
-                // Start dismissing when hitting vertical boundaries
+            // No panning when in fit mode and not zoomed
+            if abs(translation.height) > dismissThreshold {
                 isDismissing = true
-                // Apply the excess movement as dismiss offset
-                let excessMovement = newPanY - constrainedPanY
-                panOffset = CGSize(width: 0, height: constrainedPanY)
-                dismissOffset = CGSize(width: newDismissX, height: excessMovement)
-            } else if abs(newDismissX) > dismissThreshold {
-                // Start dismissing based on horizontal movement threshold
-                isDismissing = true
-                panOffset = CGSize(width: 0, height: constrainedPanY)
-                dismissOffset = CGSize(width: newDismissX, height: 0)
+                dismissOffset = CGSize(width: 0, height: translation.height)
             } else {
-                // Normal panning within boundaries
-                panOffset = CGSize(width: 0, height: constrainedPanY)
-                dismissOffset = CGSize(width: newDismissX, height: 0)
+                dismissOffset = CGSize(width: 0, height: translation.height)
             }
         }
     }
     
     private func handleDragEnd(_ value: DragGesture.Value, in geometry: GeometryProxy) {
-        let screenAspectRatio = geometry.size.width / geometry.size.height
-        // Simplified - no image size dependency
-        
-        let translation = value.translation
         let dismissThreshold: CGFloat = 50
         let dismissVelocity: CGFloat = 500 // Velocity threshold for dismiss
         
-        if true { // Simplified - always allow both horizontal and vertical panning
-            // Image is wider - check dismiss conditions
-            let dismissY = dismissOffset.height
-            let dismissX = dismissOffset.width
-            let velocityY = value.velocity.height
-            let velocityX = value.velocity.width
-            
-            // Check if we should dismiss based on movement or velocity
-            let shouldDismiss = isDismissing && (
-                abs(dismissY) > dismissThreshold || 
-                abs(dismissX) > dismissThreshold ||
-                abs(velocityY) > dismissVelocity ||
-                abs(velocityX) > dismissVelocity
-            )
-            
-            if shouldDismiss {
-                // Dismiss the view
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    opacity = 0.0
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    dismiss()
-                }
-            } else {
-                // Reset dismiss state
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    dismissOffset = .zero
-                    isDismissing = false
-                }
-                lastPanOffset = panOffset
+        let dismissY = dismissOffset.height
+        let dismissX = dismissOffset.width
+        let velocityY = value.velocity.height
+        let velocityX = value.velocity.width
+        
+        // Check if we should dismiss based on movement or velocity
+        let shouldDismiss = isDismissing && (
+            abs(dismissY) > dismissThreshold || 
+            abs(dismissX) > dismissThreshold ||
+            abs(velocityY) > dismissVelocity ||
+            abs(velocityX) > dismissVelocity
+        )
+        
+        if shouldDismiss {
+            // Dismiss the view
+            withAnimation(.easeInOut(duration: 0.3)) {
+                opacity = 0.0
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                dismiss()
             }
         } else {
-            // Image is taller - check dismiss conditions
-            let dismissX = dismissOffset.width
-            let dismissY = dismissOffset.height
-            let velocityX = value.velocity.width
-            let velocityY = value.velocity.height
-            
-            // Check if we should dismiss based on movement or velocity
-            let shouldDismiss = isDismissing && (
-                abs(dismissX) > dismissThreshold || 
-                abs(dismissY) > dismissThreshold ||
-                abs(velocityX) > dismissVelocity ||
-                abs(velocityY) > dismissVelocity
-            )
-            
-            if shouldDismiss {
-                // Dismiss the view
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    opacity = 0.0
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    dismiss()
-                }
-            } else {
-                // Reset dismiss state
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    dismissOffset = .zero
-                    isDismissing = false
-                }
-                lastPanOffset = panOffset
+            // Reset dismiss state
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                dismissOffset = .zero
+                isDismissing = false
             }
+            lastPanOffset = panOffset
         }
     }
     
