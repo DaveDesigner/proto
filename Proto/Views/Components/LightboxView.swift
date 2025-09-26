@@ -3,6 +3,7 @@
 //  Proto
 //
 //  Lightbox component for expanding and collapsing images with smooth animations
+//  TODO: Enhance magnification controls and transition animations
 //
 
 import SwiftUI
