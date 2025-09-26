@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 // MARK: - Image Scaling Modifier
 struct ImageScalingModifier: ViewModifier {
@@ -21,114 +20,6 @@ struct ImageScalingModifier: ViewModifier {
         } else {
             content
                 .scaledToFit()
-        }
-    }
-}
-
-// MARK: - UIScrollView Wrapper for Enhanced Image Interaction
-struct ImageScrollView: UIViewRepresentable {
-    let image: UIImage
-    let isDarkMode: Bool
-    let onSingleTap: () -> Void
-    let onDoubleTap: () -> Void
-    
-    func makeUIView(context: Context) -> UIScrollView {
-        let scrollView = UIScrollView()
-        let imageView = UIImageView(image: image)
-        
-        // Configure scroll view
-        scrollView.delegate = context.coordinator
-        scrollView.minimumZoomScale = 1.0
-        scrollView.maximumZoomScale = 3.0
-        scrollView.zoomScale = 1.0
-        scrollView.showsVerticalScrollIndicator = false
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.bouncesZoom = true
-        scrollView.backgroundColor = isDarkMode ? .black : .white
-        
-        // Configure image view
-        imageView.contentMode = .scaleAspectFit
-        imageView.isUserInteractionEnabled = true
-        imageView.backgroundColor = .clear
-        
-        // Add image view to scroll view
-        scrollView.addSubview(imageView)
-        scrollView.contentSize = image.size
-        
-        // Set up constraints
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            imageView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
-            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            imageView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
-        ])
-        
-        // Add gesture recognizers
-        let singleTap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleSingleTap))
-        let doubleTap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleDoubleTap))
-        doubleTap.numberOfTapsRequired = 2
-        
-        singleTap.require(toFail: doubleTap)
-        
-        scrollView.addGestureRecognizer(singleTap)
-        scrollView.addGestureRecognizer(doubleTap)
-        
-        // Store references in coordinator
-        context.coordinator.scrollView = scrollView
-        context.coordinator.imageView = imageView
-        
-        return scrollView
-    }
-    
-    func updateUIView(_ uiView: UIScrollView, context: Context) {
-        uiView.backgroundColor = isDarkMode ? .black : .white
-        context.coordinator.imageView?.image = image
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, UIScrollViewDelegate {
-        let parent: ImageScrollView
-        var scrollView: UIScrollView?
-        var imageView: UIImageView?
-        
-        init(_ parent: ImageScrollView) {
-            self.parent = parent
-        }
-        
-        @objc func handleSingleTap() {
-            parent.onSingleTap()
-        }
-        
-        @objc func handleDoubleTap() {
-            parent.onDoubleTap()
-        }
-        
-        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-            return imageView
-        }
-        
-        func scrollViewDidZoom(_ scrollView: UIScrollView) {
-            // Center the image when zoomed
-            let boundsSize = scrollView.bounds.size
-            var contentsFrame = imageView?.frame ?? .zero
-            
-            if contentsFrame.size.width < boundsSize.width {
-                contentsFrame.origin.x = (boundsSize.width - contentsFrame.size.width) / 2.0
-            } else {
-                contentsFrame.origin.x = 0.0
-            }
-            
-            if contentsFrame.size.height < boundsSize.height {
-                contentsFrame.origin.y = (boundsSize.height - contentsFrame.size.height) / 2.0
-            } else {
-                contentsFrame.origin.y = 0.0
-            }
-            
-            imageView?.frame = contentsFrame
         }
     }
 }
@@ -198,8 +89,6 @@ struct LightboxView: View {
     @State private var imageSize: CGSize = .zero
     @State private var dismissOffset: CGSize = .zero
     @State private var isDismissing: Bool = false
-    @State private var useScrollView: Bool = true // New flag to enable UIScrollView
-    @State private var loadedImage: UIImage? = nil
     @Environment(\.dismiss) private var dismiss
     
     init(
@@ -234,8 +123,7 @@ struct LightboxView: View {
             }
             .offset(dismissOffset)
             .gesture(
-                // Only apply SwiftUI gestures when not using UIScrollView
-                useScrollView ? nil : SimultaneousGesture(
+                SimultaneousGesture(
                     // Double tap to toggle between fit and fill modes
                     TapGesture(count: 2)
                         .onEnded {
@@ -255,15 +143,15 @@ struct LightboxView: View {
                 )
             )
             .gesture(
-                // Pan gesture only when in fill mode and not using UIScrollView
-                (useScrollView || !isFillMode) ? nil : DragGesture()
+                // Pan gesture only when in fill mode
+                isFillMode ? DragGesture()
                     .onChanged { value in
                         handleDragGesture(value, in: geometry)
                         showToolbarIfNeeded()
                     }
                     .onEnded { value in
                         handleDragEnd(value, in: geometry)
-                    }
+                    } : nil
             )
             .onAppear {
                 isAnimating = true
@@ -283,101 +171,59 @@ struct LightboxView: View {
         .toolbar(showToolbar ? .visible : .hidden, for: .navigationBar)
     }
     
-    // Enhanced image content with UIScrollView support
+    // TEST: Extracted image content to computed property to simplify view hierarchy
     @ViewBuilder
     private var imageContent: some View {
-        if useScrollView, let loadedImage = loadedImage {
-            // Use UIScrollView for enhanced interaction
-            ImageScrollView(
-                image: loadedImage,
-                isDarkMode: isDarkMode,
-                onSingleTap: {
-                    if !isFillMode {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            isDarkMode.toggle()
-                        }
-                    }
-                    showToolbarIfNeeded()
-                },
-                onDoubleTap: {
-                    // UIScrollView handles double-tap zoom natively
-                    showToolbarIfNeeded()
+        if let sourceImage = sourceImage {
+            sourceImage
+                .resizable()
+                .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                .onAppear {
+                    // For source images, we can't easily get the size, so we'll use a default
+                    // In a real app, you might want to pass the image size as a parameter
+                    // Using a typical photo aspect ratio (4:3) as default
+                    imageSize = CGSize(width: 1200, height: 900)
                 }
-            )
-        } else {
-            // Fallback to original SwiftUI implementation
-            if let sourceImage = sourceImage {
-                sourceImage
+        } else if let imageName = imageName {
+            Image(imageName)
+                .resizable()
+                .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                .onAppear {
+                    // For named images, we can't easily get the size, so we'll use a default
+                    // Using a typical photo aspect ratio (4:3) as default
+                    imageSize = CGSize(width: 1200, height: 900)
+                }
+        } else if let imageURL = imageURL {
+            AsyncImage(url: imageURL) { image in
+                image
                     .resizable()
                     .modifier(ImageScalingModifier(isFillMode: isFillMode))
                     .onAppear {
-                        loadImageFromSource(sourceImage)
+                        // For async images, we can't easily get the size, so we'll use a default
+                        // Using a typical photo aspect ratio (4:3) as default
+                        imageSize = CGSize(width: 1200, height: 900)
                     }
-            } else if let imageName = imageName {
-                Image(imageName)
-                    .resizable()
-                    .modifier(ImageScalingModifier(isFillMode: isFillMode))
-                    .onAppear {
-                        loadImageFromName(imageName)
-                    }
-            } else if let imageURL = imageURL {
-                AsyncImage(url: imageURL) { image in
-                    image
+            } placeholder: {
+                // Use source image as placeholder if available
+                if let sourceImage = sourceImage {
+                    sourceImage
                         .resizable()
-                        .modifier(ImageScalingModifier(isFillMode: isFillMode))
-                        .onAppear {
-                            loadImageFromAsync(image)
-                        }
-                } placeholder: {
-                    // Use source image as placeholder if available
-                    if let sourceImage = sourceImage {
-                        sourceImage
-                            .resizable()
-                            .scaledToFit()
-                            .opacity(0.7)
-                    } else {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: isDarkMode ? .white : .black))
-                            .scaleEffect(1.5)
-                    }
+                        .scaledToFit()
+                        .opacity(0.7)
+                } else {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: isDarkMode ? .white : .black))
+                        .scaleEffect(1.5)
                 }
-            } else {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.3))
-                    .overlay(
-                        Text("No image")
-                            .foregroundColor(isDarkMode ? .white : .black)
-                    )
             }
-        }
-    }
-    
-    // MARK: - Image Loading Helpers
-    
-    private func loadImageFromSource(_ image: Image) {
-        // For source images, we need to convert to UIImage
-        // This is a simplified approach - in production you might want to pass UIImage directly
-        if let imageName = imageName {
-            loadedImage = UIImage(named: imageName)
         } else {
-            // Fallback to default image size
-            imageSize = CGSize(width: 1200, height: 900)
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.3))
+                .overlay(
+                    Text("No image")
+                        .foregroundColor(isDarkMode ? .white : .black)
+                )
         }
-    }
-    
-    private func loadImageFromName(_ imageName: String) {
-        loadedImage = UIImage(named: imageName)
-        if let image = loadedImage {
-            imageSize = image.size
-        } else {
-            imageSize = CGSize(width: 1200, height: 900)
-        }
-    }
-    
-    private func loadImageFromAsync(_ image: Image) {
-        // For AsyncImage, we can't easily extract UIImage
-        // This is a limitation - in production you might want to use a different approach
-        imageSize = CGSize(width: 1200, height: 900)
     }
     
     // MARK: - Scaling and Pan Logic
