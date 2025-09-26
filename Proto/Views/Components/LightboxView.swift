@@ -11,15 +11,22 @@ import SwiftUI
 // MARK: - Image Scaling Modifier
 struct ImageScalingModifier: ViewModifier {
     let isFillMode: Bool
+    let imageSize: CGSize
     
     func body(content: Content) -> some View {
+        let aspectRatio = imageSize.width / imageSize.height
+        
         if isFillMode {
+            // Fill mode: crop as needed to fill the available space
             content
-                .scaledToFill()
+                .aspectRatio(aspectRatio, contentMode: .fill)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .clipped()
         } else {
+            // Fit mode: show entire image without cropping
             content
-                .scaledToFit()
+                .aspectRatio(aspectRatio, contentMode: .fit)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
@@ -177,7 +184,7 @@ struct LightboxView: View {
         if let sourceImage = sourceImage {
             sourceImage
                 .resizable()
-                .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize))
                 .onAppear {
                     // For source images, we can't easily get the size, so we'll use a default
                     // In a real app, you might want to pass the image size as a parameter
@@ -187,7 +194,7 @@ struct LightboxView: View {
         } else if let imageName = imageName {
             Image(imageName)
                 .resizable()
-                .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize))
                 .onAppear {
                     // For named images, we can't easily get the size, so we'll use a default
                     // Using a typical photo aspect ratio (4:3) as default
@@ -197,7 +204,7 @@ struct LightboxView: View {
             AsyncImage(url: imageURL) { image in
                 image
                     .resizable()
-                    .modifier(ImageScalingModifier(isFillMode: isFillMode))
+                    .modifier(ImageScalingModifier(isFillMode: isFillMode, imageSize: imageSize))
                     .onAppear {
                         // For async images, we can't easily get the size, so we'll use a default
                         // Using a typical photo aspect ratio (4:3) as default
