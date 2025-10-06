@@ -1,0 +1,183 @@
+//
+//  PostSettingsSheet.swift
+//  Proto
+//
+//  Created by Dave Morgan on 28/08/2025.
+//
+
+import SwiftUI
+
+struct PostSettingsSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    // Settings state
+    @State private var publishTimestamp = "May 27, 2025 11:42 AM"
+    @State private var customHTML = "<iframe src=\"https://davedesigner.github.io/way-of-code/empty-inexhaustible.html\" width=\"550\" height=\"550\" frameborder=\"0\"></iframe>"
+    @State private var space = "The Way of Code"
+    @State private var customURLSlug = "empty-yet-inexhaustible"
+    @State private var author = "Dave Morgan"
+    @State private var metaTitle = ""
+    @State private var metaDescription = ""
+    @State private var openGraphTitle = ""
+    @State private var openGraphDescription = ""
+    
+    var body: some View {
+        SheetTemplate(title: "Settings") {
+            VStack(spacing: 24) {
+                // Publish timestamp
+                SettingsInputField(
+                    title: "Publish timestamp",
+                    text: $publishTimestamp
+                )
+                
+                // Custom HTML
+                SettingsInputField(
+                    title: "Custom HTML",
+                    text: $customHTML,
+                    isMultiline: true,
+                    helpText: "Add custom HTML below the post. Please note: This is an advanced feature and intended for developers only. Unfortunately, our support team cannot help you with custom HTML code."
+                )
+                
+                // Space
+                SettingsInputField(
+                    title: "Space",
+                    text: $space,
+                    hasClearButton: true
+                )
+                
+                // Custom URL slug
+                SettingsInputField(
+                    title: "Custom URL slug",
+                    text: $customURLSlug
+                )
+                
+                // Author
+                SettingsInputField(
+                    title: "Author",
+                    text: $author
+                )
+                
+                // Meta title
+                SettingsInputField(
+                    title: "Meta title",
+                    text: $metaTitle,
+                    helpText: "Customize the title meta tag for SEO. If empty, we'll use the name of the post."
+                )
+                
+                // Meta description
+                SettingsInputField(
+                    title: "Meta description",
+                    text: $metaDescription,
+                    helpText: "Customize the description meta tag for SEO."
+                )
+                
+                // Open Graph title
+                SettingsInputField(
+                    title: "Open Graph title",
+                    text: $openGraphTitle,
+                    helpText: "Customize the Open Graph title. If empty, we'll use the post name."
+                )
+                
+                // Open Graph description
+                SettingsInputField(
+                    title: "Open Graph description",
+                    text: $openGraphDescription,
+                    helpText: "Customize the Open Graph description."
+                )
+                
+                // Open Graph image
+                OpenGraphImageSection()
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+        }
+    }
+}
+
+struct SettingsInputField: View {
+    let title: String
+    @Binding var text: String
+    var isMultiline: Bool = false
+    var hasClearButton: Bool = false
+    var helpText: String? = nil
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 15, weight: .regular))
+                .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+            
+            HStack {
+                if isMultiline {
+                    TextEditor(text: $text)
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundColor(Color(red: 25/255, green: 27/255, blue: 31/255))
+                        .frame(minHeight: 60)
+                } else {
+                    TextField("", text: $text)
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundColor(Color(red: 25/255, green: 27/255, blue: 31/255))
+                }
+                
+                if hasClearButton {
+                    Button(action: {
+                        text = ""
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+                            .frame(width: 20, height: 20)
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 15)
+            .background(Color(red: 173/255, green: 184/255, blue: 194/255, opacity: 0.2))
+            .cornerRadius(16)
+            
+            if let helpText = helpText {
+                Text(helpText)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(Color(red: 113/255, green: 118/255, blue: 128/255))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+}
+
+struct OpenGraphImageSection: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Open Graph image (Optional)")
+                .font(.system(size: 15, weight: .regular))
+                .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+            
+            HStack {
+                // Placeholder for image
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 100)
+                    .overlay(
+                        Image(systemName: "photo")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                    )
+                
+                Button(action: {
+                    // Handle edit action
+                }) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+                        .frame(width: 40, height: 40)
+                        .background(Color.black.opacity(0.1))
+                        .clipShape(Circle())
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    PostSettingsSheet()
+}

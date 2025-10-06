@@ -18,6 +18,7 @@ struct PostDetails: View {
     @State private var showCommentMode = false
     @State private var shouldMaintainFocus = false
     @State private var isHeartFilled = false
+    @State private var showSettingsSheet = false
     
     // Computed property to help with toolbar updates
     private var toolbarState: String {
@@ -115,6 +116,15 @@ struct PostDetails: View {
                         
                         Button(action: {}) {
                             Label("Follow", systemImage: "bell")
+                        }
+                        .tint(.primary)
+                        
+                        Divider()
+                        
+                        Button(action: {
+                            showSettingsSheet = true
+                        }) {
+                            Label("Settings", systemImage: "gearshape")
                         }
                         .tint(.primary)
                     } label: {
@@ -283,6 +293,9 @@ struct PostDetails: View {
                 .animation(.easeInOut(duration: 0.3), value: isToolbarVisible)
             .toolbar(isTabBarVisible ? .visible : .hidden, for: .tabBar)
                 .animation(.easeInOut(duration: 0.3), value: isTabBarVisible)
+            .sheet(isPresented: $showSettingsSheet) {
+                PostSettingsSheet()
+            }
         }
     }
 }
