@@ -30,8 +30,24 @@ struct PostSettingsSheet: View {
     @State private var pinPostToTop = false
     @State private var hideFromFeaturedAreas = false
     
+    // Save functionality
+    @State private var hasUnsavedChanges = false
+    @State private var isSaving = false
+    
     var body: some View {
-        SheetTemplate(title: "Settings") {
+        SheetTemplate(
+            title: "Settings",
+            topRightAction: {
+                AnyView(
+                    Button(action: saveSettings) {
+                        Text("Save")
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundColor(hasUnsavedChanges ? .blue : .secondary)
+                    }
+                    .disabled(!hasUnsavedChanges || isSaving)
+                )
+            }
+        ) {
             VStack(spacing: 24) {
                 // Post visibility and behavior toggles
                     SettingsToggleRow(
@@ -135,6 +151,33 @@ struct PostSettingsSheet: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
+        }
+        .onChange(of: publishTimestamp) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: customHTML) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: space) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: customURLSlug) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: author) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: metaTitle) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: metaDescription) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: openGraphTitle) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: openGraphDescription) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: hideMetaInfo) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: hideComments) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: closeComments) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: hideLikes) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: disableTruncation) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: pinPostToTop) { _, _ in hasUnsavedChanges = true }
+        .onChange(of: hideFromFeaturedAreas) { _, _ in hasUnsavedChanges = true }
+    }
+    
+    private func saveSettings() {
+        isSaving = true
+        
+        // Simulate save operation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            isSaving = false
+            hasUnsavedChanges = false
+            // Here you would typically save to your data model or API
         }
     }
 }

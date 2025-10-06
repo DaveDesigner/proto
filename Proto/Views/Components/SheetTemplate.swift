@@ -37,17 +37,20 @@ struct SheetTemplate<Content: View>: View {
     let dragIndicator: Visibility
     let title: String
     let content: Content
+    let topRightAction: (() -> AnyView)?
     @State private var selectedDetent: PresentationDetent
 
     init(
         title: String,
         detents: Set<PresentationDetent> = [.medium, .large],
         dragIndicator: Visibility = .visible,
+        topRightAction: (() -> AnyView)? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.detents = detents
         self.dragIndicator = dragIndicator
+        self.topRightAction = topRightAction
         self.content = content()
         // Prefer .medium if available, else .large, else any provided detent (or .medium as a fallback)
         let initial: PresentationDetent
@@ -80,7 +83,7 @@ struct SheetTemplate<Content: View>: View {
                 //.toolbarBackground(.glassEffect, for: .navigationBar)
                 //.toolbarBackground(.visible, for: .navigationBar)
                 
-                // Fixed overlay title
+                // Fixed overlay title and top-right action
                 VStack {
                     HStack {
                         Text(title)
@@ -88,6 +91,10 @@ struct SheetTemplate<Content: View>: View {
                             .foregroundStyle(.primary)
                             .padding(.leading, 20)
                         Spacer()
+                        if let topRightAction = topRightAction {
+                            topRightAction()
+                                .padding(.trailing, 20)
+                        }
                     }
                     .padding(.top, -38) // Negative margin to move up into toolbar area
                     Spacer()
@@ -106,18 +113,20 @@ extension SheetTemplate {
         title: String,
         detents: PresentationDetent...,
         dragIndicator: Visibility = .visible,
+        topRightAction: (() -> AnyView)? = nil,
         @ViewBuilder content: () -> Content
     ) {
-        self.init(title: title, detents: Set(detents), dragIndicator: dragIndicator, content: content)
+        self.init(title: title, detents: Set(detents), dragIndicator: dragIndicator, topRightAction: topRightAction, content: content)
     }
     
     init(
         title: String,
         detent: PresentationDetent,
         dragIndicator: Visibility = .visible,
+        topRightAction: (() -> AnyView)? = nil,
         @ViewBuilder content: () -> Content
     ) {
-        self.init(title: title, detents: [detent], dragIndicator: dragIndicator, content: content)
+        self.init(title: title, detents: [detent], dragIndicator: dragIndicator, topRightAction: topRightAction, content: content)
     }
 }
 
