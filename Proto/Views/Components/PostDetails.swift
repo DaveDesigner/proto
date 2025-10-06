@@ -137,12 +137,12 @@ struct PostDetails: View {
                         }
                         .tint(.primary)
                         
-                        Button(action: {
+                        Button(role: .destructive, action: {
                             showDeleteConfirmation = true
                         }) {
                             Label("Delete", systemImage: "trash")
-                                .foregroundColor(.red)
                         }
+                        .tint(.red)
                     } label: {
                         Image(systemName: "ellipsis")
                             .font(.body)
