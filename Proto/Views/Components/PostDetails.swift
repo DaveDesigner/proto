@@ -141,8 +141,8 @@ struct PostDetails: View {
                             showDeleteConfirmation = true
                         }) {
                             Label("Delete", systemImage: "trash")
+                                .foregroundColor(.red)
                         }
-                        .tint(.red)
                     } label: {
                         Image(systemName: "ellipsis")
                             .font(.body)
