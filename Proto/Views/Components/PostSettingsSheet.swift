@@ -106,20 +106,20 @@ struct SettingsInputField: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(size: 15, weight: .regular))
-                .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+                .foregroundColor(.secondary)
             
             HStack {
                 if isMultiline {
                     TextEditor(text: $text)
                         .font(.system(size: 17, weight: .regular))
-                        .foregroundColor(Color(red: 25/255, green: 27/255, blue: 31/255))
-                        .frame(minHeight: 60)
+                        .foregroundColor(.primary)
+                        .frame(minHeight: 120) // Increased height to show ~5 lines
                         .scrollContentBackground(.hidden)
                         .background(.clear)
                 } else {
                     TextField("", text: $text)
                         .font(.system(size: 17, weight: .regular))
-                        .foregroundColor(Color(red: 25/255, green: 27/255, blue: 31/255))
+                        .foregroundColor(.primary)
                 }
                 
                 if hasClearButton {
@@ -128,7 +128,7 @@ struct SettingsInputField: View {
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+                            .foregroundColor(.secondary)
                             .frame(width: 20, height: 20)
                     }
                 }
@@ -139,7 +139,7 @@ struct SettingsInputField: View {
                     }) {
                         Image(systemName: "chevron.down")
                             .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+                            .foregroundColor(.secondary)
                             .frame(width: 20, height: 20)
                     }
                 }
@@ -152,7 +152,7 @@ struct SettingsInputField: View {
             if let helpText = helpText {
                 Text(helpText)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(Color(red: 113/255, green: 118/255, blue: 128/255))
+                    .foregroundColor(.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -164,7 +164,7 @@ struct OpenGraphImageSection: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Open Graph image (Optional)")
                 .font(.system(size: 15, weight: .regular))
-                .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+                .foregroundColor(.secondary)
             
             HStack {
                 // Placeholder for image
@@ -182,7 +182,7 @@ struct OpenGraphImageSection: View {
                 }) {
                     Image(systemName: "pencil")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+                        .foregroundColor(.secondary)
                         .frame(width: 40, height: 40)
                         .background(Color.black.opacity(0.1))
                         .clipShape(Circle())
