@@ -18,6 +18,9 @@ struct PostDetails: View {
     @State private var showCommentMode = false
     @State private var shouldMaintainFocus = false
     @State private var isHeartFilled = false
+    @State private var showSettingsSheet = false
+    @State private var showEditSheet = false
+    @State private var showDeleteConfirmation = false
     
     // Computed property to help with toolbar updates
     private var toolbarState: String {
@@ -117,6 +120,29 @@ struct PostDetails: View {
                             Label("Follow", systemImage: "bell")
                         }
                         .tint(.primary)
+                        
+                        Divider()
+                        
+                        Button(action: {
+                            showEditSheet = true
+                        }) {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        .tint(.primary)
+                        
+                        Button(action: {
+                            showSettingsSheet = true
+                        }) {
+                            Label("Settings", systemImage: "gearshape")
+                        }
+                        .tint(.primary)
+                        
+                        Button(role: .destructive, action: {
+                            showDeleteConfirmation = true
+                        }) {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        .tint(.red)
                     } label: {
                         Image(systemName: "ellipsis")
                             .font(.body)
@@ -283,6 +309,24 @@ struct PostDetails: View {
                 .animation(.easeInOut(duration: 0.3), value: isToolbarVisible)
             .toolbar(isTabBarVisible ? .visible : .hidden, for: .tabBar)
                 .animation(.easeInOut(duration: 0.3), value: isTabBarVisible)
+            .sheet(isPresented: $showSettingsSheet) {
+                PostSettingsSheet()
+            }
+            .sheet(isPresented: $showEditSheet) {
+                // Placeholder for edit sheet - can be implemented later
+                Text("Edit Post")
+                    .font(.title)
+                    .padding()
+            }
+            .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation) {
+                Button("Delete", role: .destructive) {
+                    // Handle delete action
+                    dismiss()
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Are you sure you want to delete this post? This action cannot be undone.")
+            }
         }
     }
 }

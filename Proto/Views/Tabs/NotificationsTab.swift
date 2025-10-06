@@ -350,7 +350,6 @@ struct NotificationsTab: View {
                         label: {
                             Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
                         }
-                        // Explicitly force red to avoid being overridden by a global .tint
                         .tint(.red)
                     } label: {
                         Image("Avatar")
