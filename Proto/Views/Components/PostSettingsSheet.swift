@@ -42,7 +42,7 @@ struct PostSettingsSheet: View {
                 SettingsInputField(
                     title: "Space",
                     text: $space,
-                    hasClearButton: true
+                    hasDropdown: true
                 )
                 
                 // Custom URL slug
@@ -99,6 +99,7 @@ struct SettingsInputField: View {
     @Binding var text: String
     var isMultiline: Bool = false
     var hasClearButton: Bool = false
+    var hasDropdown: Bool = false
     var helpText: String? = nil
     
     var body: some View {
@@ -113,6 +114,8 @@ struct SettingsInputField: View {
                         .font(.system(size: 17, weight: .regular))
                         .foregroundColor(Color(red: 25/255, green: 27/255, blue: 31/255))
                         .frame(minHeight: 60)
+                        .scrollContentBackground(.hidden)
+                        .background(.clear)
                 } else {
                     TextField("", text: $text)
                         .font(.system(size: 17, weight: .regular))
@@ -124,6 +127,17 @@ struct SettingsInputField: View {
                         text = ""
                     }) {
                         Image(systemName: "xmark")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
+                            .frame(width: 20, height: 20)
+                    }
+                }
+                
+                if hasDropdown {
+                    Button(action: {
+                        // Handle dropdown action
+                    }) {
+                        Image(systemName: "chevron.down")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundColor(Color(red: 66/255, green: 70/255, blue: 77/255))
                             .frame(width: 20, height: 20)
