@@ -1,20 +1,18 @@
 ## Next steps
-- `In progress` style(icons): replace sf symbols with icons in primary nav, & post preview [PR #9](https://github.com/DaveDesigner/proto/pull/9)
-- `In progress` feat: image lightbox to open and swipe down to close [PR #11](https://github.com/DaveDesigner/proto/pull/11)
 - feat: admin mode shift, navigation paradigm
 - feat: member profile
 - feat: add connection status actions to profile
-- feat: accent color light/dark mode defined to switch like primary on nav in dark mode
+- `In progress` style(icons): replace sf symbols with icons in primary nav, & post preview [PR #9](https://github.com/DaveDesigner/proto/pull/9)
 - add: connect actions on profile, accessed via notification
-1. **Image lightbox** - Tap on images to open full-screen lightbox view
-2. **Video inline player** - Native video player with autoplay on scroll position
-3. **iPad multi-column layouts** - Support for wide displays with responsive grid layouts
-4. **Enhanced video controls** - Tap to unmute, tap to fullscreen, drag to minimize PiP
-5. **Search functionality** - Activate search on tap with virtual keyboard expansion
-6. **Admin mode completion** - Finish Co-pilot sparkle UI edges and Figma consistency
+- **Video inline player** - Native video player with autoplay on scroll position
+- **iPad multi-column layouts** - Support for wide displays with responsive grid layouts
+- **Enhanced video controls** - Tap to unmute, tap to fullscreen, drag to minimize PiP
+- **Admin mode** - Finish Co-pilot sparkle UI edges and Figma consistency
 
 
 ## Features
+- Edit post settings [PR #16](https://github.com/DaveDesigner/proto/pull/16)
+- Image lightbox to open and swipe down to close [PR #11](https://github.com/DaveDesigner/proto/pull/11), [PR #12](https://github.com/DaveDesigner/proto/pull/12), [PR #14](https://github.com/DaveDesigner/proto/pull/14), [PR #15](https://github.com/DaveDesigner/proto/pull/15)
 - [.toolbarTitleDisplayMode(.inlineLarge)](https://developer.apple.com/documentation/swiftui/view/toolbartitledisplaymode(_:))
 - tabBar expand collapse in primary tabs
 - subview (eg Post details) toolbar toggle with TabBar

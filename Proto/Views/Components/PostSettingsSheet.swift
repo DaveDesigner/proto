@@ -70,7 +70,6 @@ struct PostSettingsSheet: View {
                         isOn: $hideFromFeaturedAreas
                     )
                 }
-                .padding(.horizontal, 20)
                 
                 // Publish timestamp
                 SettingsInputField(
@@ -255,6 +254,7 @@ struct SettingsToggleRow: View {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
         }
+        .padding(.horizontal, 20)
         .padding(.vertical, 4)
     }
 }
