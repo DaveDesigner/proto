@@ -21,9 +21,60 @@ struct PostSettingsSheet: View {
     @State private var openGraphTitle = ""
     @State private var openGraphDescription = ""
     
+    // Post visibility and behavior toggles
+    @State private var hideMetaInfo = false
+    @State private var hideComments = false
+    @State private var closeComments = false
+    @State private var hideLikes = false
+    @State private var disableTruncation = false
+    @State private var pinPostToTop = false
+    @State private var hideFromFeaturedAreas = false
+    
     var body: some View {
         SheetTemplate(title: "Settings") {
             VStack(spacing: 24) {
+                // Post visibility and behavior toggles
+                VStack(spacing: 16) {
+                    SettingsToggleRow(
+                        title: "Hide meta info",
+                        isOn: $hideMetaInfo
+                    )
+                    
+                    SettingsToggleRow(
+                        title: "Hide comments",
+                        isOn: $hideComments
+                    )
+                    
+                    SettingsToggleRow(
+                        title: "Close comments",
+                        isOn: $closeComments
+                    )
+                    
+                    SettingsToggleRow(
+                        title: "Hide likes",
+                        isOn: $hideLikes
+                    )
+                    
+                    SettingsToggleRow(
+                        title: "Disable truncation",
+                        isOn: $disableTruncation
+                    )
+                    
+                    SettingsToggleRow(
+                        title: "Pin post to top",
+                        isOn: $pinPostToTop
+                    )
+                    
+                    SettingsToggleRow(
+                        title: "Hide from featured areas",
+                        isOn: $hideFromFeaturedAreas
+                    )
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .background(Color(red: 173/255, green: 184/255, blue: 194/255, opacity: 0.1))
+                .cornerRadius(16)
+                
                 // Publish timestamp
                 SettingsInputField(
                     title: "Publish timestamp",
@@ -188,6 +239,24 @@ struct OpenGraphImageSection: View {
                         .clipShape(Circle())
                 }
             }
+        }
+    }
+}
+
+struct SettingsToggleRow: View {
+    let title: String
+    @Binding var isOn: Bool
+    
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.system(size: 17, weight: .regular))
+                .foregroundColor(.primary)
+            
+            Spacer()
+            
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
         }
     }
 }
