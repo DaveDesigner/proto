@@ -34,7 +34,7 @@ struct PostSettingsSheet: View {
         SheetTemplate(title: "Settings") {
             VStack(spacing: 24) {
                 // Post visibility and behavior toggles
-                VStack(spacing: 16) {
+                VStack(spacing: 24) {
                     SettingsToggleRow(
                         title: "Hide meta info",
                         isOn: $hideMetaInfo
@@ -71,9 +71,6 @@ struct PostSettingsSheet: View {
                     )
                 }
                 .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-                .background(Color(red: 173/255, green: 184/255, blue: 194/255, opacity: 0.1))
-                .cornerRadius(16)
                 
                 // Publish timestamp
                 SettingsInputField(
@@ -258,6 +255,7 @@ struct SettingsToggleRow: View {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
         }
+        .padding(.vertical, 4)
     }
 }
 
