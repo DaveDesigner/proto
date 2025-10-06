@@ -41,8 +41,8 @@ struct PostSettingsSheet: View {
                 AnyView(
                     Button(action: saveSettings) {
                         Text("Save")
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundColor(hasUnsavedChanges ? .blue : .secondary)
+                            .font(.system(size: 17, weight: hasUnsavedChanges ? .semibold : .medium))
+                            .foregroundColor(hasUnsavedChanges ? .primary : .quaternary)
                     }
                     .disabled(!hasUnsavedChanges || isSaving)
                 )
