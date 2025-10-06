@@ -349,8 +349,8 @@ struct NotificationsTab: View {
                         }
                         label: {
                             Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
-                                .foregroundColor(.red)
                         }
+                        .tint(.red)
                     } label: {
                         Image("Avatar")
                             .resizable()
