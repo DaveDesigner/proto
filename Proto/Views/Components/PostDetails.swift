@@ -124,16 +124,16 @@ struct PostDetails: View {
                         Divider()
                         
                         Button(action: {
-                            showSettingsSheet = true
+                            showEditSheet = true
                         }) {
-                            Label("Settings", systemImage: "gearshape")
+                            Label("Edit", systemImage: "pencil")
                         }
                         .tint(.primary)
                         
                         Button(action: {
-                            showEditSheet = true
+                            showSettingsSheet = true
                         }) {
-                            Label("Edit", systemImage: "pencil")
+                            Label("Settings", systemImage: "gearshape")
                         }
                         .tint(.primary)
                         
