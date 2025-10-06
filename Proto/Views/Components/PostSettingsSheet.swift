@@ -34,7 +34,6 @@ struct PostSettingsSheet: View {
         SheetTemplate(title: "Settings") {
             VStack(spacing: 24) {
                 // Post visibility and behavior toggles
-                VStack(spacing: 24) {
                     SettingsToggleRow(
                         title: "Hide meta info",
                         isOn: $hideMetaInfo
@@ -69,7 +68,6 @@ struct PostSettingsSheet: View {
                         title: "Hide from featured areas",
                         isOn: $hideFromFeaturedAreas
                     )
-                }
                 
                 // Publish timestamp
                 SettingsInputField(
@@ -162,7 +160,6 @@ struct SettingsInputField: View {
                         .foregroundColor(.primary)
                         .frame(minHeight: 120) // Increased height to show ~5 lines
                         .scrollContentBackground(.hidden)
-                        .background(.clear)
                 } else {
                     TextField("", text: $text)
                         .font(.system(size: 17, weight: .regular))
@@ -254,8 +251,6 @@ struct SettingsToggleRow: View {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 4)
     }
 }
 
