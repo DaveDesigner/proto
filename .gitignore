@@ -33,3 +33,9 @@ iOSInjectionProject/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Large video files
+*.mp4
+*.mov
+*.avi
+*.mkv

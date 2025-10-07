@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import AVKit
 
 struct PostPreview: View {
     let authorName: String
@@ -17,6 +18,7 @@ struct PostPreview: View {
     let postTitle: String
     let postDescription: String
     let postImageName: String?
+    let postVideoName: String?
     let likeCount: Int
     let commentCount: Int
     let isLiked: Bool
@@ -37,6 +39,7 @@ struct PostPreview: View {
         postTitle: String,
         postDescription: String,
         postImageName: String? = nil,
+        postVideoName: String? = nil,
         likeCount: Int = 0,
         commentCount: Int = 0,
         isLiked: Bool = false,
@@ -51,6 +54,7 @@ struct PostPreview: View {
         self.postTitle = postTitle
         self.postDescription = postDescription
         self.postImageName = postImageName
+        self.postVideoName = postVideoName
         self.likeCount = likeCount
         self.commentCount = commentCount
         self.isLiked = isLiked
@@ -68,6 +72,7 @@ struct PostPreview: View {
         postTitle: String,
         postDescription: String,
         postImageName: String? = nil,
+        postVideoName: String? = nil,
         likeCount: Int = 0,
         commentCount: Int = 0,
         isLiked: Bool = false,
@@ -82,6 +87,7 @@ struct PostPreview: View {
         self.postTitle = postTitle
         self.postDescription = postDescription
         self.postImageName = postImageName
+        self.postVideoName = postVideoName
         self.likeCount = likeCount
         self.commentCount = commentCount
         self.isLiked = isLiked
@@ -117,9 +123,12 @@ struct PostPreview: View {
                     .multilineTextAlignment(.leading)
             }
             
-            // Post image
-            if let postImageName = postImageName {
-                // Use simple sequential assignment based on postImageName
+            // Post content (image or video)
+            if let postVideoName = postVideoName {
+                // Show video content
+                VideoPlayerComponent.postVideo(videoName: postVideoName, enableControls: true, autoPlay: false)
+            } else if let postImageName = postImageName {
+                // Show image content
                 let imageIndex = getSequentialImageIndex(from: postImageName)
                 
                 if unsplashService.featuredPhotos.isEmpty {

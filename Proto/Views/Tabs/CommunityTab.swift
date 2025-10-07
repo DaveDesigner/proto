@@ -68,7 +68,7 @@ struct CommunityTab: View {
                                 
                                 Divider()
                                 
-                                // Post 2: Leadership Development with AI
+                                // Post 2: Leadership Development with AI (Video Demo)
                                 NavigationLink(destination: PostDetails()) {
                                     PostPreview(
                                         authorName: "Marcus Thompson",
@@ -77,7 +77,8 @@ struct CommunityTab: View {
                                         avatarInitials: "MT",
                                         postTitle: "How AI is Transforming Leadership Development",
                                         postDescription: "Exploring how AI-powered assessments can identify leadership gaps and create personalized development plans for C-suite executives.",
-                                        postImageName: "image2", // Sequential image assignment
+                                        postImageName: nil, // No image for this post
+                                        postVideoName: "What is Circle", // Video content
                                         likeCount: 156,
                                         commentCount: 23,
                                         isLiked: true,
