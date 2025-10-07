@@ -43,7 +43,8 @@ struct VideoPlayerComponent: View {
             // Video player
             if let player = player {
                 VideoPlayer(player: player)
-                    .frame(width: width, height: height)
+                    .frame(maxWidth: .infinity, maxHeight: height)
+                    .aspectRatio(16/9, contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
                     .onTapGesture {
                         if enableControls {
@@ -60,7 +61,8 @@ struct VideoPlayerComponent: View {
                 // Loading state
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(Color.gray.opacity(0.3))
-                    .frame(width: width, height: height)
+                    .frame(maxWidth: .infinity, maxHeight: height)
+                    .aspectRatio(16/9, contentMode: .fit)
                     .overlay(
                         VStack(spacing: 8) {
                             ProgressView()
@@ -137,7 +139,7 @@ extension VideoPlayerComponent {
     static func postVideo(videoName: String, enableControls: Bool = true, autoPlay: Bool = false) -> VideoPlayerComponent {
         VideoPlayerComponent(
             videoName: videoName,
-            width: 400,
+            width: .infinity, // Will be constrained by maxWidth: .infinity
             height: 250,
             cornerRadius: 12,
             enableControls: enableControls,
@@ -149,7 +151,7 @@ extension VideoPlayerComponent {
     static func feedVideo(videoName: String, enableControls: Bool = true, autoPlay: Bool = false) -> VideoPlayerComponent {
         VideoPlayerComponent(
             videoName: videoName,
-            width: 400,
+            width: .infinity, // Will be constrained by maxWidth: .infinity
             height: 300,
             cornerRadius: 16,
             enableControls: enableControls,
