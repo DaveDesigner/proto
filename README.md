@@ -4,7 +4,7 @@
 - feat: add connection status actions to profile
 - `In progress` style(icons): replace sf symbols with icons in primary nav, & post preview [PR #9](https://github.com/DaveDesigner/proto/pull/9)
 - add: connect actions on profile, accessed via notification
-- **Video inline player** - Native video player with autoplay on scroll position
+- **Video inline player** - Native video player with autoplay on scroll position [Draft PR](https://github.com/DaveDesigner/proto/pull/new/feature/video-demo-player)
 - **iPad multi-column layouts** - Support for wide displays with responsive grid layouts
 - **Enhanced video controls** - Tap to unmute, tap to fullscreen, drag to minimize PiP
 - **Admin mode** - Finish Co-pilot sparkle UI edges and Figma consistency
@@ -22,15 +22,6 @@
 - initial post-preview components for dynamic feed with UnsplashService integration [PR #7](https://github.com/DaveDesigner/proto/pull/7)
 
 ## To do
-### Deployment
-TestFlight via email invite Apple ID. Won’t do: public URL, as proto won't pass review.
-- [x] validate best method for stakeholder review (app clip, test flight, app store release?)
-- [x] testflight internal release
-- [x] Apple review for TestFlight external URL
-
-### Toolbar
-- [x] avatar image without button border [PR #6](https://github.com/DaveDesigner/proto/pull/6)
-- [x] menu item avatar circled
 
 ### Video
 - [x] segment control component add "Video" tab [PR #4](https://github.com/DaveDesigner/proto/pull/4)
@@ -47,8 +38,8 @@ TestFlight via email invite Apple ID. Won’t do: public URL, as proto won't pas
 - [x] Drafts sheet [PR #3](https://github.com/DaveDesigner/proto/pull/3)
 
 ### Search
-- [ ] Activate search on tap [Figma spec](https://www.figma.com/design/NdwIk4iFCNFsrBOA1I2S2b/%F0%9F%93%90-Mobile-Build?node-id=26801-116894&t=GwwykqKG33UxJcNw-1)
-- [ ] Expand virtual keyboard when search is active
+- [x] Activate search on tap [Figma spec](https://www.figma.com/design/NdwIk4iFCNFsrBOA1I2S2b/%F0%9F%93%90-Mobile-Build?node-id=26801-116894&t=GwwykqKG33UxJcNw-1)
+- [x] Expand virtual keyboard when search is active
 - [ ] Render search input as a toolbar above the tab bar (toggle bar state)
 
 ### Posts toolbar actions
