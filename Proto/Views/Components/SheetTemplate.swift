@@ -14,44 +14,75 @@ import SwiftUI
 /// - Automatically applies iOS 26 Liquid Glass background when using partial detents
 /// - Eliminates duplication of presentation modifiers
 /// - Ensures consistent behavior across all sheets
+/// - Flexible action system for toolbar buttons
 ///
 /// Usage examples:
 /// ```swift
 /// // Default: medium and large detents, visible drag indicator, automatic Liquid Glass
-/// SheetTemplate {
+/// SheetTemplate(title: "My Sheet") {
 ///     YourContent()
 /// }
 ///
-/// // Custom detents - still gets automatic Liquid Glass
-/// SheetTemplate(detents: .large) {
+/// // With a primary action (Save, Send, etc.)
+/// SheetTemplate(title: "Settings", primaryAction: .init(
+///     title: "Save",
+///     action: { saveSettings() },
+///     isDisabled: { !hasChanges }
+/// )) {
 ///     YourContent()
 /// }
 ///
-/// // Custom detents and hidden drag indicator
-/// SheetTemplate(detents: .medium, .large, dragIndicator: .hidden) {
+/// // With both primary and secondary actions
+/// SheetTemplate(title: "Edit", primaryAction: .init(
+///     title: "Save",
+///     action: { save() }
+/// ), secondaryAction: .init(
+///     title: "Cancel",
+///     action: { dismiss() }
+/// )) {
 ///     YourContent()
 /// }
 /// ```
+
+/// Represents a toolbar action with title, action closure, and optional disabled state
+struct SheetAction {
+    let title: String
+    let action: () -> Void
+    let isDisabled: () -> Bool
+    
+    init(title: String, action: @escaping () -> Void, isDisabled: @escaping () -> Bool = { false }) {
+        self.title = title
+        self.action = action
+        self.isDisabled = isDisabled
+    }
+}
+
 struct SheetTemplate<Content: View>: View {
     let detents: Set<PresentationDetent>
     let dragIndicator: Visibility
     let title: String
     let content: Content
-    let topRightAction: (() -> AnyView)?
-    let trailingToolbarAction: (() -> AnyView)?
+    let primaryAction: SheetAction?
+    let secondaryAction: SheetAction?
+    let topRightAction: (() -> AnyView)? // Legacy support
+    let trailingToolbarAction: (() -> AnyView)? // Legacy support
     @State private var selectedDetent: PresentationDetent
 
     init(
         title: String,
         detents: Set<PresentationDetent> = [.medium, .large],
         dragIndicator: Visibility = .visible,
-        topRightAction: (() -> AnyView)? = nil,
-        trailingToolbarAction: (() -> AnyView)? = nil,
+        primaryAction: SheetAction? = nil,
+        secondaryAction: SheetAction? = nil,
+        topRightAction: (() -> AnyView)? = nil, // Legacy support
+        trailingToolbarAction: (() -> AnyView)? = nil, // Legacy support
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.detents = detents
         self.dragIndicator = dragIndicator
+        self.primaryAction = primaryAction
+        self.secondaryAction = secondaryAction
         self.topRightAction = topRightAction
         self.trailingToolbarAction = trailingToolbarAction
         self.content = content()
@@ -82,6 +113,28 @@ struct SheetTemplate<Content: View>: View {
                             .font(.title3.bold())
                             .foregroundStyle(.primary)
                     }
+                    
+                    // New action system
+                    if let primaryAction = primaryAction {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(primaryAction.title) {
+                                primaryAction.action()
+                            }
+                            .disabled(primaryAction.isDisabled())
+                        }
+                        .sharedBackgroundVisible()
+                    }
+                    
+                    if let secondaryAction = secondaryAction {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button(secondaryAction.title) {
+                                secondaryAction.action()
+                            }
+                            .disabled(secondaryAction.isDisabled())
+                        }
+                    }
+                    
+                    // Legacy support
                     if let trailingToolbarAction = trailingToolbarAction {
                         ToolbarItem() {
                             trailingToolbarAction()
@@ -121,27 +174,42 @@ extension SheetTemplate {
         title: String,
         detents: PresentationDetent...,
         dragIndicator: Visibility = .visible,
-        topRightAction: (() -> AnyView)? = nil,
-        trailingToolbarAction: (() -> AnyView)? = nil,
+        primaryAction: SheetAction? = nil,
+        secondaryAction: SheetAction? = nil,
+        topRightAction: (() -> AnyView)? = nil, // Legacy support
+        trailingToolbarAction: (() -> AnyView)? = nil, // Legacy support
         @ViewBuilder content: () -> Content
     ) {
-        self.init(title: title, detents: Set(detents), dragIndicator: dragIndicator, topRightAction: topRightAction, trailingToolbarAction: trailingToolbarAction, content: content)
+        self.init(title: title, detents: Set(detents), dragIndicator: dragIndicator, primaryAction: primaryAction, secondaryAction: secondaryAction, topRightAction: topRightAction, trailingToolbarAction: trailingToolbarAction, content: content)
     }
     
     init(
         title: String,
         detent: PresentationDetent,
         dragIndicator: Visibility = .visible,
-        topRightAction: (() -> AnyView)? = nil,
-        trailingToolbarAction: (() -> AnyView)? = nil,
+        primaryAction: SheetAction? = nil,
+        secondaryAction: SheetAction? = nil,
+        topRightAction: (() -> AnyView)? = nil, // Legacy support
+        trailingToolbarAction: (() -> AnyView)? = nil, // Legacy support
         @ViewBuilder content: () -> Content
     ) {
-        self.init(title: title, detents: [detent], dragIndicator: dragIndicator, topRightAction: topRightAction, trailingToolbarAction: trailingToolbarAction, content: content)
+        self.init(title: title, detents: [detent], dragIndicator: dragIndicator, primaryAction: primaryAction, secondaryAction: secondaryAction, topRightAction: topRightAction, trailingToolbarAction: trailingToolbarAction, content: content)
     }
 }
 
 #Preview {
-    SheetTemplate(title: "Sheet Template Preview") {
+    SheetTemplate(
+        title: "Sheet Template Preview",
+        primaryAction: .init(
+            title: "Save",
+            action: { print("Save tapped") },
+            isDisabled: { false }
+        ),
+        secondaryAction: .init(
+            title: "Cancel",
+            action: { print("Cancel tapped") }
+        )
+    ) {
         VStack(spacing: 20) {
             Text("This sheet template uses iOS 26's automatic Liquid Glass appearance with consistent presentation modifiers.")
                 .multilineTextAlignment(.center)
