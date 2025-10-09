@@ -201,7 +201,7 @@ struct Notification: View {
                 HStack(alignment: .top) {
                     Text(data.timestamp)
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(Color(red: 0.44, green: 0.46, blue: 0.50))
+                        .foregroundColor(.tertiary)
                     
                     Spacer()
                     
@@ -258,7 +258,7 @@ struct Notification: View {
         
         // Apply base styling
         attributedString.font = .system(size: 15, weight: .regular)
-        attributedString.foregroundColor = Color(red: 0.26, green: 0.27, blue: 0.30)
+        attributedString.foregroundColor = .primary
         
         // Style the user name (always first)
         if let range = attributedString.range(of: data.userName) {
@@ -282,7 +282,7 @@ struct Notification: View {
         
         // Apply base styling
         attributedString.font = .system(size: 15, weight: .regular)
-        attributedString.foregroundColor = Color(red: 0.26, green: 0.27, blue: 0.30)
+        attributedString.foregroundColor = .primary
         
         return attributedString
     }

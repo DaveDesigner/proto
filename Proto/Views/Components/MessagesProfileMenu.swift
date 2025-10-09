@@ -40,7 +40,12 @@ struct MessagesProfileMenu: View {
             
             // Invite members (replaces admin settings)
             Button(action: { showingInviteMembers = true }) {
-                Label("Invite members", image: "MemberAdd20")
+                Label {
+                    Text("Invite members")
+                } icon: {
+                    Image("MemberAdd20")
+                        .foregroundColor(.secondary)
+                }
             }
             .tint(.primary)
             
