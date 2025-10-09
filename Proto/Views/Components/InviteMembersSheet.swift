@@ -73,9 +73,6 @@ struct InviteMembersSheet: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                     
-                    Divider()
-                        .padding(.horizontal, 20)
-                    
                     // Give admin privileges toggle
                     HStack {
                         Text("Give admin privileges")
@@ -88,12 +85,9 @@ struct InviteMembersSheet: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                     
-                    Divider()
-                        .padding(.horizontal, 20)
-                    
                     // Member tags button
                     Button(action: {
-                        showMemberTagsSheet = true
+showMemberTagsSheet = true
                     }) {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
@@ -105,9 +99,6 @@ struct InviteMembersSheet: View {
                                     .foregroundColor(.tertiary)
                             }
                             Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.secondary)
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 16)
@@ -151,72 +142,41 @@ struct MemberTagsSheet: View {
     
     var body: some View {
         SheetTemplate(title: "Member tags") {
-            VStack(spacing: 16) {
-                // Selected tags display
-                if !selectedTags.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Selected Tags")
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                        
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 8) {
-                            ForEach(selectedTags, id: \.self) { tag in
-                                HStack(spacing: 4) {
-                                    Text(tag)
-                                        .font(.caption)
-                                        .foregroundColor(.primary)
-                                    
-                                    Button(action: {
-                                        selectedTags.removeAll { $0 == tag }
-                                    }) {
-                                        Image(systemName: "xmark")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(.quaternary, in: Capsule())
+            VStack(spacing: 0) {
+                // Available tags as list items
+                ForEach(availableTags, id: \.self) { tag in
+                    Button(action: {
+                        if selectedTags.contains(tag) {
+                            selectedTags.removeAll { $0 == tag }
+                        } else {
+                            selectedTags.append(tag)
+                        }
+                    }) {
+                        HStack {
+                            Text(tag)
+                                .font(.system(size: 17, weight: .regular))
+                                .foregroundColor(.primary)
+                            Spacer()
+                            if selectedTags.contains(tag) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.blue)
                             }
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
                     }
-                    .padding(.bottom, 8)
-                }
-                
-                // Available tags
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Available Tags")
-                        .font(.headline)
-                        .foregroundColor(.primary)
+                    .buttonStyle(.plain)
                     
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 8) {
-                        ForEach(availableTags, id: \.self) { tag in
-                            Button(action: {
-                                if selectedTags.contains(tag) {
-                                    selectedTags.removeAll { $0 == tag }
-                                } else {
-                                    selectedTags.append(tag)
-                                }
-                            }) {
-                                Text(tag)
-                                    .font(.caption)
-                                    .foregroundColor(selectedTags.contains(tag) ? .white : .primary)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(
-                                        selectedTags.contains(tag) ? .blue : .quaternary,
-                                        in: Capsule()
-                                    )
-                            }
-                            .buttonStyle(.plain)
-                        }
+                    if tag != availableTags.last {
+                        Divider()
+                            .padding(.horizontal, 20)
                     }
                 }
                 
                 Spacer()
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
+            .frame(maxWidth: .infinity, alignment: .top)
         }
     }
 }
