@@ -316,7 +316,7 @@ struct MessagesTab: View {
                 ToolbarSpacer()
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    ProfileMenu(
+                    MessagesProfileMenu(
                         onProfile: { /* Add profile action here */ },
                         onNotifications: { /* Add notifications action here */ },
                         onSignOut: { /* Add sign out action here */ },
