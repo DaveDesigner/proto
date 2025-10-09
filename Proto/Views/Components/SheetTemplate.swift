@@ -123,8 +123,8 @@ struct SheetTemplate<Content: View>: View {
                             }
                             .disabled(primaryAction.isDisabled())
                             .buttonStyle(.borderedProminent)
-                            .opacity(primaryAction.isDisabled() ? 0.5 : 1.0)
                             .id("primaryAction-\(primaryAction.isDisabled())-\(buttonUpdateTrigger)")
+                            .opacity(primaryAction.isDisabled() ? 0.5 : 1.0)
                         }
                         .sharedBackgroundVisible()
                     }
