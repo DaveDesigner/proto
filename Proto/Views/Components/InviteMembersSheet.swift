@@ -167,11 +167,6 @@ struct MemberTagsSheet: View {
                         .padding(.vertical, 16)
                     }
                     .buttonStyle(.plain)
-                    
-                    if tag != availableTags.last {
-                        Divider()
-                            .padding(.horizontal, 20)
-                    }
                 }
                 
                 Spacer()
