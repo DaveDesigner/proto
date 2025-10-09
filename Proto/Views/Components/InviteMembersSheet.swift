@@ -115,7 +115,7 @@ struct InviteMembersSheet: View {
                         sendInvite()
                     }
                     .disabled(emailText.isEmpty || isSending)
-                    .buttonStyle(.prominent)
+                    .buttonStyle(.borderedProminent)
                 }
             }
         }

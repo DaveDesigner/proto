@@ -147,7 +147,7 @@ struct PostSettingsSheet: View {
                         saveSettings()
                     }
                     .disabled(!hasUnsavedChanges || isSaving)
-                    .buttonStyle(.prominent)
+                    .buttonStyle(.borderedProminent)
                 }
             }
         }
