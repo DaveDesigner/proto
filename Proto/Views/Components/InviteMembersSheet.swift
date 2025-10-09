@@ -113,8 +113,8 @@ struct InviteMembersSheet: View {
                         sendInvite()
                     }
                     .disabled(emailText.isEmpty || isSending)
-                    .sharedBackgroundVisible()
                 }
+                .sharedBackgroundVisible()
             }
         }
         .onAppear {
