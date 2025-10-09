@@ -121,6 +121,7 @@ struct SheetTemplate<Content: View>: View {
                                 primaryAction.action()
                             }
                             .disabled(primaryAction.isDisabled())
+                            .buttonStyle(.borderedProminent)
                         }
                         .sharedBackgroundVisible()
                     }
