@@ -145,8 +145,8 @@ struct PostSettingsSheet: View {
                         saveSettings()
                     }
                     .disabled(!hasUnsavedChanges || isSaving)
-                    .sharedBackgroundVisible()
                 }
+                .sharedBackgroundVisible()
             }
         }
         .onChange(of: publishTimestamp) { _, _ in hasUnsavedChanges = true }
