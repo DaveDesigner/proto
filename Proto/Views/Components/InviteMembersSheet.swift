@@ -107,19 +107,16 @@ struct InviteMembersSheet: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
-            .safeAreaInset(edge: .bottom) {
-                HStack {
+            .toolbar {
+                ToolbarItemGroup(placement: .bottomBar) {
                     Spacer()
                     
                     Button("Send") {
                         sendInvite()
                     }
                     .disabled(emailText.isEmpty || isSending)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.prominent)
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(.regularMaterial)
             }
         }
         .onAppear {
