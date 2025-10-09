@@ -2,8 +2,7 @@
 //  VideoPlayer.swift
 //  Proto
 //
-//  Video player component using AVKit for native video playback
-//  https://developer.apple.com/documentation/avkit
+//  Native AVKit video player component with autoplay support
 //
 
 import SwiftUI
@@ -58,7 +57,6 @@ struct VideoPlayerComponent: View {
                         }
                     }
             } else {
-                // Loading state
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(Color.gray.opacity(0.3))
                     .frame(maxWidth: .infinity, maxHeight: height)
@@ -74,18 +72,19 @@ struct VideoPlayerComponent: View {
                     )
             }
             
-            // Custom overlay controls (optional)
-            if showControls && enableControls {
+            // Custom controls overlay
+            if enableControls && showControls {
                 VStack {
                     Spacer()
                     HStack {
                         Button(action: {
                             if isPlaying {
                                 player?.pause()
+                                isPlaying = false
                             } else {
                                 player?.play()
+                                isPlaying = true
                             }
-                            isPlaying.toggle()
                         }) {
                             Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.title)
@@ -94,15 +93,14 @@ struct VideoPlayerComponent: View {
                         Spacer()
                     }
                     .padding()
-                }
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [.clear, .black.opacity(0.7)]),
-                        startPoint: .top,
-                        endPoint: .bottom
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.clear, Color.black.opacity(0.7)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
                     )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+                }
             }
         }
         .onAppear {
@@ -118,10 +116,7 @@ struct VideoPlayerComponent: View {
             print("Error: Could not find video file: \(videoName).mp4")
             return
         }
-        
         player = AVPlayer(url: url)
-        
-        // Add observer for playback status
         NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
             object: player?.currentItem,
@@ -164,8 +159,6 @@ extension VideoPlayerComponent {
 #Preview {
     VStack(spacing: 20) {
         VideoPlayerComponent.postVideo(videoName: "What is Circle", enableControls: true)
-        
-        VideoPlayerComponent.feedVideo(videoName: "What is Circle", enableControls: true, autoPlay: false)
     }
     .padding()
 }

@@ -25,6 +25,9 @@ struct PostPreview: View {
     let onLikeTapped: (() -> Void)?
     let onCommentTapped: (() -> Void)?
     
+    // Optional FeedVideo for autoplay functionality
+    let feedVideo: FeedVideo?
+    
     @StateObject private var unsplashService = UnsplashService.shared
     
     // Static counter to ensure sequential image assignment
@@ -44,7 +47,8 @@ struct PostPreview: View {
         commentCount: Int = 0,
         isLiked: Bool = false,
         onLikeTapped: (() -> Void)? = nil,
-        onCommentTapped: (() -> Void)? = nil
+        onCommentTapped: (() -> Void)? = nil,
+        feedVideo: FeedVideo? = nil
     ) {
         self.authorName = authorName
         self.spaceName = spaceName
@@ -60,6 +64,7 @@ struct PostPreview: View {
         self.isLiked = isLiked
         self.onLikeTapped = onLikeTapped
         self.onCommentTapped = onCommentTapped
+        self.feedVideo = feedVideo
     }
     
     // Convenience initializer for backward compatibility
@@ -77,7 +82,8 @@ struct PostPreview: View {
         commentCount: Int = 0,
         isLiked: Bool = false,
         onLikeTapped: (() -> Void)? = nil,
-        onCommentTapped: (() -> Void)? = nil
+        onCommentTapped: (() -> Void)? = nil,
+        feedVideo: FeedVideo? = nil
     ) {
         self.authorName = authorName
         self.spaceName = spaceName
@@ -93,6 +99,7 @@ struct PostPreview: View {
         self.isLiked = isLiked
         self.onLikeTapped = onLikeTapped
         self.onCommentTapped = onCommentTapped
+        self.feedVideo = feedVideo
     }
     
     var body: some View {
@@ -124,8 +131,11 @@ struct PostPreview: View {
             }
             
             // Post content (image or video)
-            if let postVideoName = postVideoName {
-                // Show video content
+            if let feedVideo = feedVideo {
+                // Show autoplay video content
+                AutoplayVideoPlayer.postVideo(feedVideo: feedVideo, enableControls: true)
+            } else if let postVideoName = postVideoName {
+                // Show regular video content (fallback)
                 VideoPlayerComponent.postVideo(videoName: postVideoName, enableControls: true, autoPlay: false)
             } else if let postImageName = postImageName {
                 // Show image content

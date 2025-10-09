@@ -12,8 +12,13 @@ struct CommunityTab: View {
     @State private var showDraftsSheet = false
     @State private var selectedSegment = 0
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
     @Binding var selectedTintColor: Color
     @StateObject private var unsplashService = UnsplashService.shared
+    
+    // Autoplay video management
+    @State private var visibility: [UUID: CGFloat] = [:]
+    @State private var feedVideos: [FeedVideo] = []
     
     private let communitySegments = ["Feed", "Video", "Courses", "Events", "Members", "Leaderboard"]
     
@@ -87,7 +92,8 @@ struct CommunityTab: View {
                                         },
                                         onCommentTapped: {
                                             print("Comment tapped on leadership post!")
-                                        }
+                                        },
+                                        feedVideo: feedVideos.first { $0.videoName == "What is Circle" }
                                     )
                                 }
 
@@ -216,6 +222,10 @@ struct CommunityTab: View {
                         }
                     }
                     .padding(.vertical, 16)
+                    .onPreferenceChange(VisibilityKey.self) { vis in
+                        visibility = vis
+                        updateActivePlayback()
+                    }
                 }
             }
             .navigationBarTitle("Community")
@@ -250,6 +260,39 @@ struct CommunityTab: View {
         }
         .sheet(isPresented: $showDraftsSheet) {
             DraftsSheet()
+        }
+        .onAppear {
+            setupFeedVideos()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // Pause all when app goes inactive/background
+            let active = (phase == .active)
+            if !active { 
+                feedVideos.forEach { $0.updatePlayback(active: false) } 
+            } else { 
+                updateActivePlayback() 
+            }
+        }
+    }
+    
+    // MARK: - Autoplay Management
+    private func setupFeedVideos() {
+        // Initialize FeedVideo instances for videos in the feed
+        feedVideos = [
+            FeedVideo(videoName: "What is Circle", muted: true)
+        ]
+    }
+    
+    private func updateActivePlayback() {
+        // Pick the most visible video above some threshold
+        // Higher threshold = more centered video required to play
+        let threshold: CGFloat = 0.7 // Increased from 0.5 to 0.7 for more centered playback
+        let best = visibility
+            .filter { $0.value >= threshold }
+            .max(by: { $0.value < $1.value })?.key
+        
+        for feedVideo in feedVideos {
+            feedVideo.updatePlayback(active: feedVideo.id == best)
         }
     }
 }
