@@ -118,13 +118,20 @@ struct SheetTemplate<Content: View>: View {
                     // New action system
                     if let primaryAction = primaryAction {
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            Button(primaryAction.title) {
-                                primaryAction.action()
+                            if primaryAction.isDisabled() {
+                                Button(primaryAction.title) {
+                                    primaryAction.action()
+                                }
+                                .disabled(true)
+                                .buttonStyle(.plain)
+                                .id("primaryAction-\(primaryAction.isDisabled())-\(buttonUpdateTrigger)")
+                            } else {
+                                Button(primaryAction.title) {
+                                    primaryAction.action()
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .id("primaryAction-\(primaryAction.isDisabled())-\(buttonUpdateTrigger)")
                             }
-                            .disabled(primaryAction.isDisabled())
-                            .buttonStyle(.borderedProminent)
-                            .id("primaryAction-\(primaryAction.isDisabled())-\(buttonUpdateTrigger)")
-                            .opacity(primaryAction.isDisabled() ? 0.5 : 1.0)
                         }
                         .sharedBackgroundVisible()
                     }
