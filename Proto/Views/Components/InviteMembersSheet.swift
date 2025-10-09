@@ -68,7 +68,7 @@ struct InviteMembersSheet: View {
                             .foregroundColor(.primary)
                         Spacer()
                         Toggle("", isOn: $notifyInEmail)
-                            .toggleStyle(SwitchToggleStyle(tint: .blue))
+                            .toggleStyle(SwitchToggleStyle(tint: .primary))
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
@@ -80,7 +80,7 @@ struct InviteMembersSheet: View {
                             .foregroundColor(.primary)
                         Spacer()
                         Toggle("", isOn: $giveAdminPrivileges)
-                            .toggleStyle(SwitchToggleStyle(tint: .blue))
+                            .toggleStyle(SwitchToggleStyle(tint: .primary))
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
@@ -160,7 +160,7 @@ struct MemberTagsSheet: View {
                             if selectedTags.contains(tag) {
                                 Image(systemName: "checkmark")
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.primary)
                             }
                         }
                         .padding(.horizontal, 20)

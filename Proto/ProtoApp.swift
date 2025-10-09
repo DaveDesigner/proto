@@ -12,6 +12,7 @@ struct ProtoApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .accentColor(.primary) // Override global accent color to use primary color
         }
     }
 }

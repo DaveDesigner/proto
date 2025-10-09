@@ -130,6 +130,7 @@ struct SheetTemplate<Content: View>: View {
                                     primaryAction.action()
                                 }
                                 .buttonStyle(.borderedProminent)
+                                .tint(.primary)
                                 .id("primaryAction-\(primaryAction.isDisabled())-\(buttonUpdateTrigger)")
                             }
                         }

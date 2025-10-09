@@ -26,8 +26,8 @@
 
 ### Video
 - [x] segment control component add "Video" tab [PR #4](https://github.com/DaveDesigner/proto/pull/4)
-- [ ] native inline video player
-- [ ] autoplay on scroll
+- [x] native inline video player [Draft PR](https://github.com/DaveDesigner/proto/pull/new/feature/video-demo-player)
+- [x] autoplay on scroll [Draft PR](https://github.com/DaveDesigner/proto/pull/new/feature/video-demo-player)
 - [ ] tap to unmute
 - [ ] tap to fullscreen
 - [ ] drag to minimize PiP
@@ -41,7 +41,7 @@
 ### Search
 - [x] Activate search on tap [Figma spec](https://www.figma.com/design/NdwIk4iFCNFsrBOA1I2S2b/%F0%9F%93%90-Mobile-Build?node-id=26801-116894&t=GwwykqKG33UxJcNw-1)
 - [x] Expand virtual keyboard when search is active
-- [ ] Render search input as a toolbar above the tab bar (toggle bar state)
+- [x] Render search input as a toolbar above the tab bar (toggle bar state)
 
 ### Posts toolbar actions
 - [x] Click through from Feed to post view

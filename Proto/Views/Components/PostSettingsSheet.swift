@@ -292,6 +292,7 @@ struct SettingsToggleRow: View {
             
             Toggle("", isOn: $isOn)
                 .labelsHidden()
+                .toggleStyle(SwitchToggleStyle(tint: .primary))
         }
     }
 }
