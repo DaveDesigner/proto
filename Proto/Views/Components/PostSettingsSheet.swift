@@ -140,7 +140,9 @@ struct PostSettingsSheet: View {
             .padding(.horizontal, 20)
             .padding(.top, 20)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Spacer()
+                    
                     Button("Save") {
                         saveSettings()
                     }

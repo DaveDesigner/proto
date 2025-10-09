@@ -108,7 +108,9 @@ struct InviteMembersSheet: View {
             }
             .frame(maxWidth: .infinity, alignment: .top)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Spacer()
+                    
                     Button("Send") {
                         sendInvite()
                     }
