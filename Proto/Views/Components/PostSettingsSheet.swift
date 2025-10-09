@@ -36,7 +36,7 @@ struct PostSettingsSheet: View {
     
     private var saveAction: SheetAction {
         SheetAction(
-            title: "Save",
+            iconName: "checkmark",
             action: { saveSettings() },
             isDisabled: { !hasUnsavedChanges || isSaving }
         )
@@ -281,6 +281,7 @@ struct OpenGraphImageSection: View {
 struct SettingsToggleRow: View {
     let title: String
     @Binding var isOn: Bool
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         HStack {
@@ -292,8 +293,13 @@ struct SettingsToggleRow: View {
             
             Toggle("", isOn: $isOn)
                 .labelsHidden()
-                .toggleStyle(SwitchToggleStyle(tint: .primary))
+                .toggleStyle(SwitchToggleStyle(tint: adaptiveToggleColor()))
         }
+    }
+    
+    private func adaptiveToggleColor() -> Color {
+        // Use primary color in light mode, tertiary color in dark mode for better visibility
+        return colorScheme == .light ? .primary : .tertiary
     }
 }
 

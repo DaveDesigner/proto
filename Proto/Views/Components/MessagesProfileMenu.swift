@@ -44,7 +44,6 @@ struct MessagesProfileMenu: View {
                     Text("Invite members")
                 } icon: {
                     Image("MemberAdd20")
-                        .foregroundColor(.secondary)
                 }
             }
             .tint(.primary)

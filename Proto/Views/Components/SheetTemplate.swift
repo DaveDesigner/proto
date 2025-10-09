@@ -32,6 +32,14 @@ import SwiftUI
 ///     YourContent()
 /// }
 ///
+/// // With icon actions
+/// SheetTemplate(title: "Invite", primaryAction: .init(
+///     iconName: "arrow.up",
+///     action: { sendInvite() }
+/// )) {
+///     YourContent()
+/// }
+///
 /// // With both primary and secondary actions
 /// SheetTemplate(title: "Edit", primaryAction: .init(
 ///     title: "Save",
@@ -44,14 +52,23 @@ import SwiftUI
 /// }
 /// ```
 
-/// Represents a toolbar action with title, action closure, and optional disabled state
+/// Represents a toolbar action with title or icon, action closure, and optional disabled state
 struct SheetAction {
-    let title: String
+    let title: String?
+    let iconName: String?
     let action: () -> Void
     let isDisabled: () -> Bool
     
     init(title: String, action: @escaping () -> Void, isDisabled: @escaping () -> Bool = { false }) {
         self.title = title
+        self.iconName = nil
+        self.action = action
+        self.isDisabled = isDisabled
+    }
+    
+    init(iconName: String, action: @escaping () -> Void, isDisabled: @escaping () -> Bool = { false }) {
+        self.title = nil
+        self.iconName = iconName
         self.action = action
         self.isDisabled = isDisabled
     }
@@ -119,15 +136,25 @@ struct SheetTemplate<Content: View>: View {
                     if let primaryAction = primaryAction {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             if primaryAction.isDisabled() {
-                                Button(primaryAction.title) {
-                                    primaryAction.action()
+                                Button(action: primaryAction.action) {
+                                    if let iconName = primaryAction.iconName {
+                                        Image(systemName: iconName)
+                                            .font(.system(size: 16, weight: .medium))
+                                    } else if let title = primaryAction.title {
+                                        Text(title)
+                                    }
                                 }
                                 .disabled(true)
                                 //.buttonStyle(.plain)
                                 .id("primaryAction-\(primaryAction.isDisabled())-\(buttonUpdateTrigger)")
                             } else {
-                                Button(primaryAction.title) {
-                                    primaryAction.action()
+                                Button(action: primaryAction.action) {
+                                    if let iconName = primaryAction.iconName {
+                                        Image(systemName: iconName)
+                                            .font(.system(size: 16, weight: .medium))
+                                    } else if let title = primaryAction.title {
+                                        Text(title)
+                                    }
                                 }
                                 .buttonStyle(.borderedProminent)
                                 .tint(.primary)
@@ -139,8 +166,13 @@ struct SheetTemplate<Content: View>: View {
                     
                     if let secondaryAction = secondaryAction {
                         ToolbarItem(placement: .navigationBarLeading) {
-                            Button(secondaryAction.title) {
-                                secondaryAction.action()
+                            Button(action: secondaryAction.action) {
+                                if let iconName = secondaryAction.iconName {
+                                    Image(systemName: iconName)
+                                        .font(.system(size: 16, weight: .medium))
+                                } else if let title = secondaryAction.title {
+                                    Text(title)
+                                }
                             }
                             .disabled(secondaryAction.isDisabled())
                         }

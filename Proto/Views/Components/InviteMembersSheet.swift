@@ -9,6 +9,7 @@ import SwiftUI
 
 struct InviteMembersSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isEmailFieldFocused: Bool
     @State private var emailText = ""
     @State private var notifyInEmail = true
@@ -19,9 +20,14 @@ struct InviteMembersSheet: View {
     
     private let availableTags = ["Designer", "Developer", "Manager", "Marketing", "Sales", "Support"]
     
+    private func adaptiveToggleColor() -> Color {
+        // Use primary color in light mode, tertiary color in dark mode for better visibility
+        return colorScheme == .light ? .primary : .tertiary
+    }
+    
     private var sendAction: SheetAction {
         SheetAction(
-            title: "Send",
+            iconName: "arrow.up",
             action: { sendInvite() },
             isDisabled: { emailText.isEmpty || isSending }
         )
@@ -68,7 +74,7 @@ struct InviteMembersSheet: View {
                             .foregroundColor(.primary)
                         Spacer()
                         Toggle("", isOn: $notifyInEmail)
-                            .toggleStyle(SwitchToggleStyle(tint: .primary))
+                            .toggleStyle(SwitchToggleStyle(tint: adaptiveToggleColor()))
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
@@ -80,7 +86,7 @@ struct InviteMembersSheet: View {
                             .foregroundColor(.primary)
                         Spacer()
                         Toggle("", isOn: $giveAdminPrivileges)
-                            .toggleStyle(SwitchToggleStyle(tint: .primary))
+                            .toggleStyle(SwitchToggleStyle(tint: adaptiveToggleColor()))
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
