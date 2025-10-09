@@ -139,16 +139,19 @@ struct PostSettingsSheet: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
-            .toolbar {
-                ToolbarItemGroup(placement: .bottomBar) {
+            .safeAreaInset(edge: .bottom) {
+                HStack {
                     Spacer()
                     
                     Button("Save") {
                         saveSettings()
                     }
                     .disabled(!hasUnsavedChanges || isSaving)
+                    .buttonStyle(.borderedProminent)
                 }
-                .sharedBackgroundVisible()
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(.regularMaterial)
             }
         }
         .onChange(of: publishTimestamp) { _, _ in hasUnsavedChanges = true }
