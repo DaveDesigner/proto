@@ -35,17 +35,7 @@ struct PostSettingsSheet: View {
     @State private var isSaving = false
     
     var body: some View {
-        SheetTemplate(
-            title: "Settings",
-            trailingToolbarAction: {
-                AnyView(
-                    Button(action: saveSettings) {
-                        Text("Save")
-                    }
-                    .disabled(!hasUnsavedChanges || isSaving)
-                )
-            }
-        ) {
+        SheetTemplate(title: "Settings") {
             VStack(spacing: 24) {
                 // Post visibility and behavior toggles
                     SettingsToggleRow(
@@ -149,6 +139,17 @@ struct PostSettingsSheet: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
+            .toolbar {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Spacer()
+                    
+                    Button("Save") {
+                        saveSettings()
+                    }
+                    .disabled(!hasUnsavedChanges || isSaving)
+                }
+                .sharedBackgroundVisible()
+            }
         }
         .onChange(of: publishTimestamp) { _, _ in hasUnsavedChanges = true }
         .onChange(of: customHTML) { _, _ in hasUnsavedChanges = true }

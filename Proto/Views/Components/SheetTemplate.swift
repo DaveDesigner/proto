@@ -82,9 +82,8 @@ struct SheetTemplate<Content: View>: View {
                             .font(.title3.bold())
                             .foregroundStyle(.primary)
                     }
-                    
                     if let trailingToolbarAction = trailingToolbarAction {
-                        ToolbarItem(placement: .navigationBarTrailing) {
+                        ToolbarItem() {
                             trailingToolbarAction()
                         }
                     }

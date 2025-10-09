@@ -20,17 +20,7 @@ struct InviteMembersSheet: View {
     private let availableTags = ["Designer", "Developer", "Manager", "Marketing", "Sales", "Support"]
     
     var body: some View {
-        SheetTemplate(
-            title: "Invite members",
-            trailingToolbarAction: {
-                AnyView(
-                    Button(action: sendInvite) {
-                        Text("Send")
-                    }
-                    .disabled(emailText.isEmpty || isSending)
-                )
-            }
-        ) {
+        SheetTemplate(title: "Invite members") {
             VStack(spacing: 0) {
                 // Email input section
                 VStack(alignment: .leading, spacing: 8) {
@@ -117,6 +107,17 @@ struct InviteMembersSheet: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
+            .toolbar {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Spacer()
+                    
+                    Button("Send") {
+                        sendInvite()
+                    }
+                    .disabled(emailText.isEmpty || isSending)
+                }
+                .sharedBackgroundVisible()
+            }
         }
         .onAppear {
             // Auto-focus the email field when sheet appears

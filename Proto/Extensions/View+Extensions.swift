@@ -27,4 +27,15 @@ extension ToolbarContent {
             self
         }
     }
+    
+    @ToolbarContentBuilder
+    public func sharedBackgroundVisible() -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            // Show the iOS 26 glass effect for the toolbar content
+            self
+                .sharedBackgroundVisibility(.visible)
+        } else {
+            self
+        }
+    }
 }
