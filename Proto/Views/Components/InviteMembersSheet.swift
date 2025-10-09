@@ -94,7 +94,7 @@ showMemberTagsSheet = true
                                 Text("Member tags")
                                     .font(.system(size: 17, weight: .regular))
                                     .foregroundColor(.primary)
-                                Text("Tap to add tags")
+                                Text(selectedTags.isEmpty ? "Tap to add tags" : selectedTags.joined(separator: ", "))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.tertiary)
                             }
