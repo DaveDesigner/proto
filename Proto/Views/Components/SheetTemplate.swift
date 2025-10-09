@@ -123,7 +123,7 @@ struct SheetTemplate<Content: View>: View {
                                     primaryAction.action()
                                 }
                                 .disabled(true)
-                                .buttonStyle(.plain)
+                                //.buttonStyle(.plain)
                                 .id("primaryAction-\(primaryAction.isDisabled())-\(buttonUpdateTrigger)")
                             } else {
                                 Button(primaryAction.title) {
