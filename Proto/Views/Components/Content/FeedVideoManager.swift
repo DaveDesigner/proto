@@ -211,43 +211,6 @@ extension AutoplayVideoPlayer {
     }
 }
 
-// MARK: - FeedVideoManager
-class FeedVideoManager: ObservableObject {
-    @Published var feedVideos: [FeedVideo] = []
-    @Published var visibility: [UUID: CGFloat] = [:]
-    
-    private let autoplayThreshold: CGFloat = 0.5
-    
-    func addVideo(videoName: String, muted: Bool = true) -> FeedVideo {
-        let feedVideo = FeedVideo(videoName: videoName, muted: muted)
-        feedVideos.append(feedVideo)
-        return feedVideo
-    }
-    
-    func updateVisibility(_ newVisibility: [UUID: CGFloat]) {
-        visibility = newVisibility
-        updateActivePlayback()
-    }
-    
-    private func updateActivePlayback() {
-        // Pick the most visible video above threshold
-        let best = visibility
-            .filter { $0.value >= autoplayThreshold }
-            .max(by: { $0.value < $1.value })?.key
-        
-        for feedVideo in feedVideos {
-            feedVideo.updatePlayback(active: feedVideo.id == best)
-        }
-    }
-    
-    func pauseAllVideos() {
-        feedVideos.forEach { $0.updatePlayback(active: false) }
-    }
-    
-    func resumeAutoplay() {
-        updateActivePlayback()
-    }
-}
 
 // MARK: - Preview
 #Preview {
