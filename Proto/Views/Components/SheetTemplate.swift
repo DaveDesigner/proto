@@ -38,6 +38,7 @@ struct SheetTemplate<Content: View>: View {
     let title: String
     let content: Content
     let topRightAction: (() -> AnyView)?
+    let trailingToolbarAction: (() -> AnyView)?
     @State private var selectedDetent: PresentationDetent
 
     init(
@@ -45,12 +46,14 @@ struct SheetTemplate<Content: View>: View {
         detents: Set<PresentationDetent> = [.medium, .large],
         dragIndicator: Visibility = .visible,
         topRightAction: (() -> AnyView)? = nil,
+        trailingToolbarAction: (() -> AnyView)? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.detents = detents
         self.dragIndicator = dragIndicator
         self.topRightAction = topRightAction
+        self.trailingToolbarAction = trailingToolbarAction
         self.content = content()
         // Prefer .medium if available, else .large, else any provided detent (or .medium as a fallback)
         let initial: PresentationDetent
@@ -78,6 +81,12 @@ struct SheetTemplate<Content: View>: View {
                         Text(" ")
                             .font(.title3.bold())
                             .foregroundStyle(.primary)
+                    }
+                    
+                    if let trailingToolbarAction = trailingToolbarAction {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            trailingToolbarAction()
+                        }
                     }
                 }
                 //.toolbarBackground(.glassEffect, for: .navigationBar)
@@ -114,9 +123,10 @@ extension SheetTemplate {
         detents: PresentationDetent...,
         dragIndicator: Visibility = .visible,
         topRightAction: (() -> AnyView)? = nil,
+        trailingToolbarAction: (() -> AnyView)? = nil,
         @ViewBuilder content: () -> Content
     ) {
-        self.init(title: title, detents: Set(detents), dragIndicator: dragIndicator, topRightAction: topRightAction, content: content)
+        self.init(title: title, detents: Set(detents), dragIndicator: dragIndicator, topRightAction: topRightAction, trailingToolbarAction: trailingToolbarAction, content: content)
     }
     
     init(
@@ -124,9 +134,10 @@ extension SheetTemplate {
         detent: PresentationDetent,
         dragIndicator: Visibility = .visible,
         topRightAction: (() -> AnyView)? = nil,
+        trailingToolbarAction: (() -> AnyView)? = nil,
         @ViewBuilder content: () -> Content
     ) {
-        self.init(title: title, detents: [detent], dragIndicator: dragIndicator, topRightAction: topRightAction, content: content)
+        self.init(title: title, detents: [detent], dragIndicator: dragIndicator, topRightAction: topRightAction, trailingToolbarAction: trailingToolbarAction, content: content)
     }
 }
 

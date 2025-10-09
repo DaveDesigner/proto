@@ -37,12 +37,10 @@ struct PostSettingsSheet: View {
     var body: some View {
         SheetTemplate(
             title: "Settings",
-            topRightAction: {
+            trailingToolbarAction: {
                 AnyView(
                     Button(action: saveSettings) {
                         Text("Save")
-                            .font(.system(size: 17, weight: hasUnsavedChanges ? .semibold : .medium))
-                            .foregroundColor(hasUnsavedChanges ? .primary : .quaternary)
                     }
                     .disabled(!hasUnsavedChanges || isSaving)
                 )

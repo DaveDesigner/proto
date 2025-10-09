@@ -22,12 +22,10 @@ struct InviteMembersSheet: View {
     var body: some View {
         SheetTemplate(
             title: "Invite members",
-            topRightAction: {
+            trailingToolbarAction: {
                 AnyView(
                     Button(action: sendInvite) {
                         Text("Send")
-                            .font(.body.weight(.medium))
-                            .foregroundColor(emailText.isEmpty ? .secondary : .blue)
                     }
                     .disabled(emailText.isEmpty || isSending)
                 )

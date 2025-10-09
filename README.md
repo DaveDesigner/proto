@@ -4,13 +4,14 @@
 - feat: add connection status actions to profile
 - `In progress` style(icons): replace sf symbols with icons in primary nav, & post preview [PR #9](https://github.com/DaveDesigner/proto/pull/9)
 - add: connect actions on profile, accessed via notification
-- **Video inline player** - Native video player with autoplay on scroll position [Draft PR](https://github.com/DaveDesigner/proto/pull/new/feature/video-demo-player)
 - **iPad multi-column layouts** - Support for wide displays with responsive grid layouts
 - **Enhanced video controls** - Tap to unmute, tap to fullscreen, drag to minimize PiP
 - **Admin mode** - Finish Co-pilot sparkle UI edges and Figma consistency
 
 
 ## Features
+- Invite members (interim until admin settings) [PR #17]()
+- Autoplaying video preview on scroll in Feed [Draft PR](https://github.com/DaveDesigner/proto/pull/new/feature/video-demo-player)
 - Edit post settings [PR #16](https://github.com/DaveDesigner/proto/pull/16)
 - Image lightbox to open and swipe down to close [PR #11](https://github.com/DaveDesigner/proto/pull/11), [PR #12](https://github.com/DaveDesigner/proto/pull/12), [PR #14](https://github.com/DaveDesigner/proto/pull/14), [PR #15](https://github.com/DaveDesigner/proto/pull/15)
 - [.toolbarTitleDisplayMode(.inlineLarge)](https://developer.apple.com/documentation/swiftui/view/toolbartitledisplaymode(_:))
