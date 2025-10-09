@@ -33,61 +33,45 @@ struct InviteMembersSheet: View {
                 )
             }
         ) {
-            VStack(spacing: 24) {
-                // Email input section with glass effect
+            VStack(spacing: 0) {
+                // Email input section
                 VStack(alignment: .leading, spacing: 8) {
-                    // Glass effect input field
-                    ZStack {
-                        // Glass effect background
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(.ultraThinMaterial)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(.quaternary, lineWidth: 0.5)
-                            )
-                        
-                        HStack {
-                            // Text cursor simulation
-                            if isEmailFieldFocused {
-                                Rectangle()
-                                    .fill(.primary)
-                                    .frame(width: 2, height: 20)
-                                    .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: isEmailFieldFocused)
-                            }
-                            
-                            TextField("Enter email…", text: $emailText)
-                                .focused($isEmailFieldFocused)
-                                .textFieldStyle(.plain)
-                                .font(.body)
-                                .foregroundColor(.primary)
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .disableAutocorrection(true)
-                        }
+                    Text("Email")
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundColor(.secondary)
+                    
+                    TextField("Enter email…", text: $emailText)
+                        .focused($isEmailFieldFocused)
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundColor(.primary)
+                        .keyboardType(.emailAddress)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
-                    }
-                    .frame(height: 50)
+                        .background(Color(red: 173/255, green: 184/255, blue: 194/255, opacity: 0.2))
+                        .cornerRadius(16)
                     
-                    // Helper text
                     Text("Separate multiple emails with commas.")
-                        .font(.caption)
+                        .font(.system(size: 12, weight: .regular))
                         .foregroundColor(.tertiary)
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 24)
                 
                 // Toggle options
                 VStack(spacing: 0) {
                     // Notify in email toggle
                     HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Notify in an email")
-                                .font(.body)
-                                .foregroundColor(.primary)
-                        }
+                        Text("Notify in an email")
+                            .font(.system(size: 17, weight: .regular))
+                            .foregroundColor(.primary)
                         Spacer()
                         Toggle("", isOn: $notifyInEmail)
                             .toggleStyle(SwitchToggleStyle(tint: .blue))
                     }
+                    .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                     
                     Divider()
@@ -95,15 +79,14 @@ struct InviteMembersSheet: View {
                     
                     // Give admin privileges toggle
                     HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Give admin privileges")
-                                .font(.body)
-                                .foregroundColor(.primary)
-                        }
+                        Text("Give admin privileges")
+                            .font(.system(size: 17, weight: .regular))
+                            .foregroundColor(.primary)
                         Spacer()
                         Toggle("", isOn: $giveAdminPrivileges)
                             .toggleStyle(SwitchToggleStyle(tint: .blue))
                     }
+                    .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                     
                     Divider()
@@ -116,27 +99,26 @@ struct InviteMembersSheet: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Member tags")
-                                    .font(.body)
+                                    .font(.system(size: 17, weight: .regular))
                                     .foregroundColor(.primary)
                                 Text("Tap to add tags")
-                                    .font(.caption)
+                                    .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.tertiary)
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(.tertiary)
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(.secondary)
                         }
+                        .padding(.horizontal, 20)
                         .padding(.vertical, 16)
                     }
                     .buttonStyle(.plain)
                 }
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                 
                 Spacer()
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
+            .frame(maxWidth: .infinity, alignment: .top)
         }
         .onAppear {
             // Auto-focus the email field when sheet appears
