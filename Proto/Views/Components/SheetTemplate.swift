@@ -67,6 +67,7 @@ struct SheetTemplate<Content: View>: View {
     let topRightAction: (() -> AnyView)? // Legacy support
     let trailingToolbarAction: (() -> AnyView)? // Legacy support
     @State private var selectedDetent: PresentationDetent
+    @State private var buttonUpdateTrigger = false
 
     init(
         title: String,
@@ -122,6 +123,8 @@ struct SheetTemplate<Content: View>: View {
                             }
                             .disabled(primaryAction.isDisabled())
                             .buttonStyle(.borderedProminent)
+                            .opacity(primaryAction.isDisabled() ? 0.5 : 1.0)
+                            .id("primaryAction-\(primaryAction.isDisabled())-\(buttonUpdateTrigger)")
                         }
                         .sharedBackgroundVisible()
                     }
