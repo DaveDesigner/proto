@@ -108,14 +108,12 @@ struct InviteMembersSheet: View {
             }
             .frame(maxWidth: .infinity, alignment: .top)
             .toolbar {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    Spacer()
-                    
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Send") {
                         sendInvite()
                     }
                     .disabled(emailText.isEmpty || isSending)
-                    .buttonStyle(.borderedProminent)
+                    .sharedBackgroundVisible()
                 }
             }
         }

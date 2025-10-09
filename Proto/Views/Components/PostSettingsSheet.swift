@@ -140,14 +140,12 @@ struct PostSettingsSheet: View {
             .padding(.horizontal, 20)
             .padding(.top, 20)
             .toolbar {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    Spacer()
-                    
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         saveSettings()
                     }
                     .disabled(!hasUnsavedChanges || isSaving)
-                    .buttonStyle(.borderedProminent)
+                    .sharedBackgroundVisible()
                 }
             }
         }
