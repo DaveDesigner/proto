@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NotificationsTab: View {
     @State private var showingManageNotifications = false
+    @State private var showingInviteMembers = false
     @State private var selectedSegment = 0
     @Binding var selectedTintColor: Color
     @Environment(\.colorScheme) private var colorScheme
@@ -300,7 +301,7 @@ struct NotificationsTab: View {
                             }
                             .tint(.primary)
                             
-                            Button(action: {}) {
+                            Button(action: { showingInviteMembers = true }) {
                                 Label("Invite members", systemImage: "person.badge.plus")
                             }
                             .tint(.primary)
@@ -364,6 +365,9 @@ struct NotificationsTab: View {
         }
         .sheet(isPresented: $showingManageNotifications) {
             ManageNotificationsSheet()
+        }
+        .sheet(isPresented: $showingInviteMembers) {
+            InviteMembersSheet()
         }
     }
 }

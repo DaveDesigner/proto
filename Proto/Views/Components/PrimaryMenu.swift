@@ -24,6 +24,7 @@ struct PrimaryMenu: View {
     
     // Admin settings state
     @State private var showingAdminSettings = false
+    @State private var showingInviteMembers = false
     @State private var showingSummarize = false
     @State private var showingSwitchCommunity = false
     @State private var showingManageNotifications = false

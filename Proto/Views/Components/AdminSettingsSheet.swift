@@ -10,6 +10,7 @@ import SwiftUI
 struct AdminSettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showDraftsSheet = false
+    @State private var showInviteMembers = false
     
     var body: some View {
         SheetTemplate(title: "Admin settings") {
@@ -33,7 +34,7 @@ struct AdminSettingsSheet: View {
                     
                     
                     // Invite members
-                    Button(action: {}) {
+                    Button(action: { showInviteMembers = true }) {
                         HStack(spacing: 16) {
                             Image(systemName: "person.badge.plus")
                                 .foregroundColor(.secondary)
@@ -134,6 +135,9 @@ struct AdminSettingsSheet: View {
         }
         .sheet(isPresented: $showDraftsSheet) {
             DraftsSheet()
+        }
+        .sheet(isPresented: $showInviteMembers) {
+            InviteMembersSheet()
         }
     }
 }

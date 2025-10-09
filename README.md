@@ -10,7 +10,7 @@
 
 
 ## Features
-- Invite members (interim until admin settings) [PR #17]()
+- Invite members (interim until admin settings) [PR #17](https://github.com/DaveDesigner/proto/pull/17)
 - Autoplaying video preview on scroll in Feed [Draft PR](https://github.com/DaveDesigner/proto/pull/new/feature/video-demo-player)
 - Edit post settings [PR #16](https://github.com/DaveDesigner/proto/pull/16)
 - Image lightbox to open and swipe down to close [PR #11](https://github.com/DaveDesigner/proto/pull/11), [PR #12](https://github.com/DaveDesigner/proto/pull/12), [PR #14](https://github.com/DaveDesigner/proto/pull/14), [PR #15](https://github.com/DaveDesigner/proto/pull/15)
