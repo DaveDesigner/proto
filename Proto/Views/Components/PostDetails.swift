@@ -21,7 +21,6 @@ struct PostDetails: View {
     @State private var showSettingsSheet = false
     @State private var showEditSheet = false
     @State private var showDeleteConfirmation = false
-    
     // Computed property to help with toolbar updates
     private var toolbarState: String {
         "\(showCommentMode)-\(commentText.isEmpty)-\(isCommentFieldFocused)"
@@ -152,12 +151,59 @@ struct PostDetails: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .bottomBar) {
-                    // Allow toolbar to expand with content height
-                                        // Leading button - always present, changes content based on state
+                    // Leading button - always present, changes content based on state
                     Group {
                         if showCommentMode {
                             // Show + button when comment field is active
                             Menu {
+                                // Format submenu - moved to final position
+                                Menu {
+                                    Button(action: {
+                                        // Apply link formatting
+                                        commentText += " [link text](https://example.com)"
+                                    }) {
+                                        Label("Link", systemImage: "link")
+                                    }
+                                    .tint(.primary)
+                                    
+                                    Button(action: {
+                                        // Apply underline formatting
+                                        commentText += " <u>underline text</u>"
+                                    }) {
+                                        Label("Underline", systemImage: "underline")
+                                    }
+                                    .tint(.primary)
+                                    
+                                    Button(action: {
+                                        // Apply strikethrough formatting
+                                        commentText += " ~~strikethrough text~~"
+                                    }) {
+                                        Label("Strikethrough", systemImage: "strikethrough")
+                                    }
+                                    .tint(.primary)
+                                    
+                                    Button(action: {
+                                        // Apply italic formatting
+                                        commentText += " *italic text*"
+                                    }) {
+                                        Label("Italic", systemImage: "italic")
+                                    }
+                                    .tint(.primary)
+                                    
+                                    Button(action: {
+                                        // Apply bold formatting
+                                        commentText += " **bold text**"
+                                    }) {
+                                        Label("Bold", systemImage: "bold")
+                                    }
+                                    .tint(.primary)
+                                } label: {
+                                    Label("Format", systemImage: "bold.italic.underline")
+                                }
+                                .tint(.primary)
+
+                                Divider()
+
                                 Button(action: {
                                     // Tag content
                                     commentText += " #"
@@ -203,6 +249,9 @@ struct PostDetails: View {
                                     Label("Record", systemImage: "waveform")
                                 }
                                 .tint(.primary)
+                                
+                                Divider()
+                                
                             } label: {
                                 Image(systemName: "plus")
                                     .font(.body)
@@ -226,18 +275,18 @@ struct PostDetails: View {
                     }
                     
                     // Consistent spacing - let SwiftUI handle it naturally
-                    Spacer(minLength: 16)
+                    Spacer()
                     
                     // Comment input area - always present, changes content based on state
-                    if showCommentMode {
-                        // Real text editor when in comment mode - supports multiple lines
-                        HStack(alignment: .bottom, spacing: 0) {
+                    Group {
+                        if showCommentMode {
+                            // Real text editor when in comment mode - supports multiple lines
+                            HStack(alignment: .bottom, spacing: 0) {
                             TextEditor(text: $commentText)
-                                .font(.body) // Ensure regular weight
+                                .font(.body)
                                 .padding(.horizontal, 8)
-                                .padding(.vertical, 4) // Add vertical padding for better appearance
-                                .background(.clear) // Transparent background to show toolbar glass
-                                .scrollContentBackground(.hidden) // Hide scroll background
+                                .padding(.vertical, 0)
+                                .scrollContentBackground(.hidden)
                                 .focused($isCommentFieldFocused)
                                 .onAppear {
                                     // Auto-focus the text field when it appears
@@ -271,24 +320,27 @@ struct PostDetails: View {
                                 .disabled(true)
                             }
                         }
-                    } else {
-                        // Fake text field when not in comment mode
-                        HStack(alignment: .bottom, spacing: 0) {
+
+                        } else {
+                            // Fake text field when not in comment mode
+                            HStack(alignment: .bottom, spacing: 0) {
                             Text("Add comment")
-                                .font(.body) // Ensure regular weight
-                                .foregroundStyle(.tertiary) // Match text field placeholder color
+                                .font(.body)
+                                .foregroundStyle(.tertiary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 8) // Add padding to match text field
-                                .contentShape(Rectangle()) // Make entire area tappable
+                                .padding(.horizontal, 8)
+                                .background(.clear)
+                                .contentShape(Rectangle())
                                 .onTapGesture {
                                     shouldMaintainFocus = true
                                     showCommentMode = true
                                 }
                         }
+                        }
                     }
 
                     
-                    Spacer(minLength: 16)
+                    Spacer()
                     
                     // Trailing button area - always present to maintain layout structure
                     Group {
