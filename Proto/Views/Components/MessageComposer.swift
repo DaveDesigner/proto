@@ -14,6 +14,7 @@ struct MessageComposer: View {
     
     var placeholder: String = "Add message"
     var onSubmit: (() -> Void)?
+    var onDragStart: (() -> Void)?
     
     var body: some View {
         HStack(alignment: .bottom, spacing: 16) {            
@@ -22,86 +23,261 @@ struct MessageComposer: View {
                 .font(.body)
                 .scrollContentBackground(.hidden)
                 .focused($isFocused)
-                .frame(minHeight: 36)
+                //.frame(minHeight: 36)
                 .fixedSize(horizontal: false, vertical: true)
             
             // Submit button with glass effect
             Button(action: {
                 onSubmit?()
             }) {
-                Image(systemName: "arrow.up")
-                    .font(.system(size: 20, weight: .regular))
+                Image(systemName: "arrow.up.circle.fill")
+                    .font(.title3)
                     .foregroundColor(.primary)
-                    .frame(width: 44, height: 44)
             }
             .disabled(text.characters.isEmpty)
             .opacity(text.characters.isEmpty ? 0.5 : 1.0)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 10)
+                .onChanged { _ in
+                    onDragStart?()
+                }
+        )
+    }
+}
+
+// MARK: - Formatting Helper Functions
+struct TextFormattingHelper {
+    /// Gets the current selection range or cursor position
+    static func getCurrentRange(for text: AttributedString, selectedRange: Range<AttributedString.Index>?) -> Range<AttributedString.Index>? {
+        // Return the provided selected range if it exists and is not empty
+        if let selectedRange = selectedRange, !selectedRange.isEmpty {
+            return selectedRange
+        }
+        
+        // If no selection is provided, return nil
+        // This will cause the formatting functions to add new formatted text instead
+        // Note: SwiftUI's TextEditor doesn't provide direct access to text selection
+        // For now, formatting will add new text when no selection is manually provided
+        return nil
+    }
+    
+    /// Checks if the selected text has bold formatting
+    static func isBoldFormatted(in text: AttributedString, range: Range<AttributedString.Index>) -> Bool {
+        let substring = text[range]
+        for run in substring.runs {
+            if let font = run.font {
+                // Check if the font has bold weight by creating a bold font and comparing
+                let boldFont = Font.system(size: 17, weight: .bold, design: .default)
+                // For now, we'll use a simple approach - check if the font was created with bold weight
+                // This is a simplified check and may not work in all cases
+                return font == boldFont
+            }
+        }
+        return false
+    }
+    
+    /// Checks if the selected text has italic formatting
+    static func isItalicFormatted(in text: AttributedString, range: Range<AttributedString.Index>) -> Bool {
+        let substring = text[range]
+        for run in substring.runs {
+            if let font = run.font {
+                // Check if the font is italic by creating an italic font and comparing
+                let italicFont = Font.system(size: 17, weight: .regular, design: .default).italic()
+                // For now, we'll use a simple approach - check if the font was created with italic
+                // This is a simplified check and may not work in all cases
+                return font == italicFont
+            }
+        }
+        return false
+    }
+    
+    /// Checks if the selected text has underline formatting
+    static func isUnderlineFormatted(in text: AttributedString, range: Range<AttributedString.Index>) -> Bool {
+        let substring = text[range]
+        for run in substring.runs {
+            if run.underlineStyle == .single {
+                return true
+            }
+        }
+        return false
+    }
+    
+    /// Checks if the selected text has strikethrough formatting
+    static func isStrikethroughFormatted(in text: AttributedString, range: Range<AttributedString.Index>) -> Bool {
+        let substring = text[range]
+        for run in substring.runs {
+            if run.strikethroughStyle == .single {
+                return true
+            }
+        }
+        return false
+    }
+    
+    /// Toggles bold formatting on the selected text
+    static func toggleBold(text: inout AttributedString, selectedRange: Range<AttributedString.Index>?) {
+        guard let range = getCurrentRange(for: text, selectedRange: selectedRange), !range.isEmpty else {
+            // If no selection, add bold text
+            var boldText = AttributedString("bold text")
+            boldText.font = .system(size: 17, weight: .bold, design: .default)
+            text.append(AttributedString(" "))
+            text.append(boldText)
+            return
+        }
+        
+        if isBoldFormatted(in: text, range: range) {
+            // Remove bold formatting
+            text[range].font = .system(size: 17, weight: .regular, design: .default)
+        } else {
+            // Apply bold formatting
+            text[range].font = .system(size: 17, weight: .bold, design: .default)
+        }
+    }
+    
+    /// Toggles italic formatting on the selected text
+    static func toggleItalic(text: inout AttributedString, selectedRange: Range<AttributedString.Index>?) {
+        guard let range = getCurrentRange(for: text, selectedRange: selectedRange), !range.isEmpty else {
+            // If no selection, add italic text
+            var italicText = AttributedString("italic text")
+            italicText.font = .system(size: 17, weight: .regular, design: .default).italic()
+            text.append(AttributedString(" "))
+            text.append(italicText)
+            return
+        }
+        
+        if isItalicFormatted(in: text, range: range) {
+            // Remove italic formatting
+            text[range].font = .system(size: 17, weight: .regular, design: .default)
+        } else {
+            // Apply italic formatting
+            text[range].font = .system(size: 17, weight: .regular, design: .default).italic()
+        }
+    }
+    
+    /// Toggles underline formatting on the selected text
+    static func toggleUnderline(text: inout AttributedString, selectedRange: Range<AttributedString.Index>?) {
+        guard let range = getCurrentRange(for: text, selectedRange: selectedRange), !range.isEmpty else {
+            // If no selection, add underline text
+            var underlineText = AttributedString("underline text")
+            underlineText.underlineStyle = .single
+            text.append(AttributedString(" "))
+            text.append(underlineText)
+            return
+        }
+        
+        if isUnderlineFormatted(in: text, range: range) {
+            // Remove underline formatting
+            text[range].underlineStyle = .none
+        } else {
+            // Apply underline formatting
+            text[range].underlineStyle = .single
+        }
+    }
+    
+    /// Toggles strikethrough formatting on the selected text
+    static func toggleStrikethrough(text: inout AttributedString, selectedRange: Range<AttributedString.Index>?) {
+        guard let range = getCurrentRange(for: text, selectedRange: selectedRange), !range.isEmpty else {
+            // If no selection, add strikethrough text
+            var strikeText = AttributedString("strikethrough text")
+            strikeText.strikethroughStyle = .single
+            text.append(AttributedString(" "))
+            text.append(strikeText)
+            return
+        }
+        
+        if isStrikethroughFormatted(in: text, range: range) {
+            // Remove strikethrough formatting
+            text[range].strikethroughStyle = .none
+        } else {
+            // Apply strikethrough formatting
+            text[range].strikethroughStyle = .single
+        }
+    }
+    
+    /// Adds a link to the selected text
+    static func addLink(text: inout AttributedString, selectedRange: Range<AttributedString.Index>?) {
+        guard let range = getCurrentRange(for: text, selectedRange: selectedRange), !range.isEmpty else {
+            // If no selection, add link text
+            var linkText = AttributedString("link text")
+            linkText.link = URL(string: "https://example.com")
+            text.append(AttributedString(" "))
+            text.append(linkText)
+            return
+        }
+        
+        // Apply link to selected text
+        text[range].link = URL(string: "https://example.com")
     }
 }
 
 // MARK: - Formatting Menu Component
 struct MessageComposerFormatMenu: View {
     @Binding var text: AttributedString
+    @Binding var selectedRange: Range<AttributedString.Index>?
+    
+    // Computed properties to check current formatting state
+    private var isBoldActive: Bool {
+        guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
+              !range.isEmpty else { return false }
+        return TextFormattingHelper.isBoldFormatted(in: text, range: range)
+    }
+    
+    private var isItalicActive: Bool {
+        guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
+              !range.isEmpty else { return false }
+        return TextFormattingHelper.isItalicFormatted(in: text, range: range)
+    }
+    
+    private var isUnderlineActive: Bool {
+        guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
+              !range.isEmpty else { return false }
+        return TextFormattingHelper.isUnderlineFormatted(in: text, range: range)
+    }
+    
+    private var isStrikethroughActive: Bool {
+        guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
+              !range.isEmpty else { return false }
+        return TextFormattingHelper.isStrikethroughFormatted(in: text, range: range)
+    }
     
     var body: some View {
         Menu {
             // Format submenu - moved to top
             Menu {
                 Button(action: {
-                    // Add link text with proper formatting
-                    var linkText = AttributedString("link text")
-                    linkText.link = URL(string: "https://example.com")
-                    text.append(AttributedString(" "))
-                    text.append(linkText)
+                    TextFormattingHelper.addLink(text: &text, selectedRange: selectedRange)
                 }) {
                     Label("Link", systemImage: "link")
                 }
                 .tint(.primary)
                 
                 Button(action: {
-                    // Add strikethrough text
-                    var strikeText = AttributedString("strikethrough text")
-                    strikeText.strikethroughStyle = .single
-                    text.append(AttributedString(" "))
-                    text.append(strikeText)
+                    TextFormattingHelper.toggleStrikethrough(text: &text, selectedRange: selectedRange)
                 }) {
-                    Label("Strikethrough", systemImage: "strikethrough")
+                    Label(isStrikethroughActive ? "Strikethrough (is selected)" : "Strikethrough", systemImage: "strikethrough")
                 }
                 .tint(.primary)
                 
                 Button(action: {
-                    // Add underline text
-                    var underlineText = AttributedString("underline text")
-                    underlineText.underlineStyle = .single
-                    text.append(AttributedString(" "))
-                    text.append(underlineText)
+                    TextFormattingHelper.toggleUnderline(text: &text, selectedRange: selectedRange)
                 }) {
-                    Label("Underline", systemImage: "underline")
+                    Label(isUnderlineActive ? "Underline (is selected)" : "Underline", systemImage: "underline")
                 }
                 .tint(.primary)
                 
                 Button(action: {
-                    // Add italic text
-                    var italicText = AttributedString("italic text")
-                    italicText.font = .system(size: 17, weight: .regular, design: .default).italic()
-                    text.append(AttributedString(" "))
-                    text.append(italicText)
+                    TextFormattingHelper.toggleItalic(text: &text, selectedRange: selectedRange)
                 }) {
-                    Label("Italic", systemImage: "italic")
+                    Label(isItalicActive ? "Italic (is selected)" : "Italic", systemImage: "italic")
                 }
                 .tint(.primary)
                 
                 Button(action: {
-                    // Add bold text
-                    var boldText = AttributedString("bold text")
-                    boldText.font = .system(size: 17, weight: .bold, design: .default)
-                    text.append(AttributedString(" "))
-                    text.append(boldText)
+                    TextFormattingHelper.toggleBold(text: &text, selectedRange: selectedRange)
                 }) {
-                    Label("Bold", systemImage: "bold")
+                    Label(isBoldActive ? "Bold (is selected)" : "Bold", systemImage: "bold")
                 }
                 .tint(.primary)
             } label: {
@@ -168,6 +344,7 @@ struct MessageComposerWithSafeArea: View {
     @FocusState.Binding var isFocused: Bool
     var placeholder: String = "Add comment"
     var onSubmit: (() -> Void)?
+    var onDragStart: (() -> Void)?
     
     var body: some View {
         // The main content goes here
@@ -179,7 +356,8 @@ struct MessageComposerWithSafeArea: View {
                     text: $text,
                     isFocused: $isFocused,
                     placeholder: placeholder,
-                    onSubmit: onSubmit
+                    onSubmit: onSubmit,
+                    onDragStart: onDragStart
                 )
             }
     }

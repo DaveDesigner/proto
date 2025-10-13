@@ -14,6 +14,7 @@ struct PostDetails: View {
     @State private var hasUserToggled = false
 
     @State private var commentText = AttributedString("")
+    @State private var selectedRange: Range<AttributedString.Index>?
     @FocusState private var isCommentFieldFocused: Bool
     @State private var showCommentMode = false
     @State private var shouldMaintainFocus = false
@@ -155,7 +156,7 @@ struct PostDetails: View {
                     // Show MessageComposer when in comment mode
                     ToolbarItemGroup(placement: .bottomBar) {
                         // Format menu button
-                        MessageComposerFormatMenu(text: $commentText)
+                        MessageComposerFormatMenu(text: $commentText, selectedRange: $selectedRange)
                         
                         Spacer()
                         
