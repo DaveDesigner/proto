@@ -9,7 +9,6 @@ import SwiftUI
 
 struct PostDetails: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var isToolbarVisible = true
     @State private var isTabBarVisible = false
     @State private var hasUserToggled = false
 
@@ -57,12 +56,13 @@ struct PostDetails: View {
                     showCommentMode = false
                     isCommentFieldFocused = false
                     shouldMaintainFocus = false
+                    // Return to default state - hide tab bar (toolbar will show automatically)
+                    isTabBarVisible = false
                 }
             }
             .onAppear {
                 // Only reset to default state if user hasn't manually toggled
                 if !hasUserToggled {
-                    isToolbarVisible = true
                     isTabBarVisible = false
                 }
             }
@@ -72,9 +72,9 @@ struct PostDetails: View {
                         // Immediately return to default state when scrolling starts
                         // This also resets the user toggle flag so onAppear will work correctly next time
                         hasUserToggled = false
-                        isToolbarVisible = true
                         isTabBarVisible = false
                         showCommentMode = false
+                        // Return to default state (toolbar will show automatically when tab bar is hidden)
                         
                         // Also dismiss keyboard and reset comment mode when scrolling
                         if isCommentFieldFocused {
@@ -173,27 +173,26 @@ struct PostDetails: View {
                                 shouldMaintainFocus = false
                             },
                             onDragStart: {
-                                // Handle drag start on message composer
+                                // Handle drag start on message composer - return to default state
                                 hasUserToggled = false
-                                isToolbarVisible = true
                                 isTabBarVisible = false
-                                isCommentFieldFocused = false
                                 showCommentMode = false
+                                isCommentFieldFocused = false
                                 shouldMaintainFocus = false
+                                // Return to default state (toolbar will show automatically when tab bar is hidden)
                             }
                         )
                     }
-                } else {
-                    // Show toolbar when not in comment mode
+                } else if !isTabBarVisible {
+                    // Show toolbar when not in comment mode and tab bar is not visible
                     ToolbarItemGroup(placement: .bottomBar) {
                         // Tabbar toggle button
                         Button(action: {
                             // Mark that user has manually toggled
                             hasUserToggled = true
-                            // Toggle: when tab bar is visible, hide bottom toolbar; when tab bar is hidden, show bottom toolbar
+                            // Toggle tab bar visibility
                             isTabBarVisible.toggle()
-                            // Bottom toolbar visibility is opposite of tab bar visibility
-                            isToolbarVisible = !isTabBarVisible
+                            // Toolbar visibility is now controlled by the SwiftUI toolbar modifier
                         }) {
                             Image(systemName: "rectangle.fill.on.rectangle.angled.fill")
                                 .font(.body)
