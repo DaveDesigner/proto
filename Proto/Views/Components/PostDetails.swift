@@ -66,13 +66,14 @@ struct PostDetails: View {
                 }
             }
             .simultaneousGesture(
-                DragGesture()
+                DragGesture(minimumDistance: 10)
                     .onChanged { _ in
                         // Immediately return to default state when scrolling starts
                         // This also resets the user toggle flag so onAppear will work correctly next time
                         hasUserToggled = false
                         isToolbarVisible = true
                         isTabBarVisible = false
+                        showCommentMode = false
                         
                         // Also dismiss keyboard and reset comment mode when scrolling
                         if isCommentFieldFocused {
@@ -169,6 +170,15 @@ struct PostDetails: View {
                                 isCommentFieldFocused = false
                                 showCommentMode = false
                                 shouldMaintainFocus = false
+                            },
+                            onDragStart: {
+                                // Handle drag start on message composer
+                                hasUserToggled = false
+                                isToolbarVisible = true
+                                isTabBarVisible = false
+                                isCommentFieldFocused = false
+                                showCommentMode = false
+                                shouldMaintainFocus = false
                             }
                         )
                     }
@@ -192,9 +202,10 @@ struct PostDetails: View {
                         Spacer()
                         
                         // Fake text field
-                        Text("Add comment")
+                        Text(commentText.characters.isEmpty ? "Add comment" : String(commentText.characters.prefix(50)) + (commentText.characters.count > 50 ? "..." : ""))
                             .font(.body)
                             .foregroundStyle(.tertiary)
+                            .lineLimit(1)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 8)
                             .background(.clear)
