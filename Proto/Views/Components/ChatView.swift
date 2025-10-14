@@ -15,11 +15,11 @@ enum ChatContext {
 }
 
 // MARK: - Chat Participant Model
-struct ChatParticipant {
+struct ChatParticipant: Hashable {
     let id: String
     let name: String
-    let headline: String?
     let avatarImageIndex: Int?
+    let avatarImageName: String? // For static assets
     let isOnline: Bool
 }
 
@@ -40,9 +40,8 @@ struct ChatMessage {
 struct MediaAttachment {
     let id: String
     let type: MediaType
-    let url: String?
-    let thumbnailUrl: String?
     let name: String?
+    let imageIndex: Int? // For sequential image assignment with UnsplashService
 }
 
 enum MediaType {
@@ -65,7 +64,49 @@ struct ChatView: View {
     let onMessageTap: ((ChatMessage) -> Void)?
     let onParticipantTap: ((ChatParticipant) -> Void)?
     
-    @State private var scrollToBottom = false
+    @State private var messageText = AttributedString("")
+    @FocusState private var isMessageFocused: Bool
+    @State private var isTabBarVisible = false
+    @State private var hasUserToggled = false
+    @State private var selectedRange: Range<AttributedString.Index>?
+    @State private var showMessageMode = false
+    @State private var shouldMaintainFocus = false
+    
+    // Avatar caching
+    @ObservedObject private var unsplashService = UnsplashService.shared
+    @State private var cachedAvatars: [String: Image] = [:]
+    
+    // Computed property to help with toolbar updates
+    private var toolbarState: String {
+        "\(showMessageMode)-\(messageText.characters.isEmpty)-\(isMessageFocused)"
+    }
+    
+    // Preload avatar images for all participants
+    private func preloadAvatars() {
+        // Get unique participants from messages
+        let participants = Set(messages.map { $0.sender })
+        
+        for participant in participants {
+            if let imageIndex = participant.avatarImageIndex,
+               let photo = unsplashService.getPhoto(at: imageIndex) {
+                // Cache the avatar image
+                let cacheKey = "\(participant.id)_\(imageIndex)"
+                if cachedAvatars[cacheKey] == nil {
+                    // Load the image asynchronously and cache it
+                    Task {
+                        if let url = URL(string: photo.urls.small),
+                           let (data, _) = try? await URLSession.shared.data(from: url),
+                           let uiImage = UIImage(data: data) {
+                            let image = Image(uiImage: uiImage)
+                            await MainActor.run {
+                                cachedAvatars[cacheKey] = image
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     init(
         context: ChatContext,
@@ -82,126 +123,149 @@ struct ChatView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Chat Header
-            chatHeader
+        VStack {
             
-            // Messages List
             messagesList
-            
-            // Message Input Area (placeholder for now)
-            messageInputArea
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
-    }
-    
-    // MARK: - Chat Header
-    private var chatHeader: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                // Avatar section based on context
-                avatarSection
-                
-                // Title and subtitle section
-                titleSection
-                
-                Spacer()
-                
-                // Overflow menu button
-                Menu {
-                    // Context-specific menu items
-                    contextMenuItems
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.primary)
+            .onTapGesture {
+                // Dismiss message mode when tapping outside
+                if showMessageMode {
+                    showMessageMode = false
+                    isMessageFocused = false
+                    shouldMaintainFocus = false
+                    // Return to default state - hide tab bar (toolbar will show automatically)
+                    isTabBarVisible = false
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            
-            Divider()
-        }
-        .background(Color(.systemBackground))
-    }
-    
-    // MARK: - Avatar Section
-    private var avatarSection: some View {
-        Group {
-            switch context {
-            case .dm(let participant):
-                // Single avatar for DM
-                Avatar(
-                    initials: participant.name,
-                    variant: participant.isOnline ? .online() : .default(),
-                    imageIndex: participant.avatarImageIndex
-                )
-                .onTapGesture {
-                    onParticipantTap?(participant)
+            .onAppear {
+                // Only reset to default state if user hasn't manually toggled
+                if !hasUserToggled {
+                    isTabBarVisible = false
+                }
+                // Preload avatar images for all participants
+                preloadAvatars()
+            }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 10)
+                    .onChanged { _ in
+                        // Immediately return to default state when scrolling starts
+                        // This also resets the user toggle flag so onAppear will work correctly next time
+                        hasUserToggled = false
+                        isTabBarVisible = false
+                        showMessageMode = false
+                        // Return to default state (toolbar will show automatically when tab bar is hidden)
+                        
+                        // Also dismiss keyboard and reset message mode when scrolling
+                        if isMessageFocused {
+                            isMessageFocused = false
+                            showMessageMode = false
+                            shouldMaintainFocus = false
+                        }
+                    }
+            )
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    VStack(spacing: 2) {
+                        Text(chatTitle)
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                        
+                        if let subtitle = chatSubtitle {
+                            Text(subtitle)
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
                 }
                 
-            case .group(let participants):
-                // Group avatars (max 3 with overflow indicator)
-                groupAvatarStack(participants: participants)
-                
-            case .publicSpace:
-                // No avatar for public spaces
-                EmptyView()
-            }
-        }
-        .frame(width: 40, height: 40)
-    }
-    
-    // MARK: - Group Avatar Stack
-    private func groupAvatarStack(participants: [ChatParticipant]) -> some View {
-        ZStack {
-            // Show up to 3 avatars with overlap
-            ForEach(Array(participants.prefix(3).enumerated()), id: \.offset) { index, participant in
-                Avatar(
-                    initials: participant.name,
-                    variant: participant.isOnline ? .online() : .default(),
-                    imageIndex: participant.avatarImageIndex
-                )
-                .offset(x: CGFloat(index * 8))
-                .zIndex(Double(3 - index))
-                .onTapGesture {
-                    onParticipantTap?(participant)
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        contextMenuItems
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.body)
+                            .foregroundColor(.primary)
+                    }
                 }
             }
-            
-            // Overflow indicator if more than 3 participants
-            if participants.count > 3 {
-                Circle()
-                    .fill(Color(.systemGray4))
-                    .frame(width: 40, height: 40)
-                    .overlay(
-                        Text("+\(participants.count - 3)")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.secondary)
-                    )
-                    .offset(x: CGFloat(3 * 8))
-                    .zIndex(0)
+            .toolbar {
+                if showMessageMode {
+                    // Show MessageComposer when in message mode
+                    ToolbarItemGroup(placement: .bottomBar) {
+                        // Format menu button
+                        MessageComposerFormatMenu(text: $messageText, selectedRange: $selectedRange)
+                        
+                        Spacer()
+                        
+                        // MessageComposer input field
+                        MessageComposer(
+                            text: $messageText,
+                            isFocused: $isMessageFocused,
+                            placeholder: "Add message",
+                            onSubmit: {
+                                // Submit message
+                                messageText = AttributedString("")
+                                isMessageFocused = false
+                                showMessageMode = false
+                                shouldMaintainFocus = false
+                            },
+                            onDragStart: {
+                                // Handle drag start on message composer - return to default state
+                                hasUserToggled = false
+                                isTabBarVisible = false
+                                showMessageMode = false
+                                isMessageFocused = false
+                                shouldMaintainFocus = false
+                                // Return to default state (toolbar will show automatically when tab bar is hidden)
+                            }
+                        )
+                    }
+                } else if !isTabBarVisible {
+                    // Show toolbar when not in message mode and tab bar is not visible
+                    ToolbarItemGroup(placement: .bottomBar) {
+                        // Tabbar toggle button
+                        Button(action: {
+                            // Mark that user has manually toggled
+                            hasUserToggled = true
+                            // Toggle tab bar visibility
+                            isTabBarVisible.toggle()
+                            // Toolbar visibility is now controlled by the SwiftUI toolbar modifier
+                        }) {
+                            Image("Messages24")
+                                .font(.body)
+                                .foregroundColor(.primary)
+                        }
+                        
+                        Spacer()
+                        
+                        // Fake text field
+                        Text(messageText.characters.isEmpty ? "Add message" : String(messageText.characters.prefix(50)) + (messageText.characters.count > 50 ? "..." : ""))
+                            .font(.body)
+                            .foregroundStyle(.tertiary)
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 8)
+                            .background(.clear)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                shouldMaintainFocus = true
+                                showMessageMode = true
+                                // Immediately focus the text field when entering message mode
+                                DispatchQueue.main.async {
+                                    isMessageFocused = true
+                                }
+                            }
+                    }
+                }
             }
-        }
+            .toolbar(isTabBarVisible ? .visible : .hidden, for: .tabBar)
+            .animation(.easeInOut(duration: 0.3), value: isTabBarVisible)
     }
     
-    // MARK: - Title Section
-    private var titleSection: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(chatTitle)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(.primary)
-                .lineLimit(1)
-            
-            if let subtitle = chatSubtitle {
-                Text(subtitle)
-                    .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-            }
-        }
-    }
     
     // MARK: - Chat Title
     private var chatTitle: String {
@@ -217,14 +281,7 @@ struct ChatView: View {
     
     // MARK: - Chat Subtitle
     private var chatSubtitle: String? {
-        switch context {
-        case .dm(let participant):
-            return participant.headline
-        case .group(let participants):
-            return "\(participants.count) members"
-        case .publicSpace:
-            return "This is the beginning of your conversation"
-        }
+        return nil
     }
     
     // MARK: - Context Menu Items
@@ -232,26 +289,52 @@ struct ChatView: View {
         Group {
             switch context {
             case .dm:
-                Button("View Profile") { }
-                Button("Call") { }
-                Button("Video Call") { }
+                Button(action: { /* View Profile */ }) {
+                    Label("View Profile", systemImage: "person.circle")
+                }
+                Button(action: { /* Call */ }) {
+                    Label("Call", systemImage: "phone")
+                }
+                Button(action: { /* Video Call */ }) {
+                    Label("Video Call", systemImage: "video")
+                }
                 Divider()
-                Button("Mute Notifications") { }
-                Button("Block") { }
+                Button(action: { /* Mute Notifications */ }) {
+                    Label("Mute Notifications", systemImage: "bell.slash")
+                }
+                Button(action: { /* Block */ }) {
+                    Label("Block", systemImage: "person.crop.circle.badge.minus")
+                }
                 
             case .group:
-                Button("View Members") { }
-                Button("Group Info") { }
+                Button(action: { /* View Members */ }) {
+                    Label("View Members", systemImage: "person.2")
+                }
+                Button(action: { /* Group Info */ }) {
+                    Label("Group Info", systemImage: "info.circle")
+                }
                 Divider()
-                Button("Mute Notifications") { }
-                Button("Leave Group") { }
+                Button(action: { /* Mute Notifications */ }) {
+                    Label("Mute Notifications", systemImage: "bell.slash")
+                }
+                Button(action: { /* Leave Group */ }) {
+                    Label("Leave Group", systemImage: "rectangle.portrait.and.arrow.right")
+                }
                 
             case .publicSpace:
-                Button("Space Info") { }
-                Button("View Members") { }
+                Button(action: { /* Space Info */ }) {
+                    Label("Space Info", systemImage: "info.circle")
+                }
+                Button(action: { /* View Members */ }) {
+                    Label("View Members", systemImage: "person.2")
+                }
                 Divider()
-                Button("Mute Notifications") { }
-                Button("Leave Space") { }
+                Button(action: { /* Mute Notifications */ }) {
+                    Label("Mute Notifications", systemImage: "bell.slash")
+                }
+                Button(action: { /* Leave Space */ }) {
+                    Label("Leave Space", systemImage: "rectangle.portrait.and.arrow.right")
+                }
             }
         }
     }
@@ -260,20 +343,30 @@ struct ChatView: View {
     private var messagesList: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 0) {
+                LazyVStack(spacing: 12) {
                     // Messages with date dividers
                     ForEach(Array(messagesWithDividers.enumerated()), id: \.offset) { index, item in
                         if let divider = item as? DateDivider {
                             dateDividerView(divider)
                         } else if let message = item as? ChatMessage {
-                            messageView(message)
+                            VStack(spacing: 8) {
+                                messageView(message)
+                                
+                            }
                         }
                     }
+                    
+                    // Bottom spacer to ensure we can scroll to the very bottom
+                    Color.clear
+                        .frame(height: 1)
+                        .id("bottom")
                 }
-                .padding(.horizontal, 16)
             }
             .onAppear {
-                scrollToBottomIfNeeded(proxy: proxy)
+                // Scroll to bottom when the view appears
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    proxy.scrollTo("bottom", anchor: .bottom)
+                }
             }
         }
     }
@@ -306,23 +399,40 @@ struct ChatView: View {
     
     // MARK: - Date Divider View
     private func dateDividerView(_ divider: DateDivider) -> some View {
-        HStack {
-            Spacer()
-            Text(divider.formattedDate)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
-            Spacer()
+        VStack(spacing: 0) {
+            HStack {
+                // Left align with same inset as message content (72px from Figma spec)
+                Text(divider.formattedDate)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.quaternary)
+                    .padding(.leading, 68) // Align with message text content
+                
+                Spacer()
+            }
+            .padding(.vertical, 8)
+            
+            // Divider line
+            Rectangle()
+                .fill(Color(red: 0.89, green: 0.91, blue: 0.92)) // #e4e7eb - Separators/Opaque from Figma
+                .frame(height: 1)
+                .padding(.leading, 68) // Align with date text
+                .padding(.trailing, 16) // Add right padding to match message content
         }
-        .padding(.vertical, 8)
     }
     
     // MARK: - Message View
     private func messageView(_ message: ChatMessage) -> some View {
-        Message(
+        // Get cached avatar image if available
+        let cachedAvatarImage: Image?
+        if let imageIndex = message.sender.avatarImageIndex {
+            let cacheKey = "\(message.sender.id)_\(imageIndex)"
+            cachedAvatarImage = cachedAvatars[cacheKey]
+        } else {
+            cachedAvatarImage = nil
+        }
+        
+        return Message(
             data: MessageData(
                 id: message.id,
                 senderName: message.sender.name,
@@ -336,13 +446,16 @@ struct ChatView: View {
                 isGroupChat: isGroupChat,
                 groupAvatars: nil,
                 avatarImageIndex: message.sender.avatarImageIndex,
+                avatarImageName: message.sender.avatarImageName,
                 groupAvatarImageIndices: nil,
-                createdAt: message.timestamp
+                createdAt: message.timestamp,
+                mediaAttachments: message.mediaAttachments
             ),
             variant: .full,
             onTap: {
                 onMessageTap?(message)
-            }
+            },
+            cachedAvatarImage: cachedAvatarImage
         )
     }
     
@@ -356,35 +469,7 @@ struct ChatView: View {
         }
     }
     
-    // MARK: - Message Input Area
-    private var messageInputArea: some View {
-        VStack(spacing: 0) {
-            Divider()
-            
-            HStack(spacing: 12) {
-                // Placeholder for message input
-                Text("Message...")
-                    .font(.system(size: 17))
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(20)
-                
-                Spacer()
-                
-                // Send button placeholder
-                Button(action: {}) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.blue)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-        }
-        .background(Color(.systemBackground))
-    }
+    
     
     // MARK: - Helper Functions
     private func formatDate(_ date: Date) -> String {
@@ -399,13 +484,26 @@ struct ChatView: View {
         return formatter.string(from: date)
     }
     
-    private func scrollToBottomIfNeeded(proxy: ScrollViewProxy) {
-        if scrollToBottom, let lastMessage = messages.last {
-            withAnimation(.easeInOut(duration: 0.5)) {
-                proxy.scrollTo(lastMessage.id, anchor: UnitPoint.bottom)
-            }
+    private func testNetworkConnectivity() {
+        print("🌐 Testing network connectivity...")
+        guard let url = URL(string: "https://httpbin.org/get") else {
+            print("❌ Invalid test URL")
+            return
         }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("❌ Network test failed: \(error.localizedDescription)")
+                } else if let httpResponse = response as? HTTPURLResponse {
+                    print("✅ Network test successful: HTTP \(httpResponse.statusCode)")
+                } else {
+                    print("✅ Network test successful: Got response")
+                }
+            }
+        }.resume()
     }
+    
 }
 
 // MARK: - Preview
@@ -415,8 +513,8 @@ struct ChatView: View {
             context: .dm(participant: ChatParticipant(
                 id: "1",
                 name: "Mike Walero",
-                headline: "Product Designer at Circle",
                 avatarImageIndex: 0,
+                avatarImageName: nil,
                 isOnline: true
             )),
             messages: [
@@ -425,8 +523,8 @@ struct ChatView: View {
                     sender: ChatParticipant(
                         id: "1",
                         name: "Mike Walero",
-                        headline: nil,
                         avatarImageIndex: 0,
+                        avatarImageName: nil,
                         isOnline: true
                     ),
                     content: "Hey team, What's up?",
@@ -442,12 +540,46 @@ struct ChatView: View {
                     sender: ChatParticipant(
                         id: "2",
                         name: "Sarah Chen",
-                        headline: nil,
                         avatarImageIndex: 1,
+                        avatarImageName: nil,
                         isOnline: true
                     ),
                     content: "Not much, just working on the new features. How about you?",
                     timestamp: Date().addingTimeInterval(-1800),
+                    hasReplies: false,
+                    replyCount: 0,
+                    replyAvatars: [],
+                    hasNewMessage: false,
+                    mediaAttachments: nil
+                ),
+                ChatMessage(
+                    id: "3",
+                    sender: ChatParticipant(
+                        id: "1",
+                        name: "Mike Walero",
+                        avatarImageIndex: 0,
+                        avatarImageName: nil,
+                        isOnline: true
+                    ),
+                    content: "Just finished reviewing the design mockups. They look great!",
+                    timestamp: Date().addingTimeInterval(-900),
+                    hasReplies: false,
+                    replyCount: 0,
+                    replyAvatars: [],
+                    hasNewMessage: false,
+                    mediaAttachments: nil
+                ),
+                ChatMessage(
+                    id: "4",
+                    sender: ChatParticipant(
+                        id: "2",
+                        name: "Sarah Chen",
+                        avatarImageIndex: 1,
+                        avatarImageName: nil,
+                        isOnline: true
+                    ),
+                    content: "Awesome! I'll start implementing them tomorrow. Thanks for the feedback!",
+                    timestamp: Date().addingTimeInterval(-300),
                     hasReplies: false,
                     replyCount: 0,
                     replyAvatars: [],

@@ -14,7 +14,7 @@ struct CommunityTab: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.scenePhase) private var scenePhase
     @Binding var selectedTintColor: Color
-    @StateObject private var unsplashService = UnsplashService.shared
+    @ObservedObject private var unsplashService = UnsplashService.shared
     
     // Autoplay video management
     @State private var visibility: [UUID: CGFloat] = [:]
