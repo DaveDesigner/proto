@@ -262,7 +262,7 @@ struct ChatView: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     // Messages with date dividers
-                    ForEach(Array(messagesWithDividers.enumerated()), id: \.element.id) { index, item in
+                    ForEach(Array(messagesWithDividers.enumerated()), id: \.offset) { index, item in
                         if let divider = item as? DateDivider {
                             dateDividerView(divider)
                         } else if let message = item as? ChatMessage {
@@ -399,10 +399,10 @@ struct ChatView: View {
         return formatter.string(from: date)
     }
     
-    private func scrollToBottomIfNeeded(proxy: ScrollViewReader) {
+    private func scrollToBottomIfNeeded(proxy: ScrollViewProxy) {
         if scrollToBottom, let lastMessage = messages.last {
             withAnimation(.easeInOut(duration: 0.5)) {
-                proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                proxy.scrollTo(lastMessage.id, anchor: UnitPoint.bottom)
             }
         }
     }
