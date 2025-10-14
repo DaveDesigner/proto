@@ -32,6 +32,7 @@ This PR implements a comprehensive chat view system using the existing message c
 - **File Attachments**: Handle various file types with appropriate previews
 - **Media Loading States**: Show loading indicators and error states for media content
 - **Lightbox Integration**: Connect chat media to existing lightbox functionality
+- **Multiple Media Support**: Enable lightbox to display multiple attached images/media files in a single message
 
 ### 🎨 Design Implementation
 - **Figma Specifications**: Implement designs based on provided Figma specs
@@ -59,6 +60,8 @@ This PR implements a comprehensive chat view system using the existing message c
 - Connect chat media to existing lightbox functionality
 - Handle different media types with appropriate previews
 - Implement proper error states and loading indicators
+- **Multiple Media Lightbox**: Extend lightbox to support multiple attached images/media files
+- **Media Gallery Navigation**: Add swipe/gesture navigation between multiple media items
 
 ### 4. Context-Aware UI
 - Adapt message styling based on chat type (DM vs group vs public)
@@ -93,6 +96,9 @@ This PR implements a comprehensive chat view system using the existing message c
 - [ ] Connect chat media to existing lightbox functionality
 - [ ] Handle different media types with appropriate previews
 - [ ] Implement proper error states and loading indicators
+- [ ] **Extend lightbox to support multiple attached images/media files**
+- [ ] **Add swipe/gesture navigation between multiple media items in lightbox**
+- [ ] **Implement media gallery view with thumbnail navigation**
 
 ### Design Implementation
 - [ ] Implement designs based on provided Figma specifications
