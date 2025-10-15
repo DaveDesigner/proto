@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - Image Scaling Modifier
 struct ImageScalingModifier: ViewModifier {
@@ -60,8 +61,6 @@ struct LightboxNavigationLink<Label: View>: View {
                 namespace: namespace
             )
             .navigationTransition(.zoom(sourceID: sourceID, in: namespace))
-            //.navigationBarTitleDisplayMode(.inline)
-            //.toolbarBackground(.hidden, for: .navigationBar)
             .toolbar(.hidden, for: .tabBar)
         } label: {
             label()
@@ -134,6 +133,7 @@ struct LightboxView: View {
     @State private var magnification: CGFloat = 1.0
     @State private var lastMagnification: CGFloat = 1.0
     @State private var isZooming: Bool = false
+    @State private var showShareSheet: Bool = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var deviceColorScheme
     
@@ -245,6 +245,19 @@ struct LightboxView: View {
         }
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar(showToolbar ? .visible : .hidden, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: {
+                    showShareSheet = true
+                }) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+                //.tint(.primary)
+            }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: getShareItems())
+        }
     }
     
     // TEST: Extracted image content to computed property to simplify view hierarchy
@@ -470,6 +483,23 @@ struct LightboxView: View {
         }
     }
     
+    // MARK: - Share Functionality
+    private func getShareItems() -> [Any] {
+        var shareItems: [Any] = []
+        
+        if let sourceImage = sourceImage {
+            // For source images, we'll need to convert to UIImage
+            // This is a simplified approach - in a real app you might want to handle this differently
+            shareItems.append("Shared from Proto")
+        } else if let imageName = imageName {
+            shareItems.append("Shared from Proto")
+        } else if let imageURL = imageURL {
+            shareItems.append(imageURL)
+        }
+        
+        return shareItems
+    }
+    
 }
 
 // MARK: - Multi-Attachment Lightbox View
@@ -494,6 +524,7 @@ struct MultiAttachmentLightboxView: View {
     @State private var lastMagnification: CGFloat = 1.0
     @State private var isZooming: Bool = false
     @State private var scrollViewOffset: CGFloat = 0
+    @State private var showShareSheet: Bool = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var deviceColorScheme
     @ObservedObject private var unsplashService = UnsplashService.shared
@@ -595,6 +626,16 @@ struct MultiAttachmentLightboxView: View {
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar(showToolbar ? .visible : .hidden, for: .navigationBar)
         .toolbar {
+            // Share button in top trailing position
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: {
+                    showShareSheet = true
+                }) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundColor(isDarkMode ? .white : .black)
+                }
+            }
+            
             // Pagination dots in toolbar - only show if more than one attachment
             if attachments.count > 1 {
                 ToolbarItem(placement: .bottomBar) {
@@ -613,6 +654,9 @@ struct MultiAttachmentLightboxView: View {
                 }
                 .sharedBackgroundHidden()
             }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: getShareItems())
         }
     }
     
@@ -882,6 +926,23 @@ struct MultiAttachmentLightboxView: View {
             lastPanOffset = panOffset
         }
     }
+    
+    // MARK: - Share Functionality
+    private func getShareItems() -> [Any] {
+        var shareItems: [Any] = []
+        
+        // Get the current attachment
+        guard currentIndex < attachments.count else { return shareItems }
+        let currentAttachment = attachments[currentIndex]
+        
+        if let imageURL = getImageURL(for: currentAttachment) {
+            shareItems.append(imageURL)
+        } else {
+            shareItems.append("Shared from Proto")
+        }
+        
+        return shareItems
+    }
 }
 
 
@@ -926,6 +987,20 @@ extension View {
     }
 }
 
+// MARK: - Share Sheet
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
+        // No updates needed
+    }
+}
+
 // MARK: - Preview
 #Preview {
     struct LightboxPreview: View {
@@ -943,16 +1018,16 @@ extension View {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                     
-                    Image("Post")
+                    Image("Avatar")
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 200, height: 150)
+                        .frame(width: 200, height: 200)
                         .clipped()
                         .cornerRadius(12)
                         .matchedTransitionSource(id: "preview-image", in: animationNamespace)
                         .lightboxNavigation(
-                            imageName: "Post",
-                            sourceImage: Image("Post"),
+                            imageName: "Avatar",
+                            sourceImage: Image("Avatar"),
                             sourceID: "preview-image",
                             namespace: animationNamespace
                         )
