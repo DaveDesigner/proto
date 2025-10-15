@@ -10,6 +10,7 @@
 
 
 ## Features
+- **Chat conversation** examples with image attachments [PR #19](https://github.com/DaveDesigner/proto/pull/19)
 - **Format text** in message composer component [PR #18](https://github.com/DaveDesigner/proto/pull/18)
 - **Invite members** (interim until admin settings) [PR #17](https://github.com/DaveDesigner/proto/pull/17)
 - Autoplaying video preview on scroll in Feed [Draft PR](https://github.com/DaveDesigner/proto/pull/new/feature/video-demo-player)

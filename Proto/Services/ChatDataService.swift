@@ -15,11 +15,11 @@ class ChatDataService: ObservableObject {
     
     // MARK: - Public Interface
     func getConversationData(for messageData: MessageData) -> (context: ChatContext, messages: [ChatMessage]) {
-        return SimpleConversationData.createConversation(for: messageData)
+        return MessagesTabData.createConversation(for: messageData)
     }
     
     func getAllMessagePreviews() -> [MessageData] {
-        return SimpleConversationData.getAllMessagePreviews()
+        return MessagesTabData.getAllMessagePreviews()
     }
 }
 

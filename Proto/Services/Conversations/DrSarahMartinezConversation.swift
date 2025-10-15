@@ -20,7 +20,13 @@ struct DrSarahMartinezConversation {
         
         let context = ChatContext.dm(participant: drSara)
         
+        // Create explicit dates to ensure proper separation
+        let calendar = Calendar.current
+        let today = Date()
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        
         let messages = [
+            // Messages from yesterday (all read - no "New" indicator)
             ChatMessage(
                 id: "msg_1",
                 sender: ChatParticipant(
@@ -31,11 +37,11 @@ struct DrSarahMartinezConversation {
                     isOnline: true
                 ),
                 content: "Hi Kemi! I've been reviewing your leadership assessment results. The growth in your emotional intelligence scores is truly remarkable - you've improved by 40% since we started working together.",
-                timestamp: Date().addingTimeInterval(-3600), // 1 hour ago
+                timestamp: calendar.date(byAdding: .hour, value: -1, to: yesterday)!, // Yesterday, 1 hour ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: false,
+                hasNewMessage: false, // Read message
                 mediaAttachments: nil
             ),
             ChatMessage(
@@ -48,11 +54,11 @@ struct DrSarahMartinezConversation {
                     isOnline: false
                 ),
                 content: "Thank you so much, Dr. Martinez! That means a lot to me. I've been really focusing on the active listening techniques you taught me, and I can already see the difference in how my team responds.",
-                timestamp: Date().addingTimeInterval(-3300), // 55 minutes ago
+                timestamp: calendar.date(byAdding: .minute, value: -5, to: calendar.date(byAdding: .hour, value: -1, to: yesterday)!)!, // Yesterday, 55 minutes ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: false,
+                hasNewMessage: false, // Read message
                 mediaAttachments: nil
             ),
             ChatMessage(
@@ -65,13 +71,15 @@ struct DrSarahMartinezConversation {
                     isOnline: true
                 ),
                 content: "That's exactly what I was hoping to hear! The way you've been applying the emotional intelligence frameworks in your daily interactions shows real growth. How are you feeling about the upcoming team restructuring?",
-                timestamp: Date().addingTimeInterval(-3000), // 50 minutes ago
+                timestamp: calendar.date(byAdding: .minute, value: -10, to: calendar.date(byAdding: .hour, value: -1, to: yesterday)!)!, // Yesterday, 50 minutes ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: false,
+                hasNewMessage: false, // Read message
                 mediaAttachments: nil
             ),
+            
+            // Messages from today - newest unread message will show "New" indicator
             ChatMessage(
                 id: "msg_4",
                 sender: ChatParticipant(
@@ -82,11 +90,11 @@ struct DrSarahMartinezConversation {
                     isOnline: false
                 ),
                 content: "I'm actually feeling much more confident about it now. The conflict resolution strategies we practiced have been incredibly helpful. I had a difficult conversation with one of my direct reports yesterday, and it went much better than I expected.",
-                timestamp: Date().addingTimeInterval(-2700), // 45 minutes ago
+                timestamp: calendar.date(byAdding: .minute, value: -45, to: today)!, // Today, 45 minutes ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: false,
+                hasNewMessage: false, // Kemi's own message - not unread
                 mediaAttachments: nil
             ),
             ChatMessage(
@@ -99,11 +107,11 @@ struct DrSarahMartinezConversation {
                     isOnline: true
                 ),
                 content: "That's wonderful progress, Kemi! It sounds like you're really internalizing the coaching principles. Would you like to schedule our next session to discuss the team restructuring in more detail? I have some new frameworks that might be particularly relevant.",
-                timestamp: Date().addingTimeInterval(-2400), // 40 minutes ago
+                timestamp: calendar.date(byAdding: .minute, value: -40, to: today)!, // Today, 40 minutes ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: false,
+                hasNewMessage: false, // Unread message
                 mediaAttachments: nil
             ),
             ChatMessage(
@@ -116,11 +124,11 @@ struct DrSarahMartinezConversation {
                     isOnline: false
                 ),
                 content: "Yes, absolutely! I'd love to learn more about those frameworks. Would next Tuesday at 2 PM work for you? I'm particularly interested in how to maintain team morale during the transition.",
-                timestamp: Date().addingTimeInterval(-2100), // 35 minutes ago
+                timestamp: calendar.date(byAdding: .minute, value: -35, to: today)!, // Today, 35 minutes ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: false,
+                hasNewMessage: false, // Kemi's own message - not unread
                 mediaAttachments: nil
             ),
             ChatMessage(
@@ -133,11 +141,11 @@ struct DrSarahMartinezConversation {
                     isOnline: true
                 ),
                 content: "Perfect! Tuesday at 2 PM works great. I'll send you some pre-session materials about change management and team dynamics. You're asking exactly the right questions - maintaining morale during transitions is crucial for long-term success.",
-                timestamp: Date().addingTimeInterval(-1800), // 30 minutes ago
+                timestamp: calendar.date(byAdding: .minute, value: -30, to: today)!, // Today, 30 minutes ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: false,
+                hasNewMessage: false, // Unread message
                 mediaAttachments: nil
             ),
             ChatMessage(
@@ -150,11 +158,11 @@ struct DrSarahMartinezConversation {
                     isOnline: false
                 ),
                 content: "Thank you! I really appreciate all your guidance. I'll review the materials before our session. Looking forward to Tuesday!",
-                timestamp: Date().addingTimeInterval(-1500), // 25 minutes ago
+                timestamp: calendar.date(byAdding: .minute, value: -25, to: today)!, // Today, 25 minutes ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: false,
+                hasNewMessage: false, // Kemi's own message - not unread
                 mediaAttachments: nil
             ),
             ChatMessage(
@@ -167,11 +175,11 @@ struct DrSarahMartinezConversation {
                     isOnline: true
                 ),
                 content: "You're very welcome, Kemi. Remember, leadership is a journey, not a destination. You're doing excellent work, and I'm proud of the progress you've made. See you Tuesday!",
-                timestamp: Date().addingTimeInterval(-1200), // 20 minutes ago
+                timestamp: calendar.date(byAdding: .minute, value: -20, to: today)!, // Today, 20 minutes ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: false,
+                hasNewMessage: true, // this should trigger "New" on divider above this message
                 mediaAttachments: nil
             ),
             ChatMessage(
@@ -184,11 +192,11 @@ struct DrSarahMartinezConversation {
                     isOnline: true
                 ),
                 content: "These are my top 2 favourite photos from the trip",
-                timestamp: Date().addingTimeInterval(-600), // 10 minutes ago
+                timestamp: calendar.date(byAdding: .minute, value: -10, to: today)!, // Today, 10 minutes ago
                 hasReplies: false,
                 replyCount: 0,
                 replyAvatars: [],
-                hasNewMessage: true,
+                hasNewMessage: false,
                 mediaAttachments: [
                     MediaAttachment(
                         id: "1",

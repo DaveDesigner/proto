@@ -78,8 +78,8 @@ struct MessagesTab: View {
                                             }
                                         )
                                     }) {
-                                        // Use the Message component with preview variant for consistency, without Button wrapper
-                                        Message(data: messageData, variant: .preview, isButton: false)
+                                        // Use the Message component with messages tab context to show unread indicators, without Button wrapper
+                                        Message(data: messageData, variant: .full, context: .messagesTab, isButton: false)
                                     }
                                     .buttonStyle(PlainButtonStyle())
                                 }

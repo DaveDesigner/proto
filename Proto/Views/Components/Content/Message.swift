@@ -34,19 +34,27 @@ enum MessageVariant {
     case preview // Compact preview for inline chats
 }
 
+// MARK: - Message Context
+enum MessageContext {
+    case messagesTab // In messages tab - can show unread indicators
+    case conversation // In conversation view - never show unread indicators
+}
+
 // MARK: - Message Component
 struct Message: View {
     let data: MessageData
     let variant: MessageVariant
+    let context: MessageContext
     let onTap: (() -> Void)?
     let isButton: Bool
     let cachedAvatarImage: Image?
     
     @ObservedObject private var unsplashService = UnsplashService.shared
     
-    init(data: MessageData, variant: MessageVariant = .full, onTap: (() -> Void)? = nil, isButton: Bool = true, cachedAvatarImage: Image? = nil) {
+    init(data: MessageData, variant: MessageVariant = .full, context: MessageContext = .conversation, onTap: (() -> Void)? = nil, isButton: Bool = true, cachedAvatarImage: Image? = nil) {
         self.data = data
         self.variant = variant
+        self.context = context
         self.onTap = onTap
         self.isButton = isButton
         self.cachedAvatarImage = cachedAvatarImage
@@ -170,12 +178,12 @@ struct Message: View {
             
             Spacer(minLength: 0)
             
-            // New message indicator - only in full variant
-            if variant == .full && data.hasNewMessage {
-                Text("New")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color(red: 0.88, green: 0.18, blue: 0.18)) // #e02f2f - MessagingRed from Figma
+            // Unread indicator - only in messages tab context and full variant
+            if variant == .full && context == .messagesTab && data.hasNewMessage {
+                // Blue dot indicator per Figma spec
+                Circle()
+                    .fill(Color.blue)
+                    .frame(width: 8, height: 8)
             }
         }
     }
@@ -512,7 +520,7 @@ struct MessageAttachmentImageView: View {
             groupAvatarImageIndices: nil,
             createdAt: Date().addingTimeInterval(-3600), // 1 hour ago
             mediaAttachments: nil
-        ))
+        ), context: .messagesTab)
         
         Divider()
         
@@ -537,7 +545,7 @@ struct MessageAttachmentImageView: View {
             groupAvatarImageIndices: nil,
             createdAt: Date().addingTimeInterval(-7200), // 2 hours ago
             mediaAttachments: nil
-        ))
+        ), context: .messagesTab)
         
         Divider()
         

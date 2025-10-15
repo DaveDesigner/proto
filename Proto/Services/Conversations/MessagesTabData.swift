@@ -1,5 +1,5 @@
 //
-//  SimpleConversationData.swift
+//  MessagesTabData.swift
 //  Proto
 //
 //  Created by Dave Morgan on 28/08/2025.
@@ -7,10 +7,10 @@
 
 import Foundation
 
-// MARK: - Simple Conversation Data
-// This provides a minimal working implementation to fix the crash
+// MARK: - Messages Tab Data
+// This provides the data set for the messages tab content
 
-struct SimpleConversationData {
+struct MessagesTabData {
     static func getAllMessagePreviews() -> [MessageData] {
         return [
             // Recent messages (last few days)

@@ -54,7 +54,15 @@ enum MediaType {
 struct DateDivider {
     let date: Date
     let formattedDate: String
+    let hasNewMessage: Bool
 }
+
+// MARK: - New Message Indicator Model
+struct NewMessageIndicator {
+    let id = UUID().uuidString
+}
+
+
 
 // MARK: - Chat View Component
 struct ChatView: View {
@@ -353,6 +361,8 @@ struct ChatView: View {
                                 messageView(message)
                                 
                             }
+                        } else if item is NewMessageIndicator {
+                            newMessageIndicatorView()
                         }
                     }
                     
@@ -379,18 +389,35 @@ struct ChatView: View {
         let calendar = Calendar.current
         var currentDate: Date?
         
-        for message in messages.sorted(by: { $0.timestamp < $1.timestamp }) {
+        let sortedMessages = messages.sorted(by: { $0.timestamp < $1.timestamp })
+        
+        // Find the last read message to determine where to place the "New" indicator
+        let lastReadMessage = sortedMessages.last { !$0.hasNewMessage }
+        let newestUnreadMessage = sortedMessages.last { $0.hasNewMessage }
+        let newestUnreadDate = newestUnreadMessage.map { calendar.startOfDay(for: $0.timestamp) }
+        
+        for message in sortedMessages {
             let messageDate = calendar.startOfDay(for: message.timestamp)
             
+            // If this is a new date, add a date divider first
             if currentDate != messageDate {
-                currentDate = messageDate
+                // Don't show "New" indicator on date dividers - use standalone indicator instead
+                let shouldShowNewIndicator = false
                 let divider = DateDivider(
                     date: messageDate,
-                    formattedDate: formatDate(messageDate)
+                    formattedDate: formatDate(messageDate),
+                    hasNewMessage: shouldShowNewIndicator
                 )
                 items.append(divider)
+                currentDate = messageDate
             }
             
+            // Add standalone "New" indicator before the newest unread message
+            if message.id == newestUnreadMessage?.id {
+                items.append(NewMessageIndicator())
+            }
+            
+            // Add the message
             items.append(message)
         }
         
@@ -409,14 +436,47 @@ struct ChatView: View {
                     .padding(.leading, 68) // Align with message text content
                 
                 Spacer()
+                
+                // New message indicator - only show when there are unread messages for this date
+                if divider.hasNewMessage {
+                    Text("New")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color(red: 0.88, green: 0.18, blue: 0.18)) // #e02f2f - MessagingRed from Figma
+                        .padding(.trailing, 16) // Align with message content
+                }
             }
             .padding(.vertical, 8)
             
-            // Divider line
+            // Divider line - use red color when showing "New" indicator
             Rectangle()
-                .fill(Color(red: 0.89, green: 0.91, blue: 0.92)) // #e4e7eb - Separators/Opaque from Figma
+                .fill(divider.hasNewMessage ? Color(red: 0.88, green: 0.18, blue: 0.18) : Color(red: 0.89, green: 0.91, blue: 0.92)) // Red when new, otherwise #e4e7eb - Separators/Opaque from Figma
                 .frame(height: 1)
                 .padding(.leading, 68) // Align with date text
+                .padding(.trailing, 16) // Add right padding to match message content
+        }
+    }
+    
+    // MARK: - New Message Indicator View
+    private func newMessageIndicatorView() -> some View {
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                
+                // New message indicator
+                Text("New")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(Color(red: 0.88, green: 0.18, blue: 0.18)) // #e02f2f - MessagingRed from Figma
+                    .padding(.trailing, 16) // Align with message content
+            }
+            .padding(.vertical, 8)
+            
+            // Divider line - red color to match the "New" text
+            Rectangle()
+                .fill(Color(red: 0.88, green: 0.18, blue: 0.18)) // #e02f2f - MessagingRed from Figma
+                .frame(height: 1)
+                .padding(.leading, 68) // Align with message content
                 .padding(.trailing, 16) // Add right padding to match message content
         }
     }
@@ -452,6 +512,7 @@ struct ChatView: View {
                 mediaAttachments: message.mediaAttachments
             ),
             variant: .full,
+            context: .conversation,
             onTap: {
                 onMessageTap?(message)
             },
