@@ -284,19 +284,19 @@ struct Message: View {
     // MARK: - Attachments Section
     private func attachmentsSection(_ attachments: [MediaAttachment]) -> some View {
         HStack(spacing: 5) {
-            ForEach(attachments, id: \.id) { attachment in
-                attachmentView(attachment)
+            ForEach(Array(attachments.enumerated()), id: \.element.id) { index, attachment in
+                attachmentView(attachment, attachments: attachments, index: index)
             }
         }
         .padding(.top, 8)
     }
     
     // MARK: - Individual Attachment View
-    private func attachmentView(_ attachment: MediaAttachment) -> some View {
+    private func attachmentView(_ attachment: MediaAttachment, attachments: [MediaAttachment], index: Int) -> some View {
         Group {
             switch attachment.type {
             case .image:
-                imageAttachmentView(attachment)
+                imageAttachmentView(attachment, attachments: attachments, index: index)
             case .video:
                 videoAttachmentView(attachment)
             case .file:
@@ -307,14 +307,16 @@ struct Message: View {
     
     // MARK: - Image Attachment View
     @ViewBuilder
-    private func imageAttachmentView(_ attachment: MediaAttachment) -> some View {
+    private func imageAttachmentView(_ attachment: MediaAttachment, attachments: [MediaAttachment], index: Int) -> some View {
         // Use the imageIndex from the attachment, with fallback to 0
         let imageIndex = attachment.imageIndex ?? 0
         
         // Create a stable view component with a stable identity
         MessageAttachmentImageView(
             attachmentId: attachment.id,
-            imageIndex: imageIndex
+            imageIndex: imageIndex,
+            attachments: attachments,
+            initialIndex: index
         )
         .id("attachment-\(attachment.id)-\(imageIndex)") // Stable identity to prevent recreation
     }
@@ -389,6 +391,8 @@ struct Message: View {
 struct MessageAttachmentImageView: View {
     let attachmentId: String
     let imageIndex: Int
+    let attachments: [MediaAttachment]
+    let initialIndex: Int
     
     @ObservedObject private var unsplashService = UnsplashService.shared
     @State private var loadedImage: Image?
@@ -410,12 +414,13 @@ struct MessageAttachmentImageView: View {
                         id: "chat-attachment-\(attachmentId)",
                         in: animationNamespace
                     )
-                    .lightboxNavigation(
-                        imageURL: getImageURL(),
-                        sourceImage: loadedImage,
+                    .modifier(LightboxNavigationModifier(
+                        attachments: attachments,
+                        initialIndex: initialIndex,
                         sourceID: "chat-attachment-\(attachmentId)",
-                        namespace: animationNamespace
-                    )
+                        namespace: animationNamespace,
+                        sourceImage: loadedImage
+                    ))
             } else if hasError {
                 // Show error state
                 RoundedRectangle(cornerRadius: 16)
@@ -491,6 +496,50 @@ struct MessageAttachmentImageView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Lightbox Navigation Modifier
+struct LightboxNavigationModifier: ViewModifier {
+    let attachments: [MediaAttachment]
+    let initialIndex: Int
+    let sourceID: String
+    let namespace: Namespace.ID
+    let sourceImage: Image?
+    
+    func body(content: Content) -> some View {
+        if attachments.count > 1 {
+            // Use multi-attachment lightbox for multiple attachments
+            content
+                .multiAttachmentLightboxNavigation(
+                    attachments: attachments,
+                    initialIndex: initialIndex,
+                    sourceID: sourceID,
+                    namespace: namespace,
+                    sourceImage: sourceImage
+                )
+        } else if let attachment = attachments.first {
+            // Use single attachment lightbox for single attachment
+            content
+                .lightboxNavigation(
+                    imageURL: getImageURL(for: attachment),
+                    sourceImage: sourceImage,
+                    sourceID: sourceID,
+                    namespace: namespace
+                )
+        } else {
+            // Fallback - no lightbox
+            content
+        }
+    }
+    
+    private func getImageURL(for attachment: MediaAttachment) -> URL? {
+        guard let imageIndex = attachment.imageIndex else { return nil }
+        
+        // Use UnsplashService to get the URL
+        let unsplashService = UnsplashService.shared
+        guard let photo = unsplashService.getPhoto(at: imageIndex) else { return nil }
+        return URL(string: photo.urls.full)
     }
 }
 
