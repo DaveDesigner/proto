@@ -178,8 +178,8 @@ struct Message: View {
             
             Spacer(minLength: 0)
             
-            // Unread indicator - only in messages tab context and full variant
-            if variant == .full && context == .messagesTab && data.hasNewMessage {
+            // Unread indicator - only in messages tab context (both full and preview variants)
+            if context == .messagesTab && data.hasNewMessage {
                 // Blue dot indicator per Figma spec
                 Circle()
                     .fill(Color.blue)
