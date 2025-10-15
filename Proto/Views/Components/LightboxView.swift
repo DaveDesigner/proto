@@ -521,43 +521,8 @@ struct MultiAttachmentLightboxView: View {
                     .opacity(opacity)
                     .ignoresSafeArea()
                 
-                // ScrollView for horizontal pagination
-                if attachments.count > 1 {
-                    ScrollViewReader { proxy in
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 0) {
-                                ForEach(Array(attachments.enumerated()), id: \.element.id) { index, attachment in
-                                    singleImageLightboxView(attachment: attachment, geometry: geometry)
-                                        .frame(width: geometry.size.width, height: geometry.size.height)
-                                        .id(index)
-                                }
-                            }
-                        }
-                        .scrollTargetBehavior(.paging)
-                        .onAppear {
-                            // Scroll to initial index
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    proxy.scrollTo(initialIndex, anchor: .center)
-                                }
-                            }
-                        }
-                        .onChange(of: currentIndex) { _, newIndex in
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                proxy.scrollTo(newIndex, anchor: .center)
-                            }
-                        }
-                    }
-                } else if let attachment = attachments.first {
-                    // Single image - use the same view as single attachment lightbox
-                    singleImageLightboxView(attachment: attachment, geometry: geometry)
-                }
-                
-                // Pagination dots - only show if more than one attachment
-                if attachments.count > 1 {
-                    paginationDots
-                        .position(x: geometry.size.width / 2, y: geometry.size.height - 100)
-                }
+                // Image content
+                imageContent(geometry: geometry)
             }
             .offset(dismissOffset)
             .gesture(
@@ -629,11 +594,59 @@ struct MultiAttachmentLightboxView: View {
         }
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar(showToolbar ? .visible : .hidden, for: .navigationBar)
+        .toolbar {
+            // Pagination dots in toolbar - only show if more than one attachment
+            if attachments.count > 1 {
+                ToolbarItem(placement: .bottomBar) {
+                    HStack(spacing: 8) {
+                        ForEach(0..<attachments.count, id: \.self) { index in
+                            Image(systemName: "circle.fill")
+                                .foregroundColor(isDarkMode ? .white : .black)
+                                .font(.system(size: 7))
+                                .opacity(index == currentIndex ? 0.4 : 0.3)
+                                .scaleEffect(index == currentIndex ? 1.2 : 1.0)
+                                .animation(.easeInOut(duration: 0.2), value: currentIndex)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+                .sharedBackgroundHidden()
+            }
+        }
+    }
+    
+    // MARK: - Image Content
+    @ViewBuilder
+    private func imageContent(geometry: GeometryProxy) -> some View {
+        if attachments.count > 1 {
+            TabView(selection: $currentIndex) {
+                ForEach(Array(attachments.enumerated()), id: \.element.id) { index, attachment in
+                    singleImageLightboxView(attachment: attachment, geometry: geometry, isCurrentImage: index == currentIndex)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                        .tag(index)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .allowsHitTesting(!isFillMode) // Disable tab swiping when in fill mode
+            .ignoresSafeArea()
+            .onAppear {
+                currentIndex = initialIndex
+            }
+            .onChange(of: currentIndex) { _, newIndex in
+                resetZoomState()
+            }
+        } else if let attachment = attachments.first {
+            // Single image - use the same view as single attachment lightbox
+            singleImageLightboxView(attachment: attachment, geometry: geometry)
+                .ignoresSafeArea()
+        }
     }
     
     // MARK: - Single Image Lightbox View
     @ViewBuilder
-    private func singleImageLightboxView(attachment: MediaAttachment, geometry: GeometryProxy) -> some View {
+    private func singleImageLightboxView(attachment: MediaAttachment, geometry: GeometryProxy, isCurrentImage: Bool = true) -> some View {
         if attachment.type == .image {
             // Check if this is the initial attachment and we have a source image
             let isInitialAttachment = attachments.firstIndex(where: { $0.id == attachment.id }) == initialIndex
@@ -642,13 +655,13 @@ struct MultiAttachmentLightboxView: View {
                 // Use the source image for the initial attachment to enable smooth transition
                 sourceImage
                     .resizable()
-                    .modifier(ImageScalingModifier(isFillMode: isFillMode, magnification: magnification))
+                    .modifier(ImageScalingModifier(isFillMode: isCurrentImage ? isFillMode : false, magnification: isCurrentImage ? magnification : 1.0))
             } else {
                 // Use AsyncImage for other attachments
                 AsyncImage(url: getImageURL(for: attachment)) { image in
                     image
                         .resizable()
-                        .modifier(ImageScalingModifier(isFillMode: isFillMode, magnification: magnification))
+                        .modifier(ImageScalingModifier(isFillMode: isCurrentImage ? isFillMode : false, magnification: isCurrentImage ? magnification : 1.0))
                 } placeholder: {
                     // Use a placeholder that matches the source image if available
                     RoundedRectangle(cornerRadius: 12)
@@ -696,6 +709,20 @@ struct MultiAttachmentLightboxView: View {
             return nil
         }
         return URL(string: photo.urls.full)
+    }
+    
+    private func resetZoomState() {
+        // Reset zoom and pan state when navigating between images
+        withAnimation(.easeInOut(duration: 0.3)) {
+            isFillMode = false
+            magnification = 1.0
+            lastMagnification = 1.0
+            panOffset = .zero
+            lastPanOffset = .zero
+            dismissOffset = .zero
+            isDismissing = false
+            isZooming = false
+        }
     }
     
     // MARK: - ScrollView Change Handler
