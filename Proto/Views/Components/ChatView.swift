@@ -215,9 +215,9 @@ struct ChatView: View {
                     ToolbarItemGroup(placement: .bottomBar) {
                         // Conditional menu button - formatting menu when text is selected, full menu otherwise
                         if hasTextSelection {
-                            MessageComposerFormattingMenu(text: $messageText, selectedRange: $selectedRange)
+                            MessageComposerFormattingMenu(text: $messageText, selection: $messageSelection)
                         } else {
-                            MessageComposerFormatMenu(text: $messageText, selectedRange: $selectedRange)
+                            MessageComposerFormatMenu(text: $messageText, selection: $messageSelection)
                         }
 
                         Spacer()

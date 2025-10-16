@@ -167,9 +167,9 @@ struct PostDetails: View {
                     ToolbarItemGroup(placement: .bottomBar) {
                         // Conditional menu button - formatting menu when text is selected, full menu otherwise
                         if hasTextSelection {
-                            MessageComposerFormattingMenu(text: $commentText, selectedRange: $selectedRange)
+                            MessageComposerFormattingMenu(text: $commentText, selection: $commentSelection)
                         } else {
-                            MessageComposerFormatMenu(text: $commentText, selectedRange: $selectedRange)
+                            MessageComposerFormatMenu(text: $commentText, selection: $commentSelection)
                         }
 
                         Spacer()
