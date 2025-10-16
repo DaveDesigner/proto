@@ -144,19 +144,30 @@ Proto/
 │           ├── AdminSettingsSheet.swift
 │           ├── DraftsSheet.swift
 │           └── SheetTemplate.swift   # Base template
+├── MockData/                         # Centralized mock data
+│   ├── README.md
+│   ├── Messages/                     # Chat & messaging data
+│   │   ├── MessagesTabData.swift
+│   │   ├── DrSarahMartinezConversation.swift
+│   │   ├── MichaelJenniferConversation.swift
+│   │   └── DefaultConversation.swift
+│   ├── Community/                    # Feed posts (future)
+│   ├── Notifications/                # Notifications (future)
+│   ├── Users/                        # User profiles (future)
+│   └── Media/                        # Media references (future)
 ├── Services/
-│   ├── ChatDataService.swift        # Chat orchestration
-│   ├── UnsplashService.swift        # Image fetching
-│   └── Conversations/               # Mock conversation data
+│   ├── ChatDataService.swift        # Chat orchestration (uses MockData)
+│   └── UnsplashService.swift        # Image fetching
 ├── Extensions/
 │   ├── View+Extensions.swift
 │   └── Color+Extensions.swift
 ├── Assets.xcassets                  # Colors, icons, images
 ├── .claude/
 │   ├── claude.md                    # This file - project memory
+│   ├── mock-data-strategy.md        # Mock data organization strategy
 │   └── settings.local.json          # Claude Code settings
 ├── docs/
-│   └── archive/                     # Old documentation
+│   └── archive/                     # Old documentation & Figma dumps
 └── README.md                        # GitHub documentation
 ```
 
@@ -535,6 +546,17 @@ RoundedRectangle(cornerRadius: 12)
 **[2025-10-16] Documentation Organization**
 - **Decision**: Move project memory to `.claude/claude.md`, archive old docs to `docs/archive/`
 - **Rationale**: Keep root directory clean, only README.md visible on GitHub
+- **Status**: Active
+
+**[2025-10-16] Unified Mock Data Organization**
+- **Decision**: Create centralized `Proto/MockData/` directory organized by domain (Messages, Community, Notifications, Users, Media)
+- **Rationale**:
+  - Eliminates inconsistency between unused Figma JSON dumps and Swift mock data
+  - Provides clear organizational pattern for future development
+  - Separates data definitions from service logic
+  - Prepares for easy backend integration via protocol-based data sources
+- **Migration**: Moved `Services/Conversations/` → `MockData/Messages/`, archived 6 unused Figma JSON files (~400KB)
+- **Trade-offs**: One-time migration effort, but establishes scalable pattern
 - **Status**: Active
 
 ---
