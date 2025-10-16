@@ -12,6 +12,23 @@
 2. Use modern iOS 18+ patterns: NavigationStack, TabView with native tabs, Sheet detents, Liquid Glass materials
 3. Leverage iOS 26 features when available: `.glassEffect()`, `.sharedBackgroundVisibility()`
 
+### Development Workflow
+
+**Build & Test Before Completing Tasks**
+- **CRITICAL**: Always run the app in iPhone 16 Simulator before marking a task/todo as complete
+- Verify no build errors or warnings
+- Fix any issues discovered during testing in the same work cycle
+- Test affected features and user flows
+- Check console for runtime errors or warnings
+
+**Testing Checklist**
+- [ ] App builds successfully without errors
+- [ ] No new warnings introduced
+- [ ] Xcode Preview renders correctly
+- [ ] Feature works in iPhone 16 Simulator
+- [ ] No console errors or warnings during testing
+- [ ] Related features still work (no regressions)
+
 ### Design Implementation
 
 **CRITICAL: Never implement based on written descriptions when Figma designs are provided**
@@ -694,8 +711,13 @@ Backlog → Triage → In Progress → Review → Done
 1. Pull latest `main`
 2. Create feature branch
 3. Implement with frequent commits
-4. Test in Preview and Simulator
-5. Open PR when complete
+4. **Test in iPhone 16 Simulator** before marking tasks complete
+   - Build and run the app (Cmd + R)
+   - Verify no build errors or warnings
+   - Test affected features and user flows
+   - Check console for runtime errors
+   - Fix any issues before proceeding
+5. Open PR when complete and tested
 
 **Code Review Expectations**
 - Respond to reviews within 24 hours
