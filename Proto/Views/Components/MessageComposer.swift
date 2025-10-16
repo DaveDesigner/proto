@@ -215,24 +215,11 @@ struct MessageComposerFormattingMenu: View {
         Menu {
             // Formatting options only - no attachments or mentions
             // Displayed at top level when text is selected
+            // Order matches the full format menu submenu
             Button(action: {
-                TextFormattingHelper.toggleBold(text: &text, selection: &selection)
+                TextFormattingHelper.addLink(text: &text, selection: &selection)
             }) {
-                Label("Bold", systemImage: "bold")
-            }
-            .tint(.primary)
-
-            Button(action: {
-                TextFormattingHelper.toggleItalic(text: &text, selection: &selection)
-            }) {
-                Label("Italic", systemImage: "italic")
-            }
-            .tint(.primary)
-
-            Button(action: {
-                TextFormattingHelper.toggleUnderline(text: &text, selection: &selection)
-            }) {
-                Label("Underline", systemImage: "underline")
+                Label("Link", systemImage: "link")
             }
             .tint(.primary)
 
@@ -244,9 +231,23 @@ struct MessageComposerFormattingMenu: View {
             .tint(.primary)
 
             Button(action: {
-                TextFormattingHelper.addLink(text: &text, selection: &selection)
+                TextFormattingHelper.toggleUnderline(text: &text, selection: &selection)
             }) {
-                Label("Link", systemImage: "link")
+                Label("Underline", systemImage: "underline")
+            }
+            .tint(.primary)
+
+            Button(action: {
+                TextFormattingHelper.toggleItalic(text: &text, selection: &selection)
+            }) {
+                Label("Italic", systemImage: "italic")
+            }
+            .tint(.primary)
+
+            Button(action: {
+                TextFormattingHelper.toggleBold(text: &text, selection: &selection)
+            }) {
+                Label("Bold", systemImage: "bold")
             }
             .tint(.primary)
         } label: {
