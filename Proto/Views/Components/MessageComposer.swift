@@ -251,6 +251,7 @@ struct MessageComposerFormattingMenu: View {
             .tint(.primary)
         } label: {
             Image(systemName: "bold.italic.underline")
+                .font(.system(size: 13))
         }
     }
 }
