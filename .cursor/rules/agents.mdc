@@ -1,0 +1,6 @@
+---
+description: Project rules
+globs: []
+alwaysApply: true
+---
+@file ../../AGENTS.md
