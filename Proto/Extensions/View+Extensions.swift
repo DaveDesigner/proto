@@ -13,6 +13,11 @@ extension View {
     public func standardHorizontalPadding() -> some View {
         self.padding(.horizontal, 16)
     }
+    
+    /// Alias for matchedGeometryEffect for lightbox transitions
+    public func matchedTransitionSource(id: String, in namespace: Namespace.ID) -> some View {
+        self.matchedGeometryEffect(id: id, in: namespace)
+    }
 }
 
 // MARK: - Shared Background Visibility

@@ -110,7 +110,7 @@ struct NotificationBadge: View {
 struct Notification: View {
     let data: NotificationData
     @Binding var selectedTintColor: Color
-    @StateObject private var unsplashService = UnsplashService.shared
+    @ObservedObject private var unsplashService = UnsplashService.shared
     @Environment(\.colorScheme) private var colorScheme
     
     // Computed properties for adaptive accent color and text contrast

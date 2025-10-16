@@ -56,11 +56,16 @@ class UnsplashService: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var error: String?
     
+    // Session ID for cache-busting - generated once per app launch
+    let sessionId: String
+    
     private let baseURL = "https://api.unsplash.com"
     private let accessKey = "rvF-wl7RcIsygQqBTDx6CD-3mMoigi6KB48U7xsqmkM"
     private let featuredEndpoint = "/photos"
     
     private init() {
+        // Generate a unique session ID for this app launch
+        self.sessionId = UUID().uuidString
         loadFeaturedPhotos()
     }
     
@@ -80,16 +85,11 @@ class UnsplashService: ObservableObject {
         isLoading = true
         error = nil
         
-        print("🔄 Starting to load featured photos...")
-        
         guard let url = URL(string: "\(baseURL)\(featuredEndpoint)?per_page=30&order_by=latest") else {
             error = "Invalid URL"
             isLoading = false
-            print("❌ Invalid URL")
             return
         }
-        
-        print("🌐 Making request to: \(url)")
         
         var request = URLRequest(url: url)
         request.setValue("Client-ID \(accessKey)", forHTTPHeaderField: "Authorization")
@@ -100,34 +100,21 @@ class UnsplashService: ObservableObject {
                 
                 if let error = error {
                     self?.error = error.localizedDescription
-                    print("❌ Network error: \(error.localizedDescription)")
                     return
-                }
-                
-                if let httpResponse = response as? HTTPURLResponse {
-                    print("📡 HTTP Status: \(httpResponse.statusCode)")
                 }
                 
                 guard let data = data else {
                     self?.error = "No data received"
-                    print("❌ No data received")
                     return
                 }
-                
-                print("📦 Received \(data.count) bytes of data")
                 
                 do {
                     let photos = try JSONDecoder().decode([UnsplashPhoto].self, from: data)
                     self?.featuredPhotos = photos
-                    print("✅ Successfully loaded \(photos.count) photos")
                     // Reset the image counter when new photos are loaded
                     PostPreview.resetImageCounter()
                 } catch {
                     self?.error = "Failed to decode photos: \(error.localizedDescription)"
-                    print("❌ Decode error: \(error.localizedDescription)")
-                    if let jsonString = String(data: data, encoding: .utf8) {
-                        print("📄 Raw response: \(String(jsonString.prefix(500)))...")
-                    }
                 }
             }
         }.resume()
@@ -135,22 +122,16 @@ class UnsplashService: ObservableObject {
     
     /// Get a photo by index (for sequential assignment)
     func getPhoto(at index: Int) -> UnsplashPhoto? {
-        print("🔍 getPhoto called with index \(index), featuredPhotos.count = \(featuredPhotos.count)")
         guard !featuredPhotos.isEmpty else { 
-            print("❌ featuredPhotos is empty")
             return nil 
         }
         let photo = featuredPhotos[index % featuredPhotos.count]
-        print("✅ Found photo: \(photo.id)")
         return photo
     }
     
     /// Create a dynamic image view using Unsplash photos with lightbox support
     func createAsyncImage(width: Int? = 400, height: Int? = 300, imageIndex: Int = 0, enableLightbox: Bool = true, @ViewBuilder content: @escaping (Image) -> some View) -> some View {
         if let photo = getPhoto(at: imageIndex) {
-            print("🖼️ Creating AsyncImage for photo: \(photo.id) at index \(imageIndex)")
-            print("🖼️ Image URL: \(photo.urls.regular)")
-            
             return AnyView(
                 UnsplashImageView(
                     photo: photo,
@@ -161,7 +142,6 @@ class UnsplashService: ObservableObject {
                 )
             )
         } else {
-            print("❌ No photo found for index \(imageIndex)")
             return AnyView(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.orange.opacity(0.3))
@@ -255,36 +235,69 @@ struct UnsplashImageView: View {
     }
     
     var body: some View {
-        AsyncImage(url: URL(string: photo.urls.regular)) { image in
-            image
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
-                .frame(height: height != nil ? CGFloat(height!) : nil)
-                .clipped()
-                .cornerRadius(16)
-                .overlay(
-                    content(image)
-                )
-                .matchedTransitionSource(
-                    id: "unsplash-\(photo.id)",
-                    in: animationNamespace
-                )
-                .lightboxNavigation(
-                    imageURL: URL(string: photo.urls.full),
-                    sourceImage: image,
-                    sourceID: "unsplash-\(photo.id)",
-                    namespace: animationNamespace
-                )
-        } placeholder: {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.gray.opacity(0.3))
-                .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
-                .frame(height: height != nil ? CGFloat(height!) : nil)
-                .overlay(
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                )
+        AsyncImage(url: URL(string: photo.urls.regular)) { phase in
+            switch phase {
+            case .success(let image):
+                image
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
+                    .frame(height: height != nil ? CGFloat(height!) : nil)
+                    .clipped()
+                    .cornerRadius(16)
+                    .overlay(
+                        content(image)
+                    )
+                    .matchedTransitionSource(
+                        id: "unsplash-\(photo.id)",
+                        in: animationNamespace
+                    )
+                    .lightboxNavigation(
+                        imageURL: URL(string: photo.urls.full),
+                        sourceImage: image,
+                        sourceID: "unsplash-\(photo.id)",
+                        namespace: animationNamespace
+                    )
+            case .failure(let error):
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.red.opacity(0.3))
+                    .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
+                    .frame(height: height != nil ? CGFloat(height!) : nil)
+                    .overlay(
+                        VStack {
+                            Text("❌ Failed to load")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                            Text("Photo: \(photo.id)")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    )
+            case .empty:
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
+                    .frame(height: height != nil ? CGFloat(height!) : nil)
+                    .overlay(
+                        VStack {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                            Text("Loading...")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    )
+            @unknown default:
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.orange.opacity(0.3))
+                    .frame(maxWidth: width != nil ? CGFloat(width!) : .infinity)
+                    .frame(height: height != nil ? CGFloat(height!) : nil)
+                    .overlay(
+                        Text("Unknown state")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    )
+            }
         }
     }
 }

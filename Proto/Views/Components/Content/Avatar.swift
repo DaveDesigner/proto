@@ -46,7 +46,7 @@ struct Avatar: View {
     let imageIndex: Int? // For Unsplash integration
     let secondImageIndex: Int? // For group avatars - second image
     
-    @StateObject private var unsplashService = UnsplashService.shared
+    @ObservedObject private var unsplashService = UnsplashService.shared
     
     init(initials: String? = nil, imageName: String? = nil, variant: AvatarVariant = .default(), isOnline: Bool = false, imageIndex: Int? = nil, secondImageIndex: Int? = nil) {
         self.initials = initials

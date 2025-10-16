@@ -9,6 +9,13 @@ import SwiftUI
 
 @main
 struct ProtoApp: App {
+    // Initialize UnsplashService early to start loading photos
+    private let unsplashService = UnsplashService.shared
+    
+    init() {
+        print("🚀 ProtoApp: Initializing app with UnsplashService")
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

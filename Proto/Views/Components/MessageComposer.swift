@@ -23,7 +23,6 @@ struct MessageComposer: View {
                 .font(.body)
                 .scrollContentBackground(.hidden)
                 .focused($isFocused)
-                //.frame(minHeight: 36)
                 .fixedSize(horizontal: false, vertical: true)
             
             // Submit button with glass effect

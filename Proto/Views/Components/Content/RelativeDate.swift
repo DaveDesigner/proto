@@ -28,8 +28,8 @@ struct RelativeDate: View {
     
     var body: some View {
         Text(formattedDate)
-            .font(.system(size: 13, weight: .regular))
-            .foregroundColor(foregroundColor ?? .secondary)
+            .font(.caption)
+            .foregroundColor(foregroundColor ?? .quaternary)
     }
     
     // MARK: - Date Formatting Logic

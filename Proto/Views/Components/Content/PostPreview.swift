@@ -28,7 +28,7 @@ struct PostPreview: View {
     // Optional FeedVideo for autoplay functionality
     let feedVideo: FeedVideo?
     
-    @StateObject private var unsplashService = UnsplashService.shared
+    @ObservedObject private var unsplashService = UnsplashService.shared
     
     // Static counter to ensure sequential image assignment
     private static var imageCounter = 0

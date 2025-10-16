@@ -22,8 +22,10 @@ struct MessageData {
     let isGroupChat: Bool
     let groupAvatars: [String]? // For group chats, up to 2 avatars
     let avatarImageIndex: Int? // Index for Unsplash image, nil for initials
+    let avatarImageName: String? // For static assets
     let groupAvatarImageIndices: [Int]? // Indices for group chat Unsplash images
     let createdAt: Date? // For relative date formatting
+    let mediaAttachments: [MediaAttachment]? // Media attachments for the message
 }
 
 // MARK: - Message Variants
@@ -32,37 +34,59 @@ enum MessageVariant {
     case preview // Compact preview for inline chats
 }
 
+// MARK: - Message Context
+enum MessageContext {
+    case messagesTab // In messages tab - can show unread indicators
+    case conversation // In conversation view - never show unread indicators
+}
+
 // MARK: - Message Component
 struct Message: View {
     let data: MessageData
     let variant: MessageVariant
+    let context: MessageContext
     let onTap: (() -> Void)?
+    let isButton: Bool
+    let cachedAvatarImage: Image?
     
-    init(data: MessageData, variant: MessageVariant = .full, onTap: (() -> Void)? = nil) {
+    @ObservedObject private var unsplashService = UnsplashService.shared
+    
+    init(data: MessageData, variant: MessageVariant = .full, context: MessageContext = .conversation, onTap: (() -> Void)? = nil, isButton: Bool = true, cachedAvatarImage: Image? = nil) {
         self.data = data
         self.variant = variant
+        self.context = context
         self.onTap = onTap
+        self.isButton = isButton
+        self.cachedAvatarImage = cachedAvatarImage
     }
     
     var body: some View {
-        Button(action: {
-            onTap?()
-        }) {
-            HStack(alignment: .top, spacing: 12) {
-                // Avatar section
-                avatarSection
-                
-                // Content section
-                contentSection
-                
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 0)
-            .padding(.bottom, 12)
-            .background(Color(.systemBackground))
+        let content = HStack(alignment: .top, spacing: 12) {
+            // Avatar section
+            avatarSection
+            
+            // Content section
+            contentSection
+            
+            Spacer(minLength: 0)
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, 16)
+        .padding(.top, 0)
+        .padding(.bottom, 12)
+        .background(Color(.systemBackground))
+        
+        if isButton {
+            return AnyView(
+                Button(action: {
+                    onTap?()
+                }) {
+                    content
+                }
+                .buttonStyle(PlainButtonStyle())
+            )
+        } else {
+            return AnyView(content)
+        }
     }
     
     // MARK: - Avatar Section
@@ -77,13 +101,41 @@ struct Message: View {
                     secondImageIndex: groupImageIndices[1] // Use second image index for second avatar
                 )
             } else {
-                // Single avatar with Unsplash or initials
+                // Single avatar - use cached image if available, otherwise fall back to Avatar component
                 let variant: AvatarVariant = data.isOnline ? .online() : .default()
-                Avatar(
-                    initials: data.senderName,
-                    variant: variant,
-                    imageIndex: data.avatarImageIndex
-                )
+                
+                if let cachedImage = cachedAvatarImage {
+                    // Use cached image directly
+                    ZStack {
+                        cachedImage
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                        
+                        if data.isOnline {
+                            // Add online indicator
+                            ZStack {
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 12, height: 12)
+                                
+                                Circle()
+                                    .fill(Color(red: 0, green: 0.54, blue: 0.18))
+                                    .frame(width: 8, height: 8)
+                            }
+                            .offset(x: 14, y: 14)
+                        }
+                    }
+                } else {
+                    // Fall back to Avatar component
+                    Avatar(
+                        initials: data.senderName,
+                        imageName: data.avatarImageName,
+                        variant: variant,
+                        imageIndex: data.avatarImageIndex
+                    )
+                }
             }
         }
         .frame(width: 40, height: 40)
@@ -115,18 +167,20 @@ struct Message: View {
             // Name and timestamp with proper spacing
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(displayName)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
                     .foregroundColor(.primary)
                     .lineLimit(1)
                     .truncationMode(.tail)
                 
-                RelativeDate(date: data.createdAt ?? Date(), variant: .messages, foregroundColor: Color.tertiary)
+                RelativeDate(date: data.createdAt ?? Date(), variant: .messages, foregroundColor: Color.quaternary)
             }
             
             Spacer(minLength: 0)
             
-            // New message indicator - only in full variant
-            if variant == .full && data.hasNewMessage {
+            // Unread indicator - only in messages tab context (both full and preview variants)
+            if context == .messagesTab && data.hasNewMessage {
+                // Blue dot indicator per Figma spec
                 Circle()
                     .fill(Color.blue)
                     .frame(width: 8, height: 8)
@@ -193,9 +247,14 @@ struct Message: View {
         VStack(alignment: .leading, spacing: 8) {
             ForEach(Array(data.messages.enumerated()), id: \.offset) { index, message in
                 Text(message)
-                    .font(.system(size: 17, weight: .regular))
+                    .font(.body)
                     .foregroundColor(.primary)
                     .multilineTextAlignment(.leading)
+            }
+            
+            // Media attachments section
+            if let attachments = data.mediaAttachments, !attachments.isEmpty {
+                attachmentsSection(attachments)
             }
         }
     }
@@ -203,7 +262,7 @@ struct Message: View {
     // MARK: - Preview Message Content
     private var previewMessageContent: some View {
         Text(previewText)
-            .font(.system(size: 17, weight: .regular))
+            .font(.body)
             .foregroundColor(.primary)
             .lineLimit(1)
             .truncationMode(.tail)
@@ -222,6 +281,88 @@ struct Message: View {
         return message
     }
     
+    // MARK: - Attachments Section
+    private func attachmentsSection(_ attachments: [MediaAttachment]) -> some View {
+        HStack(spacing: 5) {
+            ForEach(Array(attachments.enumerated()), id: \.element.id) { index, attachment in
+                attachmentView(attachment, attachments: attachments, index: index)
+            }
+        }
+        .padding(.top, 8)
+    }
+    
+    // MARK: - Individual Attachment View
+    private func attachmentView(_ attachment: MediaAttachment, attachments: [MediaAttachment], index: Int) -> some View {
+        Group {
+            switch attachment.type {
+            case .image:
+                imageAttachmentView(attachment, attachments: attachments, index: index)
+            case .video:
+                videoAttachmentView(attachment)
+            case .file:
+                fileAttachmentView(attachment)
+            }
+        }
+    }
+    
+    // MARK: - Image Attachment View
+    @ViewBuilder
+    private func imageAttachmentView(_ attachment: MediaAttachment, attachments: [MediaAttachment], index: Int) -> some View {
+        // Use the imageIndex from the attachment, with fallback to 0
+        let imageIndex = attachment.imageIndex ?? 0
+        
+        // Create a stable view component with a stable identity
+        MessageAttachmentImageView(
+            attachmentId: attachment.id,
+            imageIndex: imageIndex,
+            attachments: attachments,
+            initialIndex: index
+        )
+        .id("attachment-\(attachment.id)-\(imageIndex)") // Stable identity to prevent recreation
+    }
+    
+    // MARK: - Video Attachment View
+    private func videoAttachmentView(_ attachment: MediaAttachment) -> some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(Color.gray.opacity(0.3))
+            .frame(height: 150)
+            .overlay(
+                VStack {
+                    Image(systemName: "play.circle.fill")
+                        .font(.title)
+                        .foregroundColor(.white)
+                    Text("Video")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                }
+            )
+    }
+    
+    // MARK: - File Attachment View
+    private func fileAttachmentView(_ attachment: MediaAttachment) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "doc.fill")
+                .font(.title2)
+                .foregroundColor(.blue)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(attachment.name ?? "File")
+                    .font(.body)
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                Text("Tap to download")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+        }
+        .padding(12)
+        .background(Color(.systemGray6))
+        .cornerRadius(16)
+    }
+    
     // MARK: - Replies Section
     private var repliesSection: some View {
         HStack(spacing: 8) {
@@ -238,11 +379,167 @@ struct Message: View {
             }
             
             Text("\(data.replyCount) replies")
-                .font(.system(size: 13, weight: .medium))
+                .font(.footnote)
                 .foregroundColor(.secondary)
             
             Spacer(minLength: 0)
         }
+    }
+}
+
+// MARK: - Message Attachment Image View
+struct MessageAttachmentImageView: View {
+    let attachmentId: String
+    let imageIndex: Int
+    let attachments: [MediaAttachment]
+    let initialIndex: Int
+    
+    @ObservedObject private var unsplashService = UnsplashService.shared
+    @State private var loadedImage: Image?
+    @State private var isLoading = true
+    @State private var hasError = false
+    @Namespace private var animationNamespace
+    
+    var body: some View {
+        Group {
+            if let loadedImage = loadedImage {
+                // Show the loaded image with lightbox support
+                loadedImage
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxHeight: 200)
+                    .clipped()
+                    .cornerRadius(16)
+                    .matchedTransitionSource(
+                        id: "chat-attachment-\(attachmentId)",
+                        in: animationNamespace
+                    )
+                    .modifier(LightboxNavigationModifier(
+                        attachments: attachments,
+                        initialIndex: initialIndex,
+                        sourceID: "chat-attachment-\(attachmentId)",
+                        namespace: animationNamespace,
+                        sourceImage: loadedImage
+                    ))
+            } else if hasError {
+                // Show error state
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.red.opacity(0.3))
+                    .frame(height: 150)
+                    .overlay(
+                        VStack {
+                            Text("❌ Failed to load")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
+                    )
+            } else if isLoading {
+                // Show loading state
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 150)
+                    .overlay(
+                        VStack(spacing: 8) {
+                            ProgressView()
+                            Text("Loading image...")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    )
+            }
+        }
+        .onAppear {
+            loadImage()
+        }
+    }
+    
+    private func getImageURL() -> URL? {
+        guard let photo = unsplashService.getPhoto(at: imageIndex) else {
+            return nil
+        }
+        return URL(string: photo.urls.full)
+    }
+    
+    private func loadImage() {
+        guard let photo = unsplashService.getPhoto(at: imageIndex) else {
+            hasError = true
+            isLoading = false
+            return
+        }
+        
+        guard let url = URL(string: photo.urls.regular) else {
+            hasError = true
+            isLoading = false
+            return
+        }
+        
+        // Load the image asynchronously
+        Task {
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                if let uiImage = UIImage(data: data) {
+                    let image = Image(uiImage: uiImage)
+                    await MainActor.run {
+                        self.loadedImage = image
+                        self.isLoading = false
+                    }
+                } else {
+                    await MainActor.run {
+                        self.hasError = true
+                        self.isLoading = false
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    self.hasError = true
+                    self.isLoading = false
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Lightbox Navigation Modifier
+struct LightboxNavigationModifier: ViewModifier {
+    let attachments: [MediaAttachment]
+    let initialIndex: Int
+    let sourceID: String
+    let namespace: Namespace.ID
+    let sourceImage: Image?
+    
+    func body(content: Content) -> some View {
+        if attachments.count > 1 {
+            // Use multi-attachment lightbox for multiple attachments
+            content
+                .multiAttachmentLightboxNavigation(
+                    attachments: attachments,
+                    initialIndex: initialIndex,
+                    sourceID: sourceID,
+                    namespace: namespace,
+                    sourceImage: sourceImage
+                )
+        } else if let attachment = attachments.first {
+            // Use single attachment lightbox for single attachment
+            content
+                .lightboxNavigation(
+                    imageURL: getImageURL(for: attachment),
+                    sourceImage: sourceImage,
+                    sourceID: sourceID,
+                    namespace: namespace
+                )
+        } else {
+            // Fallback - no lightbox
+            content
+        }
+    }
+    
+    private func getImageURL(for attachment: MediaAttachment) -> URL? {
+        guard let imageIndex = attachment.imageIndex else { return nil }
+        
+        // Use UnsplashService to get the URL
+        let unsplashService = UnsplashService.shared
+        guard let photo = unsplashService.getPhoto(at: imageIndex) else { return nil }
+        return URL(string: photo.urls.full)
     }
 }
 
@@ -268,9 +565,11 @@ struct Message: View {
             isGroupChat: false,
             groupAvatars: nil,
             avatarImageIndex: 0,
+            avatarImageName: nil,
             groupAvatarImageIndices: nil,
-            createdAt: Date().addingTimeInterval(-3600) // 1 hour ago
-        ))
+            createdAt: Date().addingTimeInterval(-3600), // 1 hour ago
+            mediaAttachments: nil
+        ), context: .messagesTab)
         
         Divider()
         
@@ -291,8 +590,34 @@ struct Message: View {
             isGroupChat: false,
             groupAvatars: nil,
             avatarImageIndex: 1,
+            avatarImageName: nil,
             groupAvatarImageIndices: nil,
-            createdAt: Date().addingTimeInterval(-7200) // 2 hours ago
+            createdAt: Date().addingTimeInterval(-7200), // 2 hours ago
+            mediaAttachments: nil
+        ), context: .messagesTab)
+        
+        Divider()
+        
+        // Message with image attachment to test the fix
+        Message(data: MessageData(
+            id: "4",
+            senderName: "Sarah Chen",
+            timestamp: "2:45 pm",
+            messages: ["Check out this landscape image!"],
+            hasReplies: false,
+            replyCount: 0,
+            replyAvatars: [],
+            hasNewMessage: false,
+            isOnline: true,
+            isGroupChat: false,
+            groupAvatars: nil,
+            avatarImageIndex: 2,
+            avatarImageName: nil,
+            groupAvatarImageIndices: nil,
+            createdAt: Date().addingTimeInterval(-3600), // 1 hour ago
+            mediaAttachments: [
+                MediaAttachment(id: "img1", type: .image, name: "landscape.jpg", imageIndex: 0)
+            ]
         ))
         
         Divider()
@@ -316,8 +641,10 @@ struct Message: View {
             isGroupChat: false,
             groupAvatars: nil,
             avatarImageIndex: 2,
+            avatarImageName: nil,
             groupAvatarImageIndices: nil,
-            createdAt: Date().addingTimeInterval(-86400) // Yesterday
+            createdAt: Date().addingTimeInterval(-86400), // Yesterday
+            mediaAttachments: nil
         ), variant: .preview)
         
         Divider()
@@ -336,8 +663,10 @@ struct Message: View {
             isGroupChat: true,
             groupAvatars: nil,
             avatarImageIndex: nil,
+            avatarImageName: nil,
             groupAvatarImageIndices: [3, 4],
-            createdAt: Date().addingTimeInterval(-172800) // 2 days ago
+            createdAt: Date().addingTimeInterval(-172800), // 2 days ago
+            mediaAttachments: nil
         ), variant: .preview)
         
         Divider()
@@ -356,8 +685,10 @@ struct Message: View {
             isGroupChat: false,
             groupAvatars: nil,
             avatarImageIndex: 5,
+            avatarImageName: nil,
             groupAvatarImageIndices: nil,
-            createdAt: Date().addingTimeInterval(-604800) // 1 week ago
+            createdAt: Date().addingTimeInterval(-604800), // 1 week ago
+            mediaAttachments: nil
         ), variant: .preview)
     }
     .background(Color(.systemBackground))

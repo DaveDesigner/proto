@@ -13,7 +13,7 @@ struct NotificationsTab: View {
     @State private var selectedSegment = 0
     @Binding var selectedTintColor: Color
     @Environment(\.colorScheme) private var colorScheme
-    @StateObject private var unsplashService = UnsplashService.shared
+    @ObservedObject private var unsplashService = UnsplashService.shared
     
     private let notificationSegments = ["Inbox", "Mentions", "Threads", "Following", "Archive"]
     

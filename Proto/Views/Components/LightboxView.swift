@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - Image Scaling Modifier
 struct ImageScalingModifier: ViewModifier {
@@ -60,13 +61,55 @@ struct LightboxNavigationLink<Label: View>: View {
                 namespace: namespace
             )
             .navigationTransition(.zoom(sourceID: sourceID, in: namespace))
-            //.navigationBarTitleDisplayMode(.inline)
-            //.toolbarBackground(.hidden, for: .navigationBar)
             .toolbar(.hidden, for: .tabBar)
         } label: {
             label()
         }
         //.buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Multi-Attachment Lightbox Navigation Link
+struct MultiAttachmentLightboxNavigationLink<Label: View>: View {
+    let attachments: [MediaAttachment]
+    let initialIndex: Int
+    let sourceID: String
+    let namespace: Namespace.ID
+    let sourceImage: Image?
+    let label: () -> Label
+    
+    @Environment(\.dismiss) private var dismiss
+    
+    init(
+        attachments: [MediaAttachment],
+        initialIndex: Int = 0,
+        sourceID: String,
+        namespace: Namespace.ID,
+        sourceImage: Image? = nil,
+        @ViewBuilder label: @escaping () -> Label
+    ) {
+        self.attachments = attachments
+        self.initialIndex = initialIndex
+        self.sourceID = sourceID
+        self.namespace = namespace
+        self.sourceImage = sourceImage
+        self.label = label
+    }
+    
+    var body: some View {
+        NavigationLink {
+            MultiAttachmentLightboxView(
+                attachments: attachments,
+                initialIndex: initialIndex,
+                sourceID: sourceID,
+                namespace: namespace,
+                sourceImage: sourceImage
+            )
+            .navigationTransition(.zoom(sourceID: sourceID, in: namespace))
+            .toolbar(.hidden, for: .tabBar)
+        } label: {
+            label()
+        }
     }
 }
 
@@ -90,6 +133,7 @@ struct LightboxView: View {
     @State private var magnification: CGFloat = 1.0
     @State private var lastMagnification: CGFloat = 1.0
     @State private var isZooming: Bool = false
+    @State private var showShareSheet: Bool = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var deviceColorScheme
     
@@ -201,6 +245,19 @@ struct LightboxView: View {
         }
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar(showToolbar ? .visible : .hidden, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: {
+                    showShareSheet = true
+                }) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+                //.tint(.primary)
+            }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: getShareItems())
+        }
     }
     
     // TEST: Extracted image content to computed property to simplify view hierarchy
@@ -426,6 +483,466 @@ struct LightboxView: View {
         }
     }
     
+    // MARK: - Share Functionality
+    private func getShareItems() -> [Any] {
+        var shareItems: [Any] = []
+        
+        if let sourceImage = sourceImage {
+            // For source images, we'll need to convert to UIImage
+            // This is a simplified approach - in a real app you might want to handle this differently
+            shareItems.append("Shared from Proto")
+        } else if let imageName = imageName {
+            shareItems.append("Shared from Proto")
+        } else if let imageURL = imageURL {
+            shareItems.append(imageURL)
+        }
+        
+        return shareItems
+    }
+    
+}
+
+// MARK: - Multi-Attachment Lightbox View
+struct MultiAttachmentLightboxView: View {
+    let attachments: [MediaAttachment]
+    let initialIndex: Int
+    let sourceID: String?
+    let namespace: Namespace.ID
+    let sourceImage: Image?
+    
+    @State private var currentIndex: Int
+    @State private var opacity: Double = 0.0
+    @State private var isAnimating: Bool = false
+    @State private var isDarkMode: Bool = true
+    @State private var panOffset: CGSize = .zero
+    @State private var lastPanOffset: CGSize = .zero
+    @State private var isFillMode: Bool = false
+    @State private var showToolbar: Bool = false
+    @State private var dismissOffset: CGSize = .zero
+    @State private var isDismissing: Bool = false
+    @State private var magnification: CGFloat = 1.0
+    @State private var lastMagnification: CGFloat = 1.0
+    @State private var isZooming: Bool = false
+    @State private var scrollViewOffset: CGFloat = 0
+    @State private var showShareSheet: Bool = false
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var deviceColorScheme
+    @ObservedObject private var unsplashService = UnsplashService.shared
+    
+    init(
+        attachments: [MediaAttachment],
+        initialIndex: Int = 0,
+        sourceID: String? = nil,
+        namespace: Namespace.ID,
+        sourceImage: Image? = nil
+    ) {
+        self.attachments = attachments
+        self.initialIndex = initialIndex
+        self.sourceID = sourceID
+        self.namespace = namespace
+        self.sourceImage = sourceImage
+        self._currentIndex = State(initialValue: initialIndex)
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Background overlay
+                (isDarkMode ? Color.black : Color.white)
+                    .opacity(opacity)
+                    .ignoresSafeArea()
+                
+                // Image content
+                imageContent(geometry: geometry)
+            }
+            .offset(dismissOffset)
+            .gesture(
+                SimultaneousGesture(
+                    // Double tap to toggle between fit and fill modes
+                    TapGesture(count: 2)
+                        .onEnded {
+                            handleDoubleTap()
+                            if !isDarkMode {
+                                showToolbarIfNeeded()
+                            }
+                        },
+                    // Single tap to toggle dark mode and show/hide toolbar accordingly
+                    TapGesture(count: 1)
+                        .onEnded {
+                            if !isFillMode {
+                                if deviceColorScheme == .light {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        isDarkMode.toggle()
+                                    }
+                                    showToolbar = !isDarkMode
+                                } else {
+                                    showToolbar.toggle()
+                                }
+                            } else {
+                                showToolbar.toggle()
+                            }
+                        }
+                )
+            )
+            .gesture(
+                // Magnification gesture for pinch to zoom
+                MagnificationGesture()
+                    .onChanged { value in
+                        handleMagnificationGesture(value)
+                        if !isDarkMode {
+                            showToolbarIfNeeded()
+                        }
+                    }
+                    .onEnded { value in
+                        handleMagnificationEnd(value)
+                    }
+            )
+            .gesture(
+                // Pan gesture when in fill mode or when zoomed
+                (isFillMode || magnification > 1.0) ? DragGesture()
+                    .onChanged { value in
+                        handleDragGesture(value, in: geometry)
+                        if !isDarkMode {
+                            showToolbarIfNeeded()
+                        }
+                    }
+                    .onEnded { value in
+                        handleDragEnd(value, in: geometry)
+                    } : nil
+            )
+            .onAppear {
+                isAnimating = true
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    opacity = 1.0
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
+                        isAnimating = false
+                    }
+                }
+            }
+        }
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbar(showToolbar ? .visible : .hidden, for: .navigationBar)
+        .toolbar {
+            // Share button in top trailing position
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: {
+                    showShareSheet = true
+                }) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundColor(isDarkMode ? .white : .black)
+                }
+            }
+            
+            // Pagination dots in toolbar - only show if more than one attachment
+            if attachments.count > 1 {
+                ToolbarItem(placement: .bottomBar) {
+                    HStack(spacing: 8) {
+                        ForEach(0..<attachments.count, id: \.self) { index in
+                            Image(systemName: "circle.fill")
+                                .foregroundColor(isDarkMode ? .white : .black)
+                                .font(.system(size: 7))
+                                .opacity(index == currentIndex ? 0.4 : 0.3)
+                                .scaleEffect(index == currentIndex ? 1.2 : 1.0)
+                                .animation(.easeInOut(duration: 0.2), value: currentIndex)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+                .sharedBackgroundHidden()
+            }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: getShareItems())
+        }
+    }
+    
+    // MARK: - Image Content
+    @ViewBuilder
+    private func imageContent(geometry: GeometryProxy) -> some View {
+        if attachments.count > 1 {
+            TabView(selection: $currentIndex) {
+                ForEach(Array(attachments.enumerated()), id: \.element.id) { index, attachment in
+                    singleImageLightboxView(attachment: attachment, geometry: geometry, isCurrentImage: index == currentIndex)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                        .tag(index)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .allowsHitTesting(!isFillMode) // Disable tab swiping when in fill mode
+            .ignoresSafeArea()
+            .onAppear {
+                currentIndex = initialIndex
+            }
+            .onChange(of: currentIndex) { _, newIndex in
+                resetZoomState()
+            }
+        } else if let attachment = attachments.first {
+            // Single image - use the same view as single attachment lightbox
+            singleImageLightboxView(attachment: attachment, geometry: geometry)
+                .ignoresSafeArea()
+        }
+    }
+    
+    // MARK: - Single Image Lightbox View
+    @ViewBuilder
+    private func singleImageLightboxView(attachment: MediaAttachment, geometry: GeometryProxy, isCurrentImage: Bool = true) -> some View {
+        if attachment.type == .image {
+            // Check if this is the initial attachment and we have a source image
+            let isInitialAttachment = attachments.firstIndex(where: { $0.id == attachment.id }) == initialIndex
+            
+            if isInitialAttachment, let sourceImage = sourceImage {
+                // Use the source image for the initial attachment to enable smooth transition
+                sourceImage
+                    .resizable()
+                    .modifier(ImageScalingModifier(isFillMode: isCurrentImage ? isFillMode : false, magnification: isCurrentImage ? magnification : 1.0))
+            } else {
+                // Use AsyncImage for other attachments
+                AsyncImage(url: getImageURL(for: attachment)) { image in
+                    image
+                        .resizable()
+                        .modifier(ImageScalingModifier(isFillMode: isCurrentImage ? isFillMode : false, magnification: isCurrentImage ? magnification : 1.0))
+                } placeholder: {
+                    // Use a placeholder that matches the source image if available
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: isDarkMode ? .white : .black))
+                                .scaleEffect(1.5)
+                        )
+                }
+            }
+        } else {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.3))
+                .overlay(
+                    Text("Unsupported attachment type")
+                        .foregroundColor(isDarkMode ? .white : .black)
+                )
+        }
+    }
+    
+    // MARK: - Pagination Dots
+    private var paginationDots: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<attachments.count, id: \.self) { index in
+                Circle()
+                    .fill(index == currentIndex ? Color.white : Color.white.opacity(0.4))
+                    .frame(width: 8, height: 8)
+                    .scaleEffect(index == currentIndex ? 1.2 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: currentIndex)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.black.opacity(0.6))
+        )
+    }
+    
+    // MARK: - Helper Methods
+    private func getImageURL(for attachment: MediaAttachment) -> URL? {
+        guard let imageIndex = attachment.imageIndex,
+              let photo = unsplashService.getPhoto(at: imageIndex) else {
+            return nil
+        }
+        return URL(string: photo.urls.full)
+    }
+    
+    private func resetZoomState() {
+        // Reset zoom and pan state when navigating between images
+        withAnimation(.easeInOut(duration: 0.3)) {
+            isFillMode = false
+            magnification = 1.0
+            lastMagnification = 1.0
+            panOffset = .zero
+            lastPanOffset = .zero
+            dismissOffset = .zero
+            isDismissing = false
+            isZooming = false
+        }
+    }
+    
+    // MARK: - ScrollView Change Handler
+    private func updateCurrentIndex(from scrollOffset: CGFloat, screenWidth: CGFloat) {
+        let newIndex = Int(round(scrollOffset / screenWidth))
+        if newIndex != currentIndex && newIndex >= 0 && newIndex < attachments.count {
+            currentIndex = newIndex
+            // Reset zoom and pan when navigating
+            magnification = 1.0
+            lastMagnification = 1.0
+            isFillMode = false
+            panOffset = .zero
+            lastPanOffset = .zero
+        }
+    }
+    
+    // MARK: - Reuse existing gesture handlers from LightboxView
+    private func handleDoubleTap() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            if !isFillMode && magnification == 1.0 && panOffset == .zero {
+                panOffset = .zero
+                lastPanOffset = .zero
+                dismissOffset = .zero
+                isDismissing = false
+                isFillMode = true
+                magnification = 1.0
+                lastMagnification = 1.0
+                isZooming = false
+            } else {
+                panOffset = .zero
+                lastPanOffset = .zero
+                dismissOffset = .zero
+                isDismissing = false
+                isFillMode = false
+                magnification = 1.0
+                lastMagnification = 1.0
+                isZooming = false
+            }
+        }
+    }
+    
+    private func showToolbarIfNeeded() {
+        if (!isDarkMode || deviceColorScheme == .light) && !showToolbar {
+            showToolbar = true
+        }
+    }
+    
+    private func handleMagnificationGesture(_ value: MagnificationGesture.Value) {
+        isZooming = true
+        magnification = lastMagnification * value
+        magnification = min(max(magnification, 0.5), 5.0)
+    }
+    
+    private func handleMagnificationEnd(_ value: MagnificationGesture.Value) {
+        isZooming = false
+        lastMagnification = magnification
+        
+        if magnification < 1.0 {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                magnification = 1.0
+                lastMagnification = 1.0
+                panOffset = .zero
+                lastPanOffset = .zero
+            }
+        }
+    }
+    
+    private func handleDragGesture(_ value: DragGesture.Value, in geometry: GeometryProxy) {
+        let translation = value.translation
+        let dismissThreshold: CGFloat = 50
+        
+        let effectiveMagnification = isFillMode ? max(magnification, 1.0) : magnification
+        let scaledImageWidth = geometry.size.width * effectiveMagnification
+        let scaledImageHeight = geometry.size.height * effectiveMagnification
+        
+        let horizontalOverflow = max(0, (scaledImageWidth - geometry.size.width) / 2)
+        let verticalOverflow = max(0, (scaledImageHeight - geometry.size.height) / 2)
+        
+        if magnification > 1.0 {
+            let newPanX = lastPanOffset.width + translation.width
+            let newPanY = lastPanOffset.height + translation.height
+            
+            let constrainedPanX = min(horizontalOverflow, max(-horizontalOverflow, newPanX))
+            let constrainedPanY = min(verticalOverflow, max(-verticalOverflow, newPanY))
+            
+            let hitHorizontalBoundary = abs(newPanX) >= horizontalOverflow
+            let hitVerticalBoundary = abs(newPanY) >= verticalOverflow
+            
+            if (hitHorizontalBoundary || hitVerticalBoundary) && abs(translation.height) > dismissThreshold {
+                isDismissing = true
+                panOffset = CGSize(width: constrainedPanX, height: constrainedPanY)
+                dismissOffset = CGSize(width: 0, height: translation.height)
+            } else {
+                panOffset = CGSize(width: constrainedPanX, height: constrainedPanY)
+                dismissOffset = CGSize(width: 0, height: 0)
+            }
+        } else if isFillMode {
+            let newPanX = lastPanOffset.width + translation.width
+            let newDismissY = translation.height
+            
+            let constrainedPanX = min(horizontalOverflow, max(-horizontalOverflow, newPanX))
+            
+            let hitLeftBoundary = newPanX <= CGFloat(-horizontalOverflow) && translation.width < 0
+            let hitRightBoundary = newPanX >= horizontalOverflow && translation.width > 0
+            
+            if hitLeftBoundary || hitRightBoundary {
+                isDismissing = true
+                let excessMovement = newPanX - constrainedPanX
+                panOffset = CGSize(width: constrainedPanX, height: 0)
+                dismissOffset = CGSize(width: excessMovement, height: newDismissY)
+            } else if abs(newDismissY) > dismissThreshold {
+                isDismissing = true
+                panOffset = CGSize(width: constrainedPanX, height: 0)
+                dismissOffset = CGSize(width: 0, height: newDismissY)
+            } else {
+                panOffset = CGSize(width: constrainedPanX, height: 0)
+                dismissOffset = CGSize(width: 0, height: newDismissY)
+            }
+        } else {
+            if abs(translation.height) > dismissThreshold {
+                isDismissing = true
+                dismissOffset = CGSize(width: 0, height: translation.height)
+            } else {
+                dismissOffset = CGSize(width: 0, height: translation.height)
+            }
+        }
+    }
+    
+    private func handleDragEnd(_ value: DragGesture.Value, in geometry: GeometryProxy) {
+        let dismissThreshold: CGFloat = 50
+        let dismissVelocity: CGFloat = 500
+        
+        let dismissY = dismissOffset.height
+        let dismissX = dismissOffset.width
+        let velocityY = value.velocity.height
+        let velocityX = value.velocity.width
+        
+        let shouldDismiss = isDismissing && (
+            abs(dismissY) > dismissThreshold || 
+            abs(dismissX) > dismissThreshold ||
+            abs(velocityY) > dismissVelocity ||
+            abs(velocityX) > dismissVelocity
+        )
+        
+        if shouldDismiss {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                opacity = 0.0
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                dismiss()
+            }
+        } else {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                dismissOffset = .zero
+                isDismissing = false
+            }
+            lastPanOffset = panOffset
+        }
+    }
+    
+    // MARK: - Share Functionality
+    private func getShareItems() -> [Any] {
+        var shareItems: [Any] = []
+        
+        // Get the current attachment
+        guard currentIndex < attachments.count else { return shareItems }
+        let currentAttachment = attachments[currentIndex]
+        
+        if let imageURL = getImageURL(for: currentAttachment) {
+            shareItems.append(imageURL)
+        } else {
+            shareItems.append("Shared from Proto")
+        }
+        
+        return shareItems
+    }
 }
 
 
@@ -449,6 +966,39 @@ extension View {
             self
         }
     }
+    
+    /// Multi-attachment lightbox with pagination support
+    func multiAttachmentLightboxNavigation(
+        attachments: [MediaAttachment],
+        initialIndex: Int = 0,
+        sourceID: String,
+        namespace: Namespace.ID,
+        sourceImage: Image? = nil
+    ) -> some View {
+        MultiAttachmentLightboxNavigationLink(
+            attachments: attachments,
+            initialIndex: initialIndex,
+            sourceID: sourceID,
+            namespace: namespace,
+            sourceImage: sourceImage
+        ) {
+            self
+        }
+    }
+}
+
+// MARK: - Share Sheet
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
+        // No updates needed
+    }
 }
 
 // MARK: - Preview
@@ -468,16 +1018,16 @@ extension View {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                     
-                    Image("Post")
+                    Image("Avatar")
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 200, height: 150)
+                        .frame(width: 200, height: 200)
                         .clipped()
                         .cornerRadius(12)
                         .matchedTransitionSource(id: "preview-image", in: animationNamespace)
                         .lightboxNavigation(
-                            imageName: "Post",
-                            sourceImage: Image("Post"),
+                            imageName: "Avatar",
+                            sourceImage: Image("Avatar"),
                             sourceID: "preview-image",
                             namespace: animationNamespace
                         )
