@@ -1,10 +1,20 @@
 {
   "workbench.colorCustomizations": {
-    "statusBar.background": "#000080",
-    "statusBar.noFolderBackground": "#000080",
-    "statusBar.debuggingBackground": "#000080",
+    "statusBar.background": "#FF4A01",
+    "statusBar.noFolderBackground": "#FF4A01",
+    "statusBar.debuggingBackground": "#FF4A01",
     "statusBar.foreground": "#FFFFFF",
-    "statusBarItem.prominentBackground": "#0000CD",
-    "statusBarItem.prominentHoverBackground": "#0000FF"
+    "statusBarItem.prominentBackground": "#AD54FF",
+    "statusBarItem.prominentHoverBackground": "#AD54FF"
+  },
+  "claude-code.mcpServers": {
+    "figma": {
+      "url": "http://127.0.0.1:3845/mcp"
+    }
+  },
+  "chat.mcp.discovery.enabled": {
+    "cursor-global": true,
+    "cursor-workspace": true,
+    "claude-desktop": true
   }
 }
