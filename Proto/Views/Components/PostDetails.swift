@@ -13,7 +13,7 @@ struct PostDetails: View {
     @State private var hasUserToggled = false
 
     @State private var commentText = AttributedString("")
-    @State private var commentSelection: TextSelection?
+    @State private var commentSelection = AttributedTextSelection()
     @State private var selectedRange: Range<AttributedString.Index>?
     @FocusState private var isCommentFieldFocused: Bool
     @State private var showCommentMode = false
@@ -23,12 +23,12 @@ struct PostDetails: View {
     @State private var showEditSheet = false
     @State private var showDeleteConfirmation = false
 
-    // Computed property to check if text is selected
+    // Computed property to check if text is selected (iOS 26 AttributedTextSelection)
     private var hasTextSelection: Bool {
-        // TODO: Implement proper text selection monitoring
-        // TextSelection works with String-based TextEditor, but we're using AttributedString
-        // For now, always return false until we implement UITextView bridge or find SwiftUI solution
-        return false
+        guard case .ranges(let ranges) = commentSelection.indices(in: commentText) else {
+            return false // insertionPoint case = just cursor, no selection
+        }
+        return !ranges.isEmpty
     }
 
     // Computed property to help with toolbar updates
@@ -183,7 +183,7 @@ struct PostDetails: View {
                             onSubmit: {
                                 // Submit comment
                                 commentText = AttributedString("")
-                                commentSelection = nil
+                                commentSelection = AttributedTextSelection()
                                 isCommentFieldFocused = false
                                 showCommentMode = false
                                 shouldMaintainFocus = false

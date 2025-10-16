@@ -73,7 +73,7 @@ struct ChatView: View {
     let onParticipantTap: ((ChatParticipant) -> Void)?
     
     @State private var messageText = AttributedString("")
-    @State private var messageSelection: TextSelection?
+    @State private var messageSelection = AttributedTextSelection()
     @FocusState private var isMessageFocused: Bool
     @State private var isTabBarVisible = false
     @State private var hasUserToggled = false
@@ -85,12 +85,12 @@ struct ChatView: View {
     @ObservedObject private var unsplashService = UnsplashService.shared
     @State private var cachedAvatars: [String: Image] = [:]
 
-    // Computed property to check if text is selected
+    // Computed property to check if text is selected (iOS 26 AttributedTextSelection)
     private var hasTextSelection: Bool {
-        // TODO: Implement proper text selection monitoring
-        // TextSelection works with String-based TextEditor, but we're using AttributedString
-        // For now, always return false until we implement UITextView bridge or find SwiftUI solution
-        return false
+        guard case .ranges(let ranges) = messageSelection.indices(in: messageText) else {
+            return false // insertionPoint case = just cursor, no selection
+        }
+        return !ranges.isEmpty
     }
 
     // Computed property to help with toolbar updates
@@ -231,7 +231,7 @@ struct ChatView: View {
                             onSubmit: {
                                 // Submit message
                                 messageText = AttributedString("")
-                                messageSelection = nil
+                                messageSelection = AttributedTextSelection()
                                 isMessageFocused = false
                                 showMessageMode = false
                                 shouldMaintainFocus = false

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MessageComposer: View {
     @Binding var text: AttributedString
-    @Binding var selection: TextSelection?
+    @Binding var selection: AttributedTextSelection
     @FocusState.Binding var isFocused: Bool
     @State private var isHeartFilled = false
 
@@ -19,18 +19,12 @@ struct MessageComposer: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 16) {
-            // Text editor with AttributedString support
-            // Note: TextEditor natively supports AttributedString binding
-            TextEditor(text: $text)
+            // Text editor with AttributedString and selection support (iOS 26+)
+            TextEditor(text: $text, selection: $selection)
                 .font(.body)
                 .scrollContentBackground(.hidden)
                 .focused($isFocused)
                 .fixedSize(horizontal: false, vertical: true)
-                .onChange(of: text) { oldValue, newValue in
-                    // Monitor text changes to detect if selection might have changed
-                    // SwiftUI's TextEditor doesn't provide direct selection access for AttributedString
-                    // We rely on user interaction patterns to infer selection state
-                }
             
             // Submit button with glass effect
             Button(action: {
@@ -421,7 +415,7 @@ struct MessageComposerFormatMenu: View {
 // MARK: - Message Composer with Safe Area
 struct MessageComposerWithSafeArea: View {
     @Binding var text: AttributedString
-    @Binding var selection: TextSelection?
+    @Binding var selection: AttributedTextSelection
     @FocusState.Binding var isFocused: Bool
     var placeholder: String = "Add comment"
     var onSubmit: (() -> Void)?
@@ -447,7 +441,7 @@ struct MessageComposerWithSafeArea: View {
 
 #Preview {
     @Previewable @State var text = AttributedString("")
-    @Previewable @State var selection: TextSelection? = nil
+    @Previewable @State var selection = AttributedTextSelection()
     @FocusState var isFocused: Bool
 
     ZStack {

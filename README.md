@@ -1,7 +1,7 @@
 ## Next steps
+- feat: add connection status actions to profile
 - feat: admin mode shift, navigation paradigm
 - feat: member profile
-- feat: add connection status actions to profile
 - `In progress` style(icons): replace sf symbols with icons in primary nav, & post preview [PR #9](https://github.com/DaveDesigner/proto/pull/9)
 - add: connect actions on profile, accessed via notification
 - **iPad multi-column layouts** - Support for wide displays with responsive grid layouts
