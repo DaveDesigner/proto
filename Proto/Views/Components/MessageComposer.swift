@@ -9,21 +9,28 @@ import SwiftUI
 
 struct MessageComposer: View {
     @Binding var text: AttributedString
+    @Binding var selection: TextSelection?
     @FocusState.Binding var isFocused: Bool
     @State private var isHeartFilled = false
-    
+
     var placeholder: String = "Add message"
     var onSubmit: (() -> Void)?
     var onDragStart: (() -> Void)?
-    
+
     var body: some View {
-        HStack(alignment: .bottom, spacing: 16) {            
+        HStack(alignment: .bottom, spacing: 16) {
             // Text editor with AttributedString support
+            // Note: TextEditor natively supports AttributedString binding
             TextEditor(text: $text)
                 .font(.body)
                 .scrollContentBackground(.hidden)
                 .focused($isFocused)
                 .fixedSize(horizontal: false, vertical: true)
+                .onChange(of: text) { oldValue, newValue in
+                    // Monitor text changes to detect if selection might have changed
+                    // SwiftUI's TextEditor doesn't provide direct selection access for AttributedString
+                    // We rely on user interaction patterns to infer selection state
+                }
             
             // Submit button with glass effect
             Button(action: {
@@ -211,30 +218,104 @@ struct TextFormattingHelper {
     }
 }
 
-// MARK: - Formatting Menu Component
-struct MessageComposerFormatMenu: View {
+// MARK: - Formatting-Only Menu Component (for text selection)
+struct MessageComposerFormattingMenu: View {
     @Binding var text: AttributedString
     @Binding var selectedRange: Range<AttributedString.Index>?
-    
+
     // Computed properties to check current formatting state
     private var isBoldActive: Bool {
         guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
               !range.isEmpty else { return false }
         return TextFormattingHelper.isBoldFormatted(in: text, range: range)
     }
-    
+
     private var isItalicActive: Bool {
         guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
               !range.isEmpty else { return false }
         return TextFormattingHelper.isItalicFormatted(in: text, range: range)
     }
-    
+
     private var isUnderlineActive: Bool {
         guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
               !range.isEmpty else { return false }
         return TextFormattingHelper.isUnderlineFormatted(in: text, range: range)
     }
-    
+
+    private var isStrikethroughActive: Bool {
+        guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
+              !range.isEmpty else { return false }
+        return TextFormattingHelper.isStrikethroughFormatted(in: text, range: range)
+    }
+
+    var body: some View {
+        Menu {
+            // Formatting options only - no attachments or mentions
+            // Displayed at top level when text is selected
+            Button(action: {
+                TextFormattingHelper.toggleBold(text: &text, selectedRange: selectedRange)
+            }) {
+                Label(isBoldActive ? "Bold (is selected)" : "Bold", systemImage: "bold")
+            }
+            .tint(.primary)
+
+            Button(action: {
+                TextFormattingHelper.toggleItalic(text: &text, selectedRange: selectedRange)
+            }) {
+                Label(isItalicActive ? "Italic (is selected)" : "Italic", systemImage: "italic")
+            }
+            .tint(.primary)
+
+            Button(action: {
+                TextFormattingHelper.toggleUnderline(text: &text, selectedRange: selectedRange)
+            }) {
+                Label(isUnderlineActive ? "Underline (is selected)" : "Underline", systemImage: "underline")
+            }
+            .tint(.primary)
+
+            Button(action: {
+                TextFormattingHelper.toggleStrikethrough(text: &text, selectedRange: selectedRange)
+            }) {
+                Label(isStrikethroughActive ? "Strikethrough (is selected)" : "Strikethrough", systemImage: "strikethrough")
+            }
+            .tint(.primary)
+
+            Button(action: {
+                TextFormattingHelper.addLink(text: &text, selectedRange: selectedRange)
+            }) {
+                Label("Link", systemImage: "link")
+            }
+            .tint(.primary)
+        } label: {
+            Image(systemName: "bold.italic.underline")
+        }
+    }
+}
+
+// MARK: - Full Format Menu Component (with attachments/mentions)
+struct MessageComposerFormatMenu: View {
+    @Binding var text: AttributedString
+    @Binding var selectedRange: Range<AttributedString.Index>?
+
+    // Computed properties to check current formatting state
+    private var isBoldActive: Bool {
+        guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
+              !range.isEmpty else { return false }
+        return TextFormattingHelper.isBoldFormatted(in: text, range: range)
+    }
+
+    private var isItalicActive: Bool {
+        guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
+              !range.isEmpty else { return false }
+        return TextFormattingHelper.isItalicFormatted(in: text, range: range)
+    }
+
+    private var isUnderlineActive: Bool {
+        guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
+              !range.isEmpty else { return false }
+        return TextFormattingHelper.isUnderlineFormatted(in: text, range: range)
+    }
+
     private var isStrikethroughActive: Bool {
         guard let range = TextFormattingHelper.getCurrentRange(for: text, selectedRange: selectedRange),
               !range.isEmpty else { return false }
@@ -340,11 +421,12 @@ struct MessageComposerFormatMenu: View {
 // MARK: - Message Composer with Safe Area
 struct MessageComposerWithSafeArea: View {
     @Binding var text: AttributedString
+    @Binding var selection: TextSelection?
     @FocusState.Binding var isFocused: Bool
     var placeholder: String = "Add comment"
     var onSubmit: (() -> Void)?
     var onDragStart: (() -> Void)?
-    
+
     var body: some View {
         // The main content goes here
         Color.clear
@@ -353,6 +435,7 @@ struct MessageComposerWithSafeArea: View {
                 // This ensures it responds to keyboard and stays at the bottom
                 MessageComposer(
                     text: $text,
+                    selection: $selection,
                     isFocused: $isFocused,
                     placeholder: placeholder,
                     onSubmit: onSubmit,
@@ -364,8 +447,9 @@ struct MessageComposerWithSafeArea: View {
 
 #Preview {
     @Previewable @State var text = AttributedString("")
+    @Previewable @State var selection: TextSelection? = nil
     @FocusState var isFocused: Bool
-    
+
     ZStack {
         // Background to showcase glass effect
         LinearGradient(
@@ -374,27 +458,28 @@ struct MessageComposerWithSafeArea: View {
             endPoint: .bottomTrailing
         )
         .ignoresSafeArea()
-        
+
         VStack {
             Spacer()
-            
+
             // Show different states
             VStack(spacing: 20) {
                 Text("iOS 26 Floating Input - Figma Design")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                
+
                 Text("States: Inactive, Active, Active Input")
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.8))
-                
+
                 Spacer()
             }
             .padding()
-            
+
             MessageComposerWithSafeArea(
                 text: $text,
+                selection: $selection,
                 isFocused: $isFocused,
                 placeholder: "Add message",
                 onSubmit: {
