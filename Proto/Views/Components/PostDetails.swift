@@ -13,6 +13,7 @@ struct PostDetails: View {
     @State private var hasUserToggled = false
 
     @State private var commentText = AttributedString("")
+    @State private var commentSelection = AttributedTextSelection()
     @State private var selectedRange: Range<AttributedString.Index>?
     @FocusState private var isCommentFieldFocused: Bool
     @State private var showCommentMode = false
@@ -21,9 +22,18 @@ struct PostDetails: View {
     @State private var showSettingsSheet = false
     @State private var showEditSheet = false
     @State private var showDeleteConfirmation = false
+
+    // Computed property to check if text is selected (iOS 26 AttributedTextSelection)
+    private var hasTextSelection: Bool {
+        guard case .ranges(let ranges) = commentSelection.indices(in: commentText) else {
+            return false // insertionPoint case = just cursor, no selection
+        }
+        return !ranges.isEmpty
+    }
+
     // Computed property to help with toolbar updates
     private var toolbarState: String {
-        "\(showCommentMode)-\(commentText.characters.isEmpty)-\(isCommentFieldFocused)"
+        "\(showCommentMode)-\(commentText.characters.isEmpty)-\(isCommentFieldFocused)-\(hasTextSelection)"
     }
     
     var body: some View {
@@ -155,19 +165,25 @@ struct PostDetails: View {
                 if showCommentMode {
                     // Show MessageComposer when in comment mode
                     ToolbarItemGroup(placement: .bottomBar) {
-                        // Format menu button
-                        MessageComposerFormatMenu(text: $commentText, selectedRange: $selectedRange)
-                        
+                        // Conditional menu button - formatting menu when text is selected, full menu otherwise
+                        if hasTextSelection {
+                            MessageComposerFormattingMenu(text: $commentText, selection: $commentSelection)
+                        } else {
+                            MessageComposerFormatMenu(text: $commentText, selection: $commentSelection)
+                        }
+
                         Spacer()
-                        
+
                         // MessageComposer input field
                         MessageComposer(
                             text: $commentText,
+                            selection: $commentSelection,
                             isFocused: $isCommentFieldFocused,
                             placeholder: "Add comment",
                             onSubmit: {
                                 // Submit comment
                                 commentText = AttributedString("")
+                                commentSelection = AttributedTextSelection()
                                 isCommentFieldFocused = false
                                 showCommentMode = false
                                 shouldMaintainFocus = false

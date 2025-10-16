@@ -15,17 +15,20 @@
 ### Development Workflow
 
 **Build & Test Before Completing Tasks**
-- **CRITICAL**: Always run the app in iPhone 16 Simulator before marking a task/todo as complete
+- **CRITICAL**: Always run the app in iPhone 16 Simulator **with iOS 26** before marking a task/todo as complete
+- **Simulator Configuration**: Use `iPhone 16` device with `OS=26.0`
+  - Xcode build command: `-destination 'platform=iOS Simulator,name=iPhone 16,OS=26.0'`
+  - This project targets iOS 26 APIs and requires iOS 26 simulator for proper testing
 - Verify no build errors or warnings
 - Fix any issues discovered during testing in the same work cycle
 - Test affected features and user flows
 - Check console for runtime errors or warnings
 
 **Testing Checklist**
-- [ ] App builds successfully without errors
+- [ ] App builds successfully without errors on iOS 26 simulator
 - [ ] No new warnings introduced
 - [ ] Xcode Preview renders correctly
-- [ ] Feature works in iPhone 16 Simulator
+- [ ] Feature works in iPhone 16 Simulator (iOS 26)
 - [ ] No console errors or warnings during testing
 - [ ] Related features still work (no regressions)
 

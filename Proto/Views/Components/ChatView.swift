@@ -73,20 +73,29 @@ struct ChatView: View {
     let onParticipantTap: ((ChatParticipant) -> Void)?
     
     @State private var messageText = AttributedString("")
+    @State private var messageSelection = AttributedTextSelection()
     @FocusState private var isMessageFocused: Bool
     @State private var isTabBarVisible = false
     @State private var hasUserToggled = false
     @State private var selectedRange: Range<AttributedString.Index>?
     @State private var showMessageMode = false
     @State private var shouldMaintainFocus = false
-    
+
     // Avatar caching
     @ObservedObject private var unsplashService = UnsplashService.shared
     @State private var cachedAvatars: [String: Image] = [:]
-    
+
+    // Computed property to check if text is selected (iOS 26 AttributedTextSelection)
+    private var hasTextSelection: Bool {
+        guard case .ranges(let ranges) = messageSelection.indices(in: messageText) else {
+            return false // insertionPoint case = just cursor, no selection
+        }
+        return !ranges.isEmpty
+    }
+
     // Computed property to help with toolbar updates
     private var toolbarState: String {
-        "\(showMessageMode)-\(messageText.characters.isEmpty)-\(isMessageFocused)"
+        "\(showMessageMode)-\(messageText.characters.isEmpty)-\(isMessageFocused)-\(hasTextSelection)"
     }
     
     // Preload avatar images for all participants
@@ -204,19 +213,25 @@ struct ChatView: View {
                 if showMessageMode {
                     // Show MessageComposer when in message mode
                     ToolbarItemGroup(placement: .bottomBar) {
-                        // Format menu button
-                        MessageComposerFormatMenu(text: $messageText, selectedRange: $selectedRange)
-                        
+                        // Conditional menu button - formatting menu when text is selected, full menu otherwise
+                        if hasTextSelection {
+                            MessageComposerFormattingMenu(text: $messageText, selection: $messageSelection)
+                        } else {
+                            MessageComposerFormatMenu(text: $messageText, selection: $messageSelection)
+                        }
+
                         Spacer()
-                        
+
                         // MessageComposer input field
                         MessageComposer(
                             text: $messageText,
+                            selection: $messageSelection,
                             isFocused: $isMessageFocused,
                             placeholder: "Add message",
                             onSubmit: {
                                 // Submit message
                                 messageText = AttributedString("")
+                                messageSelection = AttributedTextSelection()
                                 isMessageFocused = false
                                 showMessageMode = false
                                 shouldMaintainFocus = false
