@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MessagesTab: View {
     @State private var selectedSegment = 0
+    @State private var showProfile = false
     @Binding var selectedTintColor: Color
     @Environment(\.colorScheme) private var colorScheme
     @State private var selectedConversation: MessageData?
@@ -117,13 +118,16 @@ struct MessagesTab: View {
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     MessagesProfileMenu(
-                        onProfile: { /* Add profile action here */ },
+                        onProfile: { showProfile = true },
                         onNotifications: { /* Add notifications action here */ },
                         onSignOut: { /* Add sign out action here */ },
                         selectedTintColor: $selectedTintColor
                     )
                 }
                 .sharedBackgroundHidden()
+            }
+            .navigationDestination(isPresented: $showProfile) {
+                ProfileView(isOwnProfile: true)
             }
         }
     }

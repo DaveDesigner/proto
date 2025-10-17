@@ -148,6 +148,10 @@ Proto/
 │   │   ├── MessagesTab.swift
 │   │   ├── NotificationsTab.swift
 │   │   └── SearchTab.swift
+│   ├── ProfileView.swift             # Member profile view
+│   ├── ChatView.swift                # Full conversation view
+│   ├── PostDetails.swift             # Post detail screen
+│   ├── LightboxView.swift            # Image expansion view
 │   └── Components/
 │       ├── Content/                  # Reusable content components
 │       │   ├── PostPreview.swift     # Feed item cards
@@ -155,17 +159,29 @@ Proto/
 │       │   ├── Avatar.swift          # User avatars
 │       │   ├── EngagementBar.swift   # Like/comment actions
 │       │   ├── Notification.swift    # Notification cards
-│       │   └── VideoPlayer.swift     # Video playback
-│       ├── ChatView.swift            # Full conversation view
+│       │   ├── VideoPlayer.swift     # Video playback
+│       │   ├── ProtoButton.swift     # Primary/secondary buttons
+│       │   └── Pill.swift            # Badge/tag pills
+│       ├── Menus/                    # Menu components
+│       │   ├── PrimaryMenu.swift     # Main profile menu
+│       │   ├── ProfileMenu.swift     # Profile action menu
+│       │   ├── MessagesProfileMenu.swift
+│       │   └── CreateMenu.swift      # Content creation menu
+│       ├── Sheets/                   # Modal sheet interfaces
+│       │   ├── SheetTemplate.swift   # Base template for all sheets
+│       │   ├── AdminSettingsSheet.swift
+│       │   ├── DraftsSheet.swift
+│       │   ├── EditProfileSheet.swift
+│       │   ├── InviteMembersSheet.swift
+│       │   ├── ManageNotificationsSheet.swift
+│       │   ├── PostSettingsSheet.swift
+│       │   ├── SummarizeSheet.swift
+│       │   └── SwitchCommunitySheet.swift
 │       ├── MessageComposer.swift     # Text input with formatting
-│       ├── PostDetails.swift         # Post detail screen
-│       ├── LightboxView.swift        # Image expansion
-│       └── Sheets/                   # Modal interfaces
-│           ├── AdminSettingsSheet.swift
-│           ├── DraftsSheet.swift
-│           └── SheetTemplate.swift   # Base template
+│       ├── SegmentControl.swift      # Horizontal segment control
+│       └── ShimmerEffect.swift       # Loading animation
 ├── MockData/                         # Centralized mock data
-│   ├── README.md
+│   ├── README.md                     # Mock data organization guide
 │   ├── Messages/                     # Chat & messaging data
 │   │   ├── MessagesTabData.swift
 │   │   ├── DrSarahMartinezConversation.swift
@@ -190,6 +206,39 @@ Proto/
 │   └── archive/                     # Old documentation & Figma dumps
 └── README.md                        # GitHub documentation
 ```
+
+### File Organization Guidelines
+
+**Views vs Components**
+
+- **`Views/` (top-level)**: Independent, full-screen views that can be navigated to
+  - Examples: ProfileView, ChatView, PostDetails, LightboxView
+  - These are destination views in navigation flows
+  - Not reusable components, but complete view implementations
+
+- **`Views/Components/`**: Reusable UI building blocks and specialized sub-views
+
+**Component Organization**
+
+- **`Components/Content/`**: Reusable content components
+  - UI elements that render data or provide interaction
+  - Examples: PostPreview, Message, Avatar, EngagementBar, ProtoButton, Pill
+  - Should be generic and reusable across multiple contexts
+  - Typically data-driven (take models or data as parameters)
+
+- **`Components/Menus/`**: Menu components
+  - All Menu-related components that appear in toolbars or as popups
+  - Examples: PrimaryMenu, ProfileMenu, CreateMenu, MessagesProfileMenu
+
+- **`Components/Sheets/`**: Modal sheet interfaces
+  - All sheet presentations using SheetTemplate
+  - Examples: EditProfileSheet, AdminSettingsSheet, DraftsSheet
+  - Should use SheetTemplate for consistency
+
+- **`Components/` (root level)**: Other specialized components
+  - Components that don't fit into above categories
+  - Examples: MessageComposer, SegmentControl, ShimmerEffect
+  - Typically have specific, singular purposes
 
 ### Architecture Principles
 
@@ -439,6 +488,41 @@ private var formattedDate: String { /* ... */ }
 // ✅ Cache images/avatars
 @State private var cachedAvatars: [String: Image] = [:]
 ```
+
+**Navigation Patterns**
+```swift
+// ✅ Pushed views get automatic back button - don't add manually
+struct ProfileView: View {
+    var body: some View {
+        ScrollView {
+            // Content
+        }
+        // No .navigationBarTitle() needed if not using title
+        // No manual back button needed - SwiftUI adds automatically
+    }
+}
+
+// ✅ Only add toolbar items for additional actions
+.toolbar {
+    ToolbarItem(placement: .topBarTrailing) {
+        Menu { /* ... */ } label: { Image(systemName: "ellipsis") }
+    }
+}
+
+// ❌ Avoid: Manual back buttons in pushed views
+@Environment(\.dismiss) private var dismiss  // Not needed unless custom back logic
+Button("Back") { dismiss() }  // Don't add - automatic back button is better
+
+// ❌ Avoid: Unnecessary navigation titles
+.navigationBarTitle("")  // Don't add if view doesn't need a title
+.toolbarTitleDisplayMode(.inline)  // Don't add if not using title
+```
+
+**IMPORTANT**: When creating new destination views (views that are navigated to via NavigationStack):
+- Do NOT add manual back buttons - SwiftUI provides these automatically
+- Do NOT add `@Environment(\.dismiss)` unless you need custom dismissal logic
+- Do NOT add `.navigationBarTitle()` or `.toolbarTitleDisplayMode()` unless the view needs a title
+- Only add `.toolbar` items if you need additional actions (like menus, share buttons, etc.)
 
 ### Documentation
 
