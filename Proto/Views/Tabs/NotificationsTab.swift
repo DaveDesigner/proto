@@ -10,6 +10,7 @@ import SwiftUI
 struct NotificationsTab: View {
     @State private var showingManageNotifications = false
     @State private var showingInviteMembers = false
+    @State private var showProfile = false
     @State private var selectedSegment = 0
     @Binding var selectedTintColor: Color
     @Environment(\.colorScheme) private var colorScheme
@@ -280,7 +281,7 @@ struct NotificationsTab: View {
                         .tint(.primary)
                         
                         // Profile
-                        Button(action: { /* Add profile action here */ }) {
+                        Button(action: { showProfile = true }) {
                             HStack {
                                 Image("Avatar")
                                     .resizable()
@@ -361,6 +362,9 @@ struct NotificationsTab: View {
                     }
                 }
                 .sharedBackgroundHidden()
+            }
+            .navigationDestination(isPresented: $showProfile) {
+                ProfileView(isOwnProfile: true)
             }
         }
         .sheet(isPresented: $showingManageNotifications) {

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchTab: View {
     @Binding var selectedTintColor: Color
+    @State private var showProfile = false
     @State private var searchText = ""
     @State private var recentSearches = [
         "Fun camping ideas",
@@ -38,13 +39,16 @@ struct SearchTab: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     ProfileMenu(
-                        onProfile: { /* Add profile action here */ },
+                        onProfile: { showProfile = true },
                         onNotifications: { /* Add notifications action here */ },
                         onSignOut: { /* Add sign out action here */ },
                         selectedTintColor: $selectedTintColor
                     )
                 }
                 .sharedBackgroundHidden()
+            }
+            .navigationDestination(isPresented: $showProfile) {
+                ProfileView(isOwnProfile: true)
             }
             .searchable(text: $searchText, prompt: "Search")
             .searchToolbarBehavior(.automatic)

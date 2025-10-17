@@ -10,12 +10,13 @@ import SwiftUI
 struct CommunityTab: View {
     @State private var currentSort = "Latest"
     @State private var showDraftsSheet = false
+    @State private var showProfile = false
     @State private var selectedSegment = 0
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.scenePhase) private var scenePhase
     @Binding var selectedTintColor: Color
     @ObservedObject private var unsplashService = UnsplashService.shared
-    
+
     // Autoplay video management
     @State private var visibility: [UUID: CGFloat] = [:]
     @State private var feedVideos: [FeedVideo] = []
@@ -243,7 +244,7 @@ struct CommunityTab: View {
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     PrimaryMenu(
-                        onProfile: { /* Add profile action here */ },
+                        onProfile: { showProfile = true },
                         onNotifications: { /* Add notifications action here */ },
                         onSignOut: { /* Add sign out action here */ },
                         onSummarize: { /* Add summarize action here */ },
@@ -256,6 +257,9 @@ struct CommunityTab: View {
                 .sharedBackgroundHidden()
                 }
                 .frame(maxWidth: .infinity)
+            }
+            .navigationDestination(isPresented: $showProfile) {
+                ProfileView(isOwnProfile: true)
             }
         }
         .sheet(isPresented: $showDraftsSheet) {
